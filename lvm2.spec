@@ -35,7 +35,7 @@ Obsoletes:	lvm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sbindir	/sbin
-%define		_libdir		/lib
+%define		_libdir		/%{_lib}
 
 %description
 This package includes a number of utilities for creating, checking,
