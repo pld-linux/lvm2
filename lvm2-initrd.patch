@@ -1,6 +1,6 @@
 diff -urN LVM2.2.00.08.org/lib/commands/toolcontext.c LVM2.2.00.08/lib/commands/toolcontext.c
---- LVM2.2.00.08.org/lib/commands/toolcontext.c	2004-01-25 00:07:53.143676454 +0100
-+++ LVM2.2.00.08/lib/commands/toolcontext.c	2004-01-25 00:59:09.279350951 +0100
+--- LVM2.2.00.08.org/lib/commands/toolcontext.c	2004-01-25 01:02:09.790833360 +0100
++++ LVM2.2.00.08/lib/commands/toolcontext.c	2004-01-31 00:29:48.775933701 +0100
 @@ -422,8 +422,10 @@
  	mallopt(M_MMAP_MAX, 0);
  #endif
@@ -13,8 +13,8 @@ diff -urN LVM2.2.00.08.org/lib/commands/toolcontext.c LVM2.2.00.08/lib/commands/
  	init_syslog(DEFAULT_LOG_FACILITY);
  
 diff -urN LVM2.2.00.08.org/tools/commands.h LVM2.2.00.08/tools/commands.h
---- LVM2.2.00.08.org/tools/commands.h	2004-01-25 00:07:54.503393789 +0100
-+++ LVM2.2.00.08/tools/commands.h	2004-01-25 00:58:27.620014456 +0100
+--- LVM2.2.00.08.org/tools/commands.h	2004-01-25 01:02:15.947554172 +0100
++++ LVM2.2.00.08/tools/commands.h	2004-01-31 00:29:48.781932453 +0100
 @@ -33,9 +33,11 @@
      extents_ARG, size_ARG, nofsck_ARG, test_ARG)
  *********/
@@ -75,3 +75,19 @@ diff -urN LVM2.2.00.08.org/tools/commands.h LVM2.2.00.08/tools/commands.h
  
  xx(version,
     "Display software and driver version information",
+diff -urN LVM2.2.00.08.org/tools/lvm.c LVM2.2.00.08/tools/lvm.c
+--- LVM2.2.00.08.org/tools/lvm.c	2004-01-25 01:02:15.970549395 +0100
++++ LVM2.2.00.08/tools/lvm.c	2004-01-31 00:30:31.907963796 +0100
+@@ -1183,7 +1183,11 @@
+ 	base = basename(namebase);
+ 	while (*base == '/')
+ 		base++;
+-	if (strcmp(base, "lvm"))
++	if (strcmp(base, "lvm")
++#ifdef INITRD_WRAPPER
++		&& strcmp(base, "initrd-lvm")
++#endif
++		)
+ 		alias = 1;
+ 	free(namebase);
+ 
