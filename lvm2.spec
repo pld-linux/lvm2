@@ -1,26 +1,24 @@
 # conditional build
 #  --without initrd -- don't build initrd version
 
-%ifnarch ppc %{ix86}
+#%ifnarch ppc %{ix86}
 %define		_without_initrd	1
-%endif
+#%endif
 
-Summary:	Logical Volume Manager for Linux
-Summary(pl):	Logical Volume Manager dla Linuksa
+Summary:	The new version of Logical Volume Manager for Linux
+Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	1.0.7
-Release:	1
+Version:	1.95.15
+Release:	0.1
 License:	GPL
 Group:		Applications/System
-Source0:	ftp://ftp.sistina.com/pub/LVM/1.0/%{name}_%{version}.tar.gz
-Patch0:		%{name}-BOOT.patch
-Patch1:		%{name}-sparc.patch
-Patch2:		%{name}-dietlibc.patch
-Patch3:		%{name}-lvmtab_in_tmp.patch
+Source0:	ftp://ftp.sistina.com/pub/LVM2/tools/LVM2.%{version}.tgz
 URL:		http://www.sistina.com/products_lvm.htm
+Requires:	device-mapper
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	sh-utils
+BuildRequires:	device-mapper-devel
 %{!?_without_initrd:BuildRequires:	dietlibc-static}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -33,7 +31,7 @@ and repairing logical volumes.
 
 %description -l pl
 Pakiet ten zawiera narzêdzia do tworzenia, sprawdzania i naprawiania
-logicznych wolumenów dyskowych (LVM).
+logicznych wolumenów dyskowych (LVM2).
 
 %package devel
 Summary:	Header files and development documentation for %{name}
@@ -60,8 +58,8 @@ Static libraries for %{name}.
 Biblioteki statyczne %{name}.
 
 %package initrd
-Summary:	Logical Volume Manager for Linux - initrd version
-Summary(pl):	Logical Volume Manager dla Linuksa - wersja dla initrd
+Summary:	The new version of Logical Volume Manager for Linux - initrd version
+Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa - wersja dla initrd
 Group:		Base
 
 %description initrd
@@ -70,17 +68,11 @@ and repairing logical volumes - staticaly linked for initrd.
 
 %description -l pl initrd
 Pakiet ten zawiera narzêdzia do tworzenia, sprawdzania i naprawiania
-logicznych wolumenów dyskowych (LVM) - statycznie zlinkowane na 
+logicznych wolumenów dyskowych (LVM2) - statycznie zlinkowane na 
 potrzeby initrd.
 
 %prep
-%setup -q -n LVM/%{version}
-%patch0 -p1
-%ifarch sparc sparc64
-%patch1 -p1
-%endif
-%patch2 -p1
-%patch3 -p2
+%setup -q -n LVM2.%{version}
 
 %build
 %{__aclocal}
