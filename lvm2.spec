@@ -10,7 +10,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.00.17
-Release:	1
+Release:	2
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -96,13 +96,13 @@ cp configure.in configure.in-selinux-enabled
 sed -i -e 's#AC_CHECK_LIB(selinux.*##g' configure.in
 %{__aclocal}
 %{__autoconf}
+CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1"
 %configure \
 	%{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc -Os"} \
 	--enable-static_link \
 	--with-lvm1=internal
 %{__make} \
-	CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1 -DHAVE_GETOPTLONG=1" \
-	LD_FLAGS="-L$(pwd)/${dm} -L$(pwd)/lib -static"
+	LD_FLAGS+="-L$(pwd)/${dm} -L$(pwd)/lib -static"
 mv -f tools/lvm initrd-lvm
 %{__make} clean
 mv configure.in-selinux-enabled configure.in
