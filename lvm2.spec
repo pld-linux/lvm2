@@ -81,12 +81,14 @@ unset cc
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/lvmtab.d
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/lvm
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER=$(id -u) \
 	GROUP=$(id -g)
+
+touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 
 %{!?_without_initrd:install wrapper $RPM_BUILD_ROOT%{_sbindir}/initrd-lvm}
 
@@ -98,7 +100,8 @@ rm -rf $RPM_BUILD_ROOT
 %doc BUGS README WHATS_NEW doc/*
 %attr(755,root,root) %{_sbindir}/[elpv]*
 %{_mandir}/man?/*
-%attr(750,root,root) %{_sysconfdir}/lvmtab.d
+%dir %attr(750,root,root) %{_sysconfdir}/lvm
+%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/lvm/lvm.conf
 
 %if %{?_without_initrd:0}%{!?_without_initrd:1}
 %files initrd
