@@ -1,12 +1,12 @@
-diff -urN device-mapper.1.00.09.org/make.tmpl.in device-mapper.1.00.09/make.tmpl.in
---- device-mapper.1.00.09.org/make.tmpl.in	2004-04-01 01:58:07.094597584 +0200
-+++ device-mapper.1.00.09/make.tmpl.in	2004-04-01 02:05:56.749199232 +0200
-@@ -57,8 +57,6 @@
+diff -urN device-mapper.1.00.17.org/make.tmpl.in device-mapper.1.00.17/make.tmpl.in
+--- device-mapper.1.00.17.org/make.tmpl.in	2004-04-23 19:25:37.387843152 +0200
++++ device-mapper.1.00.17/make.tmpl.in	2004-04-23 19:25:48.306183312 +0200
+@@ -61,8 +61,6 @@
  
  ifeq ("@DEBUG@", "yes")
-   CFLAGS+=-g -fno-omit-frame-pointer -DDEBUG
+   CFLAGS += -g -fno-omit-frame-pointer -DDEBUG
 -else
--  CFLAGS+=-O2
+-  CFLAGS += -O2
  endif
  
- ifeq ("@COMPAT@", "yes")
+ ifeq ("@INTL@", "yes")
