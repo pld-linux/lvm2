@@ -9,15 +9,15 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.00.16
+Version:	2.00.17
 Release:	1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	4c4e3fde14df1bfacba2388e34682010
-%define	devmapper_ver	1.00.17
+# Source0-md5:	f1a17894ccedc9b55a1f62e6f08a4c4f
+%define	devmapper_ver	1.00.18
 Source1:	ftp://sources.redhat.com/pub/dm/device-mapper.%{devmapper_ver}.tgz
-# Source1-md5:	b74bb5fa232c77bf74f87eac2f53e1e4
+# Source1-md5:	ff14891c9a717731289355c334056eb4
 Patch0:		%{name}-opt.patch
 Patch1:		%{name}-initrd.patch
 Patch2:		device-mapper-opt.patch
@@ -86,7 +86,7 @@ cp -f /usr/share/automake/config.sub autoconf
 %configure \
         %{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc -Os"} \
         --with-interface=ioctl
-unset CFLAGS
+unset CFLAGS || :
 %{__make}
 ar cru libdevmapper.a lib/ioctl/*.o lib/*.o
 ranlib libdevmapper.a
