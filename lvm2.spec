@@ -8,12 +8,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	1.95.15
+Version:	2.00.05
 Release:	0.1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://ftp.sistina.com/pub/LVM2/tools/LVM2.%{version}.tgz
-# Source0-md5:	b8f2ba2a3d8c5b10588670d3de2bee36
+# Source0-md5:	e36dd7dc97b157dfb406ebf9598e3ce7
 Patch0:		%{name}-DESTDIR.patch
 URL:		http://www.sistina.com/products_lvm.htm
 Requires:	device-mapper
