@@ -9,12 +9,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.00.17
-Release:	2
+Version:	2.00.18
+Release:	1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	f1a17894ccedc9b55a1f62e6f08a4c4f
+# Source0-md5:	703969d2e31d609ecf2422d108293bef
 %define	devmapper_ver	1.00.18
 Source1:	ftp://sources.redhat.com/pub/dm/device-mapper.%{devmapper_ver}.tgz
 # Source1-md5:	ff14891c9a717731289355c334056eb4
@@ -24,7 +24,7 @@ Patch2:		device-mapper-opt.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	device-mapper-devel >= 1.00.07
+BuildRequires:	device-mapper-devel >= %{devmapper_ver}
 BuildRequires:	libselinux-devel >= 1.10
 %if %{with initrd}
 %{!?with_uClibc:BuildRequires:	glibc-static}
@@ -117,8 +117,10 @@ rm -rf autom4te.cache config.cache
 	--enable-fsadm \
 	--with-lvm1=internal \
 	--with-pool=internal \
+	--with-cluster=internal \
 	--with-snapshots=internal \
 	--with-mirrors=internal
+#	--with-clvmd
 %{__make}
 
 %install
