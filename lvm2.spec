@@ -47,7 +47,7 @@ and repairing logical volumes - staticaly linked for initrd.
 
 %description initrd -l pl
 Pakiet ten zawiera narzêdzia do tworzenia, sprawdzania i naprawiania
-logicznych wolumenów dyskowych (LVM2) - statycznie zlinkowane na
+logicznych wolumenów dyskowych (LVM2) - statycznie skonsolidowane na
 potrzeby initrd.
 
 %prep
