@@ -19,7 +19,7 @@ Patch1:		%{name}-opt.patch
 URL:		http://www.sistina.com/products_lvm.htm
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	device-mapper-devel
+BuildRequires:	device-mapper-devel >= 1.00.07
 %{?with_initrd:BuildRequires:	dietlibc-static}
 Requires:	device-mapper
 Obsoletes:	lvm
