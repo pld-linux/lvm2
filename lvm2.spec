@@ -13,6 +13,7 @@ Release:	0.1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://ftp.sistina.com/pub/LVM2/tools/LVM2.%{version}.tgz
+Patch0:		%{name}-DESTDIR.patch
 URL:		http://www.sistina.com/products_lvm.htm
 Requires:	device-mapper
 BuildRequires:	autoconf
@@ -33,30 +34,6 @@ and repairing logical volumes.
 Pakiet ten zawiera narzêdzia do tworzenia, sprawdzania i naprawiania
 logicznych wolumenów dyskowych (LVM2).
 
-%package devel
-Summary:	Header files and development documentation for %{name}
-Summary(pl):	Pliki nag³ówkowe i dokumentacja do %{name}
-Group:		Development/Libraries
-Requires:	%{name} = %{version}
-
-%description devel
-Header files and development documentation for %{name}.
-
-%description devel -l pl
-Pliki nag³ówkowe i dokumentacja do %{name}.
-
-%package static
-Summary:        Static %{name} libraries 
-Summary(pl):    Biblioteki statyczne %{name}
-Group:          Development/Libraries
-Requires:       %{name}-devel = %{version}
-
-%description static
-Static libraries for %{name}.
-
-%description static -l pl
-Biblioteki statyczne %{name}.
-
 %package initrd
 Summary:	The new version of Logical Volume Manager for Linux - initrd version
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa - wersja dla initrd
@@ -73,6 +50,7 @@ potrzeby initrd.
 
 %prep
 %setup -q -n LVM2.%{version}
+%patch0 -p1
 
 %build
 %{__aclocal}
@@ -96,45 +74,30 @@ rm -f config.cache
 unset cc
 %endif
 
-%configure
+%configure \
+	--with-lvm1=internal
 %{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_sysconfdir}/lvmtab.d,%{_includedir}}
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/lvmtab.d
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER=$(id -u) \
 	GROUP=$(id -g)
 
-install tools/lib/*.h	$RPM_BUILD_ROOT%{_includedir}
-
-(cd $RPM_BUILD_ROOT%{_libdir}; ln -sf `ls lib*.so` liblvm.so)
-
 %{!?_without_initrd:install wrapper $RPM_BUILD_ROOT%{_sbindir}/initrd-lvm}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p %{_sbindir}/ldconfig
-%postun -p %{_sbindir}/ldconfig
-
 %files
 %defattr(644,root,root,755)
-%doc ABSTRACT CHANGELOG CONTRIBUTORS FAQ LVM-HOWTO README TODO WHATSNEW KNOWN_BUGS
+%doc BUGS README WHATS_NEW doc/*
 %attr(755,root,root) %{_sbindir}/[elpv]*
-%attr(755,root,root) %{_libdir}/lib*.so.*
 %{_mandir}/man?/*
 %attr(750,root,root) %{_sysconfdir}/lvmtab.d
-
-%files devel
-%defattr(644,root,root,755)
-%{_includedir}/*.h
-%attr(755,root,root) %{_libdir}%{_libdir}*.so
-
-%files static
-%attr(644,root,root) /usr%{_libdir}/*.a
 
 %if %{?_without_initrd:0}%{!?_without_initrd:1}
 %files initrd
