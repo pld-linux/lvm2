@@ -1,7 +1,7 @@
-diff -urN LVM2.2.00.08.org/lib/commands/toolcontext.c LVM2.2.00.08/lib/commands/toolcontext.c
---- LVM2.2.00.08.org/lib/commands/toolcontext.c	2004-01-25 01:02:09.790833360 +0100
-+++ LVM2.2.00.08/lib/commands/toolcontext.c	2004-01-31 00:29:48.775933701 +0100
-@@ -422,8 +422,10 @@
+diff -urN LVM2.2.00.09.org/lib/commands/toolcontext.c LVM2.2.00.09/lib/commands/toolcontext.c
+--- LVM2.2.00.09.org/lib/commands/toolcontext.c	2004-04-01 02:11:54.589799192 +0200
++++ LVM2.2.00.09/lib/commands/toolcontext.c	2004-04-01 02:14:58.296871472 +0200
+@@ -561,8 +561,10 @@
  	mallopt(M_MMAP_MAX, 0);
  #endif
  
@@ -10,12 +10,12 @@ diff -urN LVM2.2.00.08.org/lib/commands/toolcontext.c LVM2.2.00.08/lib/commands/
  		log_error("setlocale failed");
 +#endif
  
- 	init_syslog(DEFAULT_LOG_FACILITY);
- 
-diff -urN LVM2.2.00.08.org/tools/commands.h LVM2.2.00.08/tools/commands.h
---- LVM2.2.00.08.org/tools/commands.h	2004-01-25 01:02:15.947554172 +0100
-+++ LVM2.2.00.08/tools/commands.h	2004-01-31 00:29:48.781932453 +0100
-@@ -33,9 +33,11 @@
+ #ifdef INTL_PACKAGE
+ 	bindtextdomain(INTL_PACKAGE, LOCALEDIR);
+diff -urN LVM2.2.00.09.org/tools/commands.h LVM2.2.00.09/tools/commands.h
+--- LVM2.2.00.09.org/tools/commands.h	2004-04-01 02:11:55.034731552 +0200
++++ LVM2.2.00.09/tools/commands.h	2004-04-01 02:18:19.373303208 +0200
+@@ -28,9 +28,11 @@
      extents_ARG, size_ARG, nofsck_ARG, test_ARG)
  *********/
  
@@ -27,7 +27,7 @@ diff -urN LVM2.2.00.08.org/tools/commands.h LVM2.2.00.08/tools/commands.h
  
  xx(help,
     "Display help for commands",
-@@ -51,6 +53,7 @@
+@@ -46,6 +48,7 @@
     "Logical Volume(s)\n")
  ***********/
  
@@ -35,7 +35,7 @@ diff -urN LVM2.2.00.08.org/tools/commands.h LVM2.2.00.08/tools/commands.h
  xx(lvchange,
     "Change the attributes of logical volume(s)",
     "lvchange\n"
-@@ -521,6 +524,7 @@
+@@ -528,6 +531,7 @@
     "\tVolumeGroupName",
  
     file_ARG, list_ARG, metadatatype_ARG, name_ARG, test_ARG)
@@ -43,23 +43,23 @@ diff -urN LVM2.2.00.08.org/tools/commands.h LVM2.2.00.08/tools/commands.h
  
  xx(vgchange,
     "Change volume group attributes",
-@@ -541,6 +545,7 @@
-    allocation_ARG, autobackup_ARG, available_ARG, ignorelockingfailure_ARG,
-    logicalvolume_ARG, partial_ARG, resizeable_ARG, resizable_ARG, test_ARG)
+@@ -552,6 +556,7 @@
+    logicalvolume_ARG, partial_ARG, resizeable_ARG, resizable_ARG, deltag_ARG,
+    addtag_ARG, test_ARG, uuid_ARG)
  
 +#ifndef INITRD_WRAPPER
  xx(vgck,
     "Check the consistency of volume group(s)",
     "vgck "
-@@ -745,6 +750,7 @@
-    
-    aligned_ARG, ignorelockingfailure_ARG, noheadings_ARG, nosuffix_ARG,
-    options_ARG, partial_ARG, separator_ARG, sort_ARG, unbuffered_ARG, units_ARG)
+@@ -758,6 +763,7 @@
+    aligned_ARG, ignorelockingfailure_ARG, noheadings_ARG, nolocking_ARG,
+    nosuffix_ARG, options_ARG, partial_ARG, separator_ARG, sort_ARG,
+    unbuffered_ARG, units_ARG)
 +#endif
  
  xx(vgscan,
     "Search for all volume groups",
-@@ -759,6 +765,7 @@
+@@ -772,6 +778,7 @@
  
     ignorelockingfailure_ARG, mknodes_ARG, partial_ARG)
  
@@ -67,7 +67,7 @@ diff -urN LVM2.2.00.08.org/tools/commands.h LVM2.2.00.08/tools/commands.h
  xx(vgsplit,
     "Move physical volumes into a new volume group",
     "vgsplit " "\n"
-@@ -774,6 +781,7 @@
+@@ -787,6 +794,7 @@
     "\tPhysicalVolumePath [PhysicalVolumePath...]\n",
  
     autobackup_ARG, list_ARG, metadatatype_ARG, test_ARG)
@@ -75,10 +75,10 @@ diff -urN LVM2.2.00.08.org/tools/commands.h LVM2.2.00.08/tools/commands.h
  
  xx(version,
     "Display software and driver version information",
-diff -urN LVM2.2.00.08.org/tools/lvm.c LVM2.2.00.08/tools/lvm.c
---- LVM2.2.00.08.org/tools/lvm.c	2004-01-25 01:02:15.970549395 +0100
-+++ LVM2.2.00.08/tools/lvm.c	2004-01-31 00:30:31.907963796 +0100
-@@ -1183,7 +1183,11 @@
+diff -urN LVM2.2.00.09.org/tools/lvmcmdline.c LVM2.2.00.09/tools/lvmcmdline.c
+--- LVM2.2.00.09.org/tools/lvmcmdline.c	2004-04-01 02:11:55.039730792 +0200
++++ LVM2.2.00.09/tools/lvmcmdline.c	2004-04-01 02:16:52.354532072 +0200
+@@ -1299,7 +1299,11 @@
  	base = basename(namebase);
  	while (*base == '/')
  		base++;
@@ -87,7 +87,7 @@ diff -urN LVM2.2.00.08.org/tools/lvm.c LVM2.2.00.08/tools/lvm.c
 +#ifdef INITRD_WRAPPER
 +		&& strcmp(base, "initrd-lvm")
 +#endif
-+		)
++	   )
  		alias = 1;
  	free(namebase);
  
