@@ -1,7 +1,7 @@
-diff -urN LVM2.2.00.09.org/lib/commands/toolcontext.c LVM2.2.00.09/lib/commands/toolcontext.c
---- LVM2.2.00.09.org/lib/commands/toolcontext.c	2004-04-01 02:11:54.589799192 +0200
-+++ LVM2.2.00.09/lib/commands/toolcontext.c	2004-04-01 02:14:58.296871472 +0200
-@@ -561,8 +561,10 @@
+diff -urN LVM2.2.00.15.org/lib/commands/toolcontext.c LVM2.2.00.15/lib/commands/toolcontext.c
+--- LVM2.2.00.15.org/lib/commands/toolcontext.c	2004-04-23 19:34:01.116264792 +0200
++++ LVM2.2.00.15/lib/commands/toolcontext.c	2004-04-23 19:34:08.787098648 +0200
+@@ -584,8 +584,10 @@
  	mallopt(M_MMAP_MAX, 0);
  #endif
  
@@ -12,9 +12,9 @@ diff -urN LVM2.2.00.09.org/lib/commands/toolcontext.c LVM2.2.00.09/lib/commands/
  
  #ifdef INTL_PACKAGE
  	bindtextdomain(INTL_PACKAGE, LOCALEDIR);
-diff -urN LVM2.2.00.09.org/tools/commands.h LVM2.2.00.09/tools/commands.h
---- LVM2.2.00.09.org/tools/commands.h	2004-04-01 02:11:55.034731552 +0200
-+++ LVM2.2.00.09/tools/commands.h	2004-04-01 02:18:19.373303208 +0200
+diff -urN LVM2.2.00.15.org/tools/commands.h LVM2.2.00.15/tools/commands.h
+--- LVM2.2.00.15.org/tools/commands.h	2004-04-23 19:34:01.335231504 +0200
++++ LVM2.2.00.15/tools/commands.h	2004-04-23 19:34:08.789098344 +0200
 @@ -28,9 +28,11 @@
      extents_ARG, size_ARG, nofsck_ARG, test_ARG)
  *********/
@@ -75,19 +75,19 @@ diff -urN LVM2.2.00.09.org/tools/commands.h LVM2.2.00.09/tools/commands.h
  
  xx(version,
     "Display software and driver version information",
-diff -urN LVM2.2.00.09.org/tools/lvmcmdline.c LVM2.2.00.09/tools/lvmcmdline.c
---- LVM2.2.00.09.org/tools/lvmcmdline.c	2004-04-01 02:11:55.039730792 +0200
-+++ LVM2.2.00.09/tools/lvmcmdline.c	2004-04-01 02:16:52.354532072 +0200
-@@ -1299,7 +1299,11 @@
+diff -urN LVM2.2.00.15.org/tools/lvmcmdline.c LVM2.2.00.15/tools/lvmcmdline.c
+--- LVM2.2.00.15.org/tools/lvmcmdline.c	2004-04-23 19:34:01.339230896 +0200
++++ LVM2.2.00.15/tools/lvmcmdline.c	2004-04-23 19:35:45.377414688 +0200
+@@ -1335,7 +1335,11 @@
  	base = basename(namebase);
  	while (*base == '/')
  		base++;
--	if (strcmp(base, "lvm"))
-+	if (strcmp(base, "lvm")
+-	if (strcmp(base, "lvm") && strcmp(base, "lvm.static"))
++	if (strcmp(base, "lvm") && strcmp(base, "lvm.static")
 +#ifdef INITRD_WRAPPER
-+		&& strcmp(base, "initrd-lvm")
++	    && strcmp(base, "initrd-lvm")
 +#endif
-+	   )
++	)
  		alias = 1;
  	free(namebase);
  
