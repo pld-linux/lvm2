@@ -3,6 +3,7 @@
 %bcond_without	initrd	# don't build initrd version
 %bcond_without	uClibc	# link initrd version with static glibc instead of uClibc
 %bcond_without	clvmd	# do not build clvmd
+%bcond_without	selinux	# disable SELinux
 #
 %ifarch amd64
 %undefine	with_uClibc
@@ -23,14 +24,14 @@ URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= %{devmapper_ver}
-BuildRequires:	libselinux-devel >= 1.10
+%{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
 %{?with_clvmd:BuildRequires:	dlm-devel}
 %if %{with initrd}
 %{!?with_uClibc:BuildRequires:	glibc-static}
 %{?with_uClibc:BuildRequires:	uClibc-static >= 0.9.26}
 %endif
 Requires:	device-mapper
-Requires:	libselinux >= 1.10
+%{?with_selinux:Requires:	libselinux >= 1.10}
 Obsoletes:	lvm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -114,7 +115,8 @@ rm -rf autom4te.cache config.cache
 	--with-pool=internal \
 	--with-cluster=internal \
 	--with-snapshots=internal \
-	--with-mirrors=internal
+	--with-mirrors=internal \
+	%{!?with_selinux:--disable-selinux}
 %{__make}
 
 %install
