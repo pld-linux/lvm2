@@ -1,28 +1,28 @@
-# conditional build
-#  --without initrd -- don't build initrd version
-
+#
+# Conditional build:
+%bcond_without	initrd	# don't build initrd version
+#
 #%ifnarch ppc %{ix86}
-%define		_without_initrd	1
+%undefine	with_initrd
 #%endif
-
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.00.07
+Version:	2.00.08
 Release:	0.1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://ftp.sistina.com/pub/LVM2/tools/LVM2.%{version}.tgz
-# Source0-md5:	7ffb5bc4ebc809b1543819cab8803bfd
+# Source0-md5:	ed973eda318f3685ad317afb9a54c571
 Patch0:		%{name}-DESTDIR.patch
+Patch1:		%{name}-opt.patch
 URL:		http://www.sistina.com/products_lvm.htm
-Requires:	device-mapper
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	sh-utils
 BuildRequires:	device-mapper-devel
+%{?with_initrd:BuildRequires:	dietlibc-static}
+Requires:	device-mapper
 Obsoletes:	lvm
-%{!?_without_initrd:BuildRequires:	dietlibc-static}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sbindir	/sbin
@@ -53,14 +53,16 @@ potrzeby initrd.
 %prep
 %setup -q -n LVM2.%{version}
 %patch0 -p1
+%patch1 -p1
 
 %build
 %{__aclocal}
 %{__autoconf}
 
-%if %{?_without_initrd:0}%{!?_without_initrd:1}
+%if %{with initrd}
 cc="%{_target_cpu}-dietlibc-gcc"
-%configure CC="$cc"
+%configure \
+	CC="$cc"
 %{__make} clean
 %{__make} -C tools/lib liblvm-10.a
 cd tools
@@ -91,7 +93,7 @@ install -d $RPM_BUILD_ROOT%{_sysconfdir}/lvm
 
 touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 
-%{!?_without_initrd:install wrapper $RPM_BUILD_ROOT%{_sbindir}/initrd-lvm}
+%{?with_initrd:install wrapper $RPM_BUILD_ROOT%{_sbindir}/initrd-lvm}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -101,10 +103,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc README WHATS_NEW doc/*
 %attr(755,root,root) %{_sbindir}/[elpv]*
 %{_mandir}/man?/*
-%dir %attr(750,root,root) %{_sysconfdir}/lvm
+%attr(750,root,root) %dir %{_sysconfdir}/lvm
 %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/lvm/lvm.conf
 
-%if %{?_without_initrd:0}%{!?_without_initrd:1}
+%if %{with initrd}
 %files initrd
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sbindir}/initrd-lvm
