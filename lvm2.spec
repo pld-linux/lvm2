@@ -1,10 +1,6 @@
 #
 # Conditional build:
-%bcond_without	initrd	# don't build initrd version
-#
-#%ifnarch ppc %{ix86}
-%undefine	with_initrd
-#%endif
+%bcond_with	initrd	# don't build initrd version
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
@@ -14,13 +10,16 @@ License:	GPL
 Group:		Applications/System
 Source0:	ftp://ftp.sistina.com/pub/LVM2/tools/LVM2.%{version}.tgz
 # Source0-md5:	ed973eda318f3685ad317afb9a54c571
+%define	devmapper_ver	1.00.07
+Source1:	ftp://ftp.sistina.com/pub/LVM2/device-mapper/device-mapper.%{devmapper_ver}.tgz
+# Source1-md5:	44920cd973a6abc79109af9bff9d8af6
 Patch0:		%{name}-DESTDIR.patch
 Patch1:		%{name}-opt.patch
 URL:		http://www.sistina.com/products_lvm.htm
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= 1.00.07
-%{?with_initrd:BuildRequires:	dietlibc-static}
+%{?with_initrd:BuildRequires:	uClibc-static}
 Requires:	device-mapper
 Obsoletes:	lvm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -51,7 +50,7 @@ logicznych wolumenów dyskowych (LVM2) - statycznie skonsolidowane na
 potrzeby initrd.
 
 %prep
-%setup -q -n LVM2.%{version}
+%setup -q -n LVM2.%{version} -a1
 %patch0 -p1
 %patch1 -p1
 
@@ -60,22 +59,28 @@ potrzeby initrd.
 %{__autoconf}
 
 %if %{with initrd}
-cc="%{_target_cpu}-dietlibc-gcc"
+dm=$(ls -1d device-mapper*)
+cd $dm
+%{__aclocal}
+%{__autoconf}
 %configure \
-	CC="$cc"
-%{__make} clean
-%{__make} -C tools/lib liblvm-10.a
-cd tools
-for f in vgcreate lvcreate pvcreate vgscan vgchange ; do
-	$cc -Ilib -I. %{rpmcflags} -Os -c -DJOINED -Dmain=${f}_main $f.c
-done
-$cc %{rpmcflags} -Os ../wrapper.c \
-	vgcreate.o lvcreate.o pvcreate.o vgscan.o vgchange.o \
-	-o ../wrapper lib/liblvm-10.a
-%{__make} clean
+        CC="%{_target_cpu}-uclibc-gcc" \
+        --with-interface=ioctl \
+        --with-kernel-dir=%{_kernelsrcdir}
+%{__make}
+ar cru libdevmapper.a lib/ioctl/*.o lib/*.o
+ranlib libdevmapper.a
 cd ..
+%configure \
+	CFLAGS="-I$(pwd)/${dm}/include" \
+	CC="%{_target_cpu}-uclibc-gcc" \
+	--enable-static_link \
+	--with-lvm1=internal
+%{__make} \
+	LD_FLAGS="-L$(pwd)/${dm} -static"
+mv -f tools/lvm initrd-lvm
+%{__make} clean
 rm -f config.cache
-unset cc
 %endif
 
 %configure \
@@ -93,7 +98,7 @@ install -d $RPM_BUILD_ROOT%{_sysconfdir}/lvm
 
 touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 
-%{?with_initrd:install wrapper $RPM_BUILD_ROOT%{_sbindir}/initrd-lvm}
+%{?with_initrd:install initrd-lvm $RPM_BUILD_ROOT%{_sbindir}/initrd-lvm}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
