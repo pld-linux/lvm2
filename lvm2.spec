@@ -98,7 +98,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc BUGS README WHATS_NEW doc/*
+%doc README WHATS_NEW doc/*
 %attr(755,root,root) %{_sbindir}/[elpv]*
 %{_mandir}/man?/*
 %dir %attr(750,root,root) %{_sysconfdir}/lvm
