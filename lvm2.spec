@@ -15,6 +15,8 @@ Source1:	ftp://ftp.sistina.com/pub/LVM2/device-mapper/device-mapper.%{devmapper_
 # Source1-md5:	44920cd973a6abc79109af9bff9d8af6
 Patch0:		%{name}-DESTDIR.patch
 Patch1:		%{name}-opt.patch
+Patch2:		%{name}-initrd.patch
+Patch3:		%{name}-gkh.patch
 URL:		http://www.sistina.com/products_lvm.htm
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -53,6 +55,8 @@ potrzeby initrd.
 %setup -q -n LVM2.%{version} -a1
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
+%patch3 -p1
 
 %build
 %{__aclocal}
@@ -66,14 +70,15 @@ cd $dm
 %configure \
         CC="%{_target_cpu}-uclibc-gcc" \
         --with-interface=ioctl \
-        --with-kernel-dir=%{_kernelsrcdir}
-%{__make}
+        --with-kernel-dir=nothing
+%{__make} \
+	CFLAGS="-DCONFIG_DM_IOCTL_V4=1 "
 ar cru libdevmapper.a lib/ioctl/*.o lib/*.o
 ranlib libdevmapper.a
 cd ..
 %configure \
-	CFLAGS="-I$(pwd)/${dm}/include" \
 	CC="%{_target_cpu}-uclibc-gcc" \
+	CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1 -DCONFIG_DM_IOCTL_V4=1" \
 	--enable-static_link \
 	--with-lvm1=internal
 %{__make} \
@@ -84,6 +89,7 @@ rm -f config.cache
 %endif
 
 %configure \
+	CFLAGS="-DCONFIG_DM_IOCTL_V4=1" \
 	--with-lvm1=internal
 %{__make}
 
