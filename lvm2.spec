@@ -31,6 +31,7 @@ BuildRequires:	libselinux-devel >= 1.10
 %{?with_uClibc:BuildRequires:	uClibc-static >= 0.9.26}
 %endif
 Requires:	device-mapper
+Requires:	libselinux >= 1.10
 Obsoletes:	lvm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -82,7 +83,6 @@ sed -i -e 's#AC_CHECK_LIB(selinux.*##g' configure.in
 cp -f /usr/share/automake/config.sub autoconf
 %{__aclocal}
 %{__autoconf}
-CFLAGS="%{rpmcflags} -DCONFIG_DM_IOCTL_V4=1"
 %configure \
         %{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc -Os"} \
         --with-interface=ioctl
@@ -101,7 +101,7 @@ sed -i -e 's#AC_CHECK_LIB(selinux.*##g' configure.in
 	--enable-static_link \
 	--with-lvm1=internal
 %{__make} \
-	CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1 -DCONFIG_DM_IOCTL_V4=1 -DHAVE_GETOPTLONG=1" \
+	CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1 -DHAVE_GETOPTLONG=1" \
 	LD_FLAGS="-L$(pwd)/${dm} -L$(pwd)/lib -static"
 mv -f tools/lvm initrd-lvm
 %{__make} clean
@@ -112,7 +112,7 @@ rm -rf autom4te.cache config.cache
 %{__aclocal}
 %{__autoconf}
 %configure \
-	CFLAGS="-DCONFIG_DM_IOCTL_V4=1 -DHAVE_GETOPTLONG=1" \
+	CFLAGS="%{rpmcflags} -DHAVE_GETOPTLONG=1" \
 	--with-lvm1=internal
 %{__make}
 
