@@ -1,11 +1,16 @@
 #
 # Conditional build:
 %bcond_without	initrd	# don't build initrd version
+%bcond_without	uClibc	# link initrd version with static glibc instead of uClibc
+#
+%ifarch amd64
+%undefine	with_uClibc
+%endif
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.00.15
-Release:	1
+Release:	2
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -15,13 +20,15 @@ Source1:	ftp://sources.redhat.com/pub/dm/device-mapper.%{devmapper_ver}.tgz
 # Source1-md5:	b74bb5fa232c77bf74f87eac2f53e1e4
 Patch0:		%{name}-opt.patch
 Patch1:		%{name}-initrd.patch
+Patch2:		device-mapper-opt.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= 1.00.07
 BuildRequires:	libselinux-devel >= 1.10
 %if %{with initrd}
-BuildRequires:	uClibc-static >= 0.9.26
+%{!?with_uClibc:BuildRequires:	glibc-static}
+%{?with_uClibc:BuildRequires:	uClibc-static >= 0.9.26}
 %endif
 Requires:	device-mapper
 Obsoletes:	lvm
@@ -57,6 +64,11 @@ potrzeby initrd.
 %patch0 -p1
 %patch1 -p1
 
+%if %{with initrd}
+cd `ls -1d device-mapper*`
+%patch2 -p1
+%endif
+
 %build
 cp -f /usr/share/automake/config.sub autoconf
 %{__aclocal}
@@ -70,12 +82,12 @@ sed -i -e 's#AC_CHECK_LIB(selinux.*##g' configure.in
 cp -f /usr/share/automake/config.sub autoconf
 %{__aclocal}
 %{__autoconf}
+CFLAGS="%{rpmcflags} -DCONFIG_DM_IOCTL_V4=1"
 %configure \
-        CC="%{_target_cpu}-uclibc-gcc -Os" \
-        --with-interface=ioctl \
-        --with-kernel-dir=nothing
-%{__make} \
-	CFLAGS="-DCONFIG_DM_IOCTL_V4=1 "
+        %{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc -Os"} \
+        --with-interface=ioctl
+unset CFLAGS
+%{__make}
 ar cru libdevmapper.a lib/ioctl/*.o lib/*.o
 ranlib libdevmapper.a
 cd ..
@@ -85,7 +97,7 @@ sed -i -e 's#AC_CHECK_LIB(selinux.*##g' configure.in
 %{__aclocal}
 %{__autoconf}
 %configure \
-	CC="%{_target_cpu}-uclibc-gcc -Os" \
+	%{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc -Os"} \
 	--enable-static_link \
 	--with-lvm1=internal
 %{__make} \
