@@ -13,6 +13,7 @@ Release:	0.1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://ftp.sistina.com/pub/LVM2/tools/LVM2.%{version}.tgz
+# Source0-md5:	b8f2ba2a3d8c5b10588670d3de2bee36
 Patch0:		%{name}-DESTDIR.patch
 URL:		http://www.sistina.com/products_lvm.htm
 Requires:	device-mapper
