@@ -1,6 +1,6 @@
 #
 # Conditional build:
-%bcond_with	initrd	# don't build initrd version
+%bcond_without	initrd	# don't build initrd version
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
@@ -21,7 +21,7 @@ URL:		http://www.sistina.com/products_lvm.htm
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= 1.00.07
-%{?with_initrd:BuildRequires:	uClibc-static}
+%{?with_initrd:BuildRequires:	uClibc-static >= 0.9.26}
 Requires:	device-mapper
 Obsoletes:	lvm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
