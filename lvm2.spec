@@ -2,6 +2,7 @@
 # Conditional build:
 %bcond_without	initrd	# don't build initrd version
 %bcond_without	uClibc	# link initrd version with static glibc instead of uClibc
+%bcond_without	clvmd	# do not build clvmd
 #
 %ifarch amd64
 %undefine	with_uClibc
@@ -9,24 +10,22 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.00.18
+Version:	2.00.19
 Release:	1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	703969d2e31d609ecf2422d108293bef
+# Source0-md5:	acc023c5d7abc2f1dbbb912234d18b78
 %define	devmapper_ver	1.00.18
 Source1:	ftp://sources.redhat.com/pub/dm/device-mapper.%{devmapper_ver}.tgz
 # Source1-md5:	ff14891c9a717731289355c334056eb4
-Patch0:		%{name}-opt.patch
-Patch1:		%{name}-initrd.patch
-Patch2:		device-mapper-opt.patch
+Patch0:		device-mapper-opt.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= %{devmapper_ver}
 BuildRequires:	libselinux-devel >= 1.10
-BuildRequires:	dlm-devel
+%{?with_clvmd:BuildRequires:	dlm-devel}
 %if %{with initrd}
 %{!?with_uClibc:BuildRequires:	glibc-static}
 %{?with_uClibc:BuildRequires:	uClibc-static >= 0.9.26}
@@ -63,12 +62,9 @@ potrzeby initrd.
 
 %prep
 %setup -q -n LVM2.%{version} -a1
-%patch0 -p1
-%patch1 -p1
-
 %if %{with initrd}
 cd `ls -1d device-mapper*`
-%patch2 -p1
+%patch0 -p1
 %endif
 
 %build
@@ -92,21 +88,20 @@ unset CFLAGS || :
 ar cru libdevmapper.a lib/ioctl/*.o lib/*.o
 ranlib libdevmapper.a
 cd ..
-cp configure.in configure.in-selinux-enabled
-# no selinux for initrd
-sed -i -e 's#AC_CHECK_LIB(selinux.*##g' configure.in
 %{__aclocal}
 %{__autoconf}
 %configure \
 	CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1" \
-	%{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc -Os"} \
+	%{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc"} \
+	--with-optimisation="-Os" \
 	--enable-static_link \
-	--with-lvm1=internal
+	--with-lvm1=internal \
+	--disable-selinux \
+#	--disable-nls
 %{__make} \
-	LD_FLAGS+="-L$(pwd)/${dm} -L$(pwd)/lib -static"
-mv -f tools/lvm initrd-lvm
+	LDFLAGS+="-L$(pwd)/${dm} -L$(pwd)/lib"
+mv -f tools/lvm.static initrd-lvm
 %{__make} clean
-mv configure.in-selinux-enabled configure.in
 rm -rf autom4te.cache config.cache
 %endif
 
@@ -116,12 +111,12 @@ rm -rf autom4te.cache config.cache
 	CFLAGS="%{rpmcflags}" \
 	--enable-readline \
 	--enable-fsadm \
+	%{?with_clvmd:--with-clvmd} \
 	--with-lvm1=internal \
 	--with-pool=internal \
 	--with-cluster=internal \
 	--with-snapshots=internal \
-	--with-mirrors=internal \
-	--with-clvmd
+	--with-mirrors=internal
 %{__make}
 
 %install
