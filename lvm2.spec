@@ -59,12 +59,14 @@ potrzeby initrd.
 %patch3 -p1
 
 %build
+cp -f /usr/share/automake/config.sub autoconf
 %{__aclocal}
 %{__autoconf}
 
 %if %{with initrd}
 dm=$(ls -1d device-mapper*)
 cd $dm
+cp -f /usr/share/automake/config.sub autoconf
 %{__aclocal}
 %{__autoconf}
 %configure \
