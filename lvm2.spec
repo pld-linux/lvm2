@@ -26,6 +26,7 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= %{devmapper_ver}
 BuildRequires:	libselinux-devel >= 1.10
+BuildRequires:	dlm-devel
 %if %{with initrd}
 %{!?with_uClibc:BuildRequires:	glibc-static}
 %{?with_uClibc:BuildRequires:	uClibc-static >= 0.9.26}
@@ -119,8 +120,8 @@ rm -rf autom4te.cache config.cache
 	--with-pool=internal \
 	--with-cluster=internal \
 	--with-snapshots=internal \
-	--with-mirrors=internal
-#	--with-clvmd
+	--with-mirrors=internal \
+	--with-clvmd
 %{__make}
 
 %install
@@ -142,7 +143,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc README WHATS_NEW doc/*
-%attr(755,root,root) %{_sbindir}/[elpvf]*
+%attr(755,root,root) %{_sbindir}/*
+%{?with_initrd:%exclude %{_sbindir}/initrd-lvm}
 %{_mandir}/man?/*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
 %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/lvm/lvm.conf
