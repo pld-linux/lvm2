@@ -90,6 +90,7 @@ cd ..
 %configure \
 	CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1" \
 	%{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc"} \
+	ac_cv_lib_dl_dlopen=no \
 	--with-optimisation="-Os" \
 	--enable-static_link \
 	--with-lvm1=internal \
