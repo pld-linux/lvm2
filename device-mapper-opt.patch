@@ -1,20 +1,7 @@
---- device-mapper.1.00.07/configure.in.orig	2003-11-21 21:58:50.000000000 +0100
-+++ device-mapper.1.00.07/configure.in	2003-11-28 22:39:24.949319200 +0100
-@@ -47,10 +47,8 @@
- AC_CANONICAL_SYSTEM
- 
- case "$host_os" in
--	linux*)
--		CFLAGS= ;;
- 	darwin*)
--		CFLAGS="-no-cpp-precomp" ;;
-+		CFLAGS="$CFLAGS -no-cpp-precomp" ;;
- esac
- 
- dnl -- prefix is /usr by default, the exec_prefix default is setup later
---- device-mapper.1.00.07/make.tmpl.in.orig	2003-11-12 18:30:29.000000000 +0100
-+++ device-mapper.1.00.07/make.tmpl.in	2003-11-28 22:39:48.525735040 +0100
-@@ -61,8 +61,6 @@
+diff -urN device-mapper.1.00.09.org/make.tmpl.in device-mapper.1.00.09/make.tmpl.in
+--- device-mapper.1.00.09.org/make.tmpl.in	2004-04-01 01:58:07.094597584 +0200
++++ device-mapper.1.00.09/make.tmpl.in	2004-04-01 02:05:56.749199232 +0200
+@@ -57,8 +57,6 @@
  
  ifeq ("@DEBUG@", "yes")
    CFLAGS+=-g -fno-omit-frame-pointer -DDEBUG
