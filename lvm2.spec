@@ -96,8 +96,8 @@ cp configure.in configure.in-selinux-enabled
 sed -i -e 's#AC_CHECK_LIB(selinux.*##g' configure.in
 %{__aclocal}
 %{__autoconf}
-CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1"
 %configure \
+	CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1" \
 	%{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc -Os"} \
 	--enable-static_link \
 	--with-lvm1=internal
@@ -112,8 +112,13 @@ rm -rf autom4te.cache config.cache
 %{__aclocal}
 %{__autoconf}
 %configure \
-	CFLAGS="%{rpmcflags} -DHAVE_GETOPTLONG=1" \
-	--with-lvm1=internal
+	CFLAGS="%{rpmcflags}" \
+	--enable-readline \
+	--enable-fsadm \
+	--with-lvm1=internal \
+	--with-pool=internal \
+	--with-snapshots=internal \
+	--with-mirrors=internal
 %{__make}
 
 %install
@@ -135,7 +140,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc README WHATS_NEW doc/*
-%attr(755,root,root) %{_sbindir}/[elpv]*
+%attr(755,root,root) %{_sbindir}/[elpvf]*
 %{_mandir}/man?/*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
 %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/lvm/lvm.conf
