@@ -20,6 +20,7 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	sh-utils
 BuildRequires:	device-mapper-devel
+Obsoletes:	lvm
 %{!?_without_initrd:BuildRequires:	dietlibc-static}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
