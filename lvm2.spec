@@ -45,9 +45,9 @@ Group:		Base
 This package includes a number of utilities for creating, checking,
 and repairing logical volumes - staticaly linked for initrd.
 
-%description -l pl initrd
+%description initrd -l pl
 Pakiet ten zawiera narzêdzia do tworzenia, sprawdzania i naprawiania
-logicznych wolumenów dyskowych (LVM2) - statycznie zlinkowane na 
+logicznych wolumenów dyskowych (LVM2) - statycznie zlinkowane na
 potrzeby initrd.
 
 %prep
@@ -60,7 +60,7 @@ potrzeby initrd.
 
 %if %{?_without_initrd:0}%{!?_without_initrd:1}
 cc="%{_target_cpu}-dietlibc-gcc"
-%configure CC="$cc" 
+%configure CC="$cc"
 %{__make} clean
 %{__make} -C tools/lib liblvm-10.a
 cd tools
