@@ -4,20 +4,19 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.00.08
-Release:	0.1
+Version:	2.00.09
+Release:	1
 License:	GPL
 Group:		Applications/System
-Source0:	ftp://ftp.sistina.com/pub/LVM2/tools/LVM2.%{version}.tgz
-# Source0-md5:	ed973eda318f3685ad317afb9a54c571
-%define	devmapper_ver	1.00.07
-Source1:	ftp://ftp.sistina.com/pub/LVM2/device-mapper/device-mapper.%{devmapper_ver}.tgz
-# Source1-md5:	44920cd973a6abc79109af9bff9d8af6
-Patch0:		%{name}-DESTDIR.patch
-Patch1:		%{name}-opt.patch
-Patch2:		%{name}-initrd.patch
-Patch3:		%{name}-gkh.patch
-URL:		http://www.sistina.com/products_lvm.htm
+Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
+# Source0-md5:	661cf8914e2227ad615a29f3eb106a4d
+%define	devmapper_ver	1.00.09
+Source1:	ftp://sources.redhat.com/pub/dm//device-mapper.%{devmapper_ver}.tgz
+# Source1-md5:	c08c9478d7176a4ba2de1707baa41909
+Patch0:		%{name}-opt.patch
+Patch1:		%{name}-initrd.patch
+Patch2:		%{name}-gkh.patch
+URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= 1.00.07
@@ -56,7 +55,6 @@ potrzeby initrd.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
@@ -70,7 +68,7 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__aclocal}
 %{__autoconf}
 %configure \
-        CC="%{_target_cpu}-uclibc-gcc" \
+        CC="%{_target_cpu}-uclibc-gcc -Os" \
         --with-interface=ioctl \
         --with-kernel-dir=nothing
 %{__make} \
@@ -79,19 +77,19 @@ ar cru libdevmapper.a lib/ioctl/*.o lib/*.o
 ranlib libdevmapper.a
 cd ..
 %configure \
-	CC="%{_target_cpu}-uclibc-gcc" \
-	CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1 -DCONFIG_DM_IOCTL_V4=1" \
+	CC="%{_target_cpu}-uclibc-gcc -Os" \
 	--enable-static_link \
 	--with-lvm1=internal
 %{__make} \
-	LD_FLAGS="-L$(pwd)/${dm} -static"
+	CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1 -DCONFIG_DM_IOCTL_V4=1 -DHAVE_GETOPTLONG=1" \
+	LD_FLAGS="-L$(pwd)/${dm} -L$(pwd)/lib -static"
 mv -f tools/lvm initrd-lvm
 %{__make} clean
 rm -f config.cache
 %endif
 
 %configure \
-	CFLAGS="-DCONFIG_DM_IOCTL_V4=1" \
+	CFLAGS="-DCONFIG_DM_IOCTL_V4=1 -DHAVE_GETOPTLONG=1" \
 	--with-lvm1=internal
 %{__make}
 
