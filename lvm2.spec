@@ -10,16 +10,15 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.00.19
+Version:	2.00.20
 Release:	1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	acc023c5d7abc2f1dbbb912234d18b78
-%define	devmapper_ver	1.00.18
+# Source0-md5:	accbd3d84c1f8e138c4268d608ffbff8
+%define	devmapper_ver	1.00.19
 Source1:	ftp://sources.redhat.com/pub/dm/device-mapper.%{devmapper_ver}.tgz
-# Source1-md5:	ff14891c9a717731289355c334056eb4
-Patch0:		device-mapper-opt.patch
+# Source1-md5:	a7a97c469f22e3ec2cdcb5aae5603f3f
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -62,10 +61,6 @@ potrzeby initrd.
 
 %prep
 %setup -q -n LVM2.%{version} -a1
-%if %{with initrd}
-cd `ls -1d device-mapper*`
-%patch0 -p1
-%endif
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
@@ -81,8 +76,10 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__aclocal}
 %{__autoconf}
 %configure \
-        %{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc -Os"} \
-        --with-interface=ioctl
+        %{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc"} \
+	--with-optimisation="-Os" \
+        --with-interface=ioctl \
+	--disable-nls
 unset CFLAGS || :
 %{__make}
 ar cru libdevmapper.a lib/ioctl/*.o lib/*.o
@@ -97,7 +94,7 @@ cd ..
 	--enable-static_link \
 	--with-lvm1=internal \
 	--disable-selinux \
-#	--disable-nls
+	--disable-nls
 %{__make} \
 	LDFLAGS+="-L$(pwd)/${dm} -L$(pwd)/lib"
 mv -f tools/lvm.static initrd-lvm
