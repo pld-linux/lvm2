@@ -15,7 +15,6 @@ Source1:	ftp://sources.redhat.com/pub/dm/device-mapper.%{devmapper_ver}.tgz
 # Source1-md5:	b74bb5fa232c77bf74f87eac2f53e1e4
 Patch0:		%{name}-opt.patch
 Patch1:		%{name}-initrd.patch
-Patch2:		%{name}-gkh.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -57,7 +56,6 @@ potrzeby initrd.
 %setup -q -n LVM2.%{version} -a1
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
