@@ -4,15 +4,15 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.00.09
+Version:	2.00.15
 Release:	1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	661cf8914e2227ad615a29f3eb106a4d
-%define	devmapper_ver	1.00.09
-Source1:	ftp://sources.redhat.com/pub/dm//device-mapper.%{devmapper_ver}.tgz
-# Source1-md5:	c08c9478d7176a4ba2de1707baa41909
+# Source0-md5:	9b8496b17e6606de662fbbb90520ba33
+%define	devmapper_ver	1.00.17
+Source1:	ftp://sources.redhat.com/pub/dm/device-mapper.%{devmapper_ver}.tgz
+# Source1-md5:	b74bb5fa232c77bf74f87eac2f53e1e4
 Patch0:		%{name}-opt.patch
 Patch1:		%{name}-initrd.patch
 Patch2:		%{name}-gkh.patch
@@ -20,7 +20,10 @@ URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= 1.00.07
-%{?with_initrd:BuildRequires:	uClibc-static >= 0.9.26}
+BuildRequires:	libselinux-devel >= 1.10
+%if %{with initrd}
+BuildRequires:	uClibc-static >= 0.9.26
+%endif
 Requires:	device-mapper
 Obsoletes:	lvm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -64,6 +67,8 @@ cp -f /usr/share/automake/config.sub autoconf
 %if %{with initrd}
 dm=$(ls -1d device-mapper*)
 cd $dm
+# no selinux for initrd
+sed -i -e 's#AC_CHECK_LIB(selinux.*##g' configure.in
 cp -f /usr/share/automake/config.sub autoconf
 %{__aclocal}
 %{__autoconf}
@@ -76,6 +81,11 @@ cp -f /usr/share/automake/config.sub autoconf
 ar cru libdevmapper.a lib/ioctl/*.o lib/*.o
 ranlib libdevmapper.a
 cd ..
+cp configure.in configure.in-selinux-enabled
+# no selinux for initrd
+sed -i -e 's#AC_CHECK_LIB(selinux.*##g' configure.in
+%{__aclocal}
+%{__autoconf}
 %configure \
 	CC="%{_target_cpu}-uclibc-gcc -Os" \
 	--enable-static_link \
@@ -85,9 +95,12 @@ cd ..
 	LD_FLAGS="-L$(pwd)/${dm} -L$(pwd)/lib -static"
 mv -f tools/lvm initrd-lvm
 %{__make} clean
-rm -f config.cache
+mv configure.in-selinux-enabled configure.in
+rm -rf autom4te.cache config.cache
 %endif
 
+%{__aclocal}
+%{__autoconf}
 %configure \
 	CFLAGS="-DCONFIG_DM_IOCTL_V4=1 -DHAVE_GETOPTLONG=1" \
 	--with-lvm1=internal
@@ -99,8 +112,8 @@ install -d $RPM_BUILD_ROOT%{_sysconfdir}/lvm
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
-	OWNER=$(id -u) \
-	GROUP=$(id -g)
+	OWNER="" \
+	GROUP=""
 
 touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 
