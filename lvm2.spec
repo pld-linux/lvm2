@@ -11,15 +11,15 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.00.33
+Version:	2.01.09
 Release:	1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	3d151d18304d6e0c7b34afa6f5648609
-%define	devmapper_ver	1.00.21
+# Source0-md5:	ed6fe3b734d05c6497cfa4f9932046e6
+%define	devmapper_ver	1.01.01
 Source1:	ftp://sources.redhat.com/pub/dm/device-mapper.%{devmapper_ver}.tgz
-# Source1-md5:	a2562b57e7cca026faa425fa5da92bbc
+# Source1-md5:	3fd3bb664dda4c1c7be566d53fce606c
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
