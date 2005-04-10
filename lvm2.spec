@@ -142,7 +142,7 @@ rm -rf $RPM_BUILD_ROOT
 %{?with_initrd:%exclude %{_sbindir}/initrd-lvm}
 %{_mandir}/man?/*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
-%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/lvm/lvm.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
 
 %if %{with initrd}
 %files initrd
