@@ -25,10 +25,14 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= %{devmapper_ver}
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
-%{?with_clvmd:BuildRequires:	dlm-devel}
 %if %{with initrd}
 %{!?with_uClibc:BuildRequires:	glibc-static}
 %{?with_uClibc:BuildRequires:	uClibc-static >= 0.9.26}
+%endif
+%if %{with clvmd}
+BuildRequires:	ccs-devel
+BuildRequires:	dlm-devel
+BuildRequires:	gulm-devel
 %endif
 Requires:	device-mapper
 %{?with_selinux:Requires:	libselinux >= 1.10}
@@ -86,8 +90,6 @@ unset CFLAGS || :
 ar cru libdevmapper.a lib/ioctl/*.o lib/*.o
 ranlib libdevmapper.a
 cd ..
-%{__aclocal}
-%{__autoconf}
 %configure \
 	CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1" \
 	%{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc"} \
@@ -101,11 +103,8 @@ cd ..
 	LDFLAGS+="-L$(pwd)/${dm} -L$(pwd)/lib"
 mv -f tools/lvm.static initrd-lvm
 %{__make} clean
-rm -rf autom4te.cache config.cache
 %endif
 
-%{__aclocal}
-%{__autoconf}
 %configure \
 	CFLAGS="%{rpmcflags}" \
 	--enable-readline \
