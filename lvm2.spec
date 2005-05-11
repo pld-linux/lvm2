@@ -5,7 +5,7 @@
 %bcond_without	clvmd	# do not build clvmd
 %bcond_without	selinux	# disable SELinux
 #
-%ifarch amd64
+%ifarch %{x8664}
 %undefine	with_uClibc
 %endif
 Summary:	The new version of Logical Volume Manager for Linux
@@ -25,6 +25,7 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= %{devmapper_ver}
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
+BuildRequires:	rpmbuild(macros) >= 1.213
 %if %{with initrd}
 %{!?with_uClibc:BuildRequires:	glibc-static}
 %{?with_uClibc:BuildRequires:	uClibc-static >= 0.9.26}
