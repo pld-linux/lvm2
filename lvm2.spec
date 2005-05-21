@@ -34,6 +34,7 @@ BuildRequires:	rpmbuild(macros) >= 1.213
 BuildRequires:	ccs-devel
 BuildRequires:	dlm-devel
 BuildRequires:	gulm-devel
+BuildRequires:	readline-devel
 %endif
 Requires:	device-mapper
 %{?with_selinux:Requires:	libselinux >= 1.10}
