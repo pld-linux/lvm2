@@ -17,9 +17,9 @@ License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
 # Source0-md5:	884f66ad7d83df562db94fc02989c1fb
-%define	devmapper_ver	1.01.02
+%define	devmapper_ver	1.01.03
 Source1:	ftp://sources.redhat.com/pub/dm/device-mapper.%{devmapper_ver}.tgz
-# Source1-md5:	6c90d1782e8600aa8b5b0749056e29fb
+# Source1-md5:	10469034e2f1f1483fd3d80fb3883af2
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
