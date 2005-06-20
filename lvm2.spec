@@ -12,7 +12,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.01.12
-Release:	2
+Release:	3
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -32,8 +32,8 @@ BuildRequires:	rpmbuild(macros) >= 1.213
 %endif
 %if %{with clvmd}
 BuildRequires:	ccs-devel
-BuildRequires:	dlm-devel
-BuildRequires:	gulm-devel
+BuildRequires:	dlm-devel >= 1.0-0.pre21.2
+BuildRequires:	gulm-devel >= 1.0-0.pre26.2
 %endif
 BuildRequires:	readline-devel
 Requires:	device-mapper
