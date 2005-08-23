@@ -38,7 +38,7 @@ BuildRequires:	gulm-devel >= 1.0-0.pre26.2
 BuildRequires:	readline-devel
 Requires:	device-mapper
 Requires:	dlm >= 1.0-0.pre21.2
-%{?with_clvmd:  Requires:	gulm >= 1.0-0.pre26.2}
+%{?with_clvmd:Requires:	gulm >= 1.0-0.pre26.2}
 %{?with_selinux:Requires:	libselinux >= 1.10}
 Obsoletes:	lvm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
