@@ -1,25 +1,28 @@
+# TODO
+# - use system dm
 #
 # Conditional build:
 %bcond_without	initrd	# don't build initrd version
 %bcond_without	uClibc	# link initrd version with static glibc instead of uClibc
-%bcond_without	clvmd	# do not build clvmd
+%bcond_with	clvmd	# build clvmd
 %bcond_without	selinux	# disable SELinux
 #
 %ifarch %{x8664} sparc64 sparc
 %undefine	with_uClibc
 %endif
+#
+%define	devmapper_ver	1.02.07
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.01.15
-Release:	1
+Version:	2.02.06
+Release:	0.1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	c71654baff263254fb5a226624ee8ef3
-%define	devmapper_ver	1.01.05
+# Source0-md5:	35c232e771812700e0ca7225da1431b8
 Source1:	ftp://sources.redhat.com/pub/dm/device-mapper.%{devmapper_ver}.tgz
-# Source1-md5:	074cf116cc2c7194f2d100bc5f743833
+# Source1-md5:	460cc211b03af4048ec90c0de2ecd8f7
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -43,6 +46,7 @@ Requires:	dlm >= 1.0-0.pre21.2
 Obsoletes:	lvm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
+%define		_exec_prefix	/
 %define		_sbindir	/sbin
 %define		_libdir		/%{_lib}
 
@@ -85,14 +89,14 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__aclocal}
 %{__autoconf}
 %configure \
-        %{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc"} \
+	%{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc"} \
 	--with-optimisation="-Os" \
-        --with-interface=ioctl \
+	--with-interface=ioctl \
 	--disable-nls
-unset CFLAGS || :
+sed -i -e 's#rpl_malloc#malloc#g' include/configure.h
+CFLAGS= \
 %{__make}
-ar cru libdevmapper.a lib/ioctl/*.o lib/*.o
-ranlib libdevmapper.a
+cp lib/ioctl/libdevmapper.a .
 cd ..
 %configure \
 	CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1" \
@@ -103,6 +107,7 @@ cd ..
 	--with-lvm1=internal \
 	--disable-selinux \
 	--disable-nls
+sed -i -e 's#rpl_malloc#malloc#g' lib/misc/configure.h
 %{__make} \
 	LDFLAGS+="-L$(pwd)/${dm} -L$(pwd)/lib"
 mv -f tools/lvm.static initrd-lvm
@@ -113,7 +118,7 @@ mv -f tools/lvm.static initrd-lvm
 	CFLAGS="%{rpmcflags}" \
 	--enable-readline \
 	--enable-fsadm \
-	%{?with_clvmd:--with-clvmd} \
+	%{?with_clvmd:--with-clvmd=gulm} \
 	--with-lvm1=internal \
 	--with-pool=internal \
 	--with-cluster=internal \
