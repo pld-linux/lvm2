@@ -1,5 +1,6 @@
 # TODO
 # - use system dm
+# - lvdisplay segfaults for me (somewhere in dm lib)
 #
 # Conditional build:
 %bcond_without	initrd	# don't build initrd version
