@@ -1,5 +1,4 @@
 # TODO
-# - use system dm
 # - lvdisplay segfaults for me (somewhere in dm lib)
 #
 # Conditional build:
@@ -17,13 +16,11 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.06
-Release:	0.1
+Release:	0.2
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
 # Source0-md5:	35c232e771812700e0ca7225da1431b8
-Source1:	ftp://sources.redhat.com/pub/dm/device-mapper.%{devmapper_ver}.tgz
-# Source1-md5:	460cc211b03af4048ec90c0de2ecd8f7
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -31,6 +28,8 @@ BuildRequires:	device-mapper-devel >= %{devmapper_ver}
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
 BuildRequires:	rpmbuild(macros) >= 1.213
 %if %{with initrd}
+%{?with_uClibc:BuildRequires:	device-mapper-initrd-devel >= 1.02.07-0.15}
+%{!?with_uClibc:BuildRequires:	device-mapper-static}
 %{!?with_uClibc:BuildRequires:	glibc-static}
 %{?with_uClibc:BuildRequires:	uClibc-static >= 0.9.26}
 %endif
@@ -74,7 +73,7 @@ logicznych wolumenów dyskowych (LVM2) - statycznie skonsolidowane na
 potrzeby initrd.
 
 %prep
-%setup -q -n LVM2.%{version} -a1
+%setup -q -n LVM2.%{version}
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
@@ -82,25 +81,7 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__autoconf}
 
 %if %{with initrd}
-dm=$(ls -1d device-mapper*)
-cd $dm
-# no selinux for initrd
-sed -i -e 's#AC_CHECK_LIB(selinux.*##g' configure.in
-cp -f /usr/share/automake/config.sub autoconf
-%{__aclocal}
-%{__autoconf}
 %configure \
-	%{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc"} \
-	--with-optimisation="-Os" \
-	--with-interface=ioctl \
-	--disable-nls
-sed -i -e 's#rpl_malloc#malloc#g' include/configure.h
-CFLAGS= \
-%{__make}
-cp lib/ioctl/libdevmapper.a .
-cd ..
-%configure \
-	CFLAGS="-I$(pwd)/${dm}/include -DINITRD_WRAPPER=1" \
 	%{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc"} \
 	ac_cv_lib_dl_dlopen=no \
 	--with-optimisation="-Os" \
@@ -109,8 +90,8 @@ cd ..
 	--disable-selinux \
 	--disable-nls
 sed -i -e 's#rpl_malloc#malloc#g' lib/misc/configure.h
-%{__make} \
-	LDFLAGS+="-L$(pwd)/${dm} -L$(pwd)/lib"
+
+%{__make}
 mv -f tools/lvm.static initrd-lvm
 %{__make} clean
 %endif
