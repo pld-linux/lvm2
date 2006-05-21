@@ -1,0 +1,5 @@
+- update to 2.02.06
+- use built libdevmapper.a instead of assembling partial one
+- default clvmd (if unspecified) used is cman, force gulm as it was
+  here, but it fails bulding; disabled bcond
+- dm updated to 1.02.07
