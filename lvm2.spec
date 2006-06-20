@@ -7,7 +7,7 @@
 %bcond_with	clvmd	# build clvmd
 %bcond_without	selinux	# disable SELinux
 #
-%ifarch %{x8664} sparc64 sparc
+%ifarch sparc64 sparc
 %undefine	with_uClibc
 %endif
 #
@@ -16,7 +16,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.06
-Release:	0.3
+Release:	0.4
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -28,7 +28,7 @@ BuildRequires:	device-mapper-devel >= %{devmapper_ver}
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
 BuildRequires:	rpmbuild(macros) >= 1.213
 %if %{with initrd}
-%{?with_uClibc:BuildRequires:	device-mapper-initrd-devel >= 1.02.07-0.15}
+%{?with_uClibc:BuildRequires:	device-mapper-initrd-devel >= 1.02.07-0.17}
 %{!?with_uClibc:BuildRequires:	device-mapper-static}
 %{!?with_uClibc:BuildRequires:	glibc-static}
 %{?with_uClibc:BuildRequires:	uClibc-static >= 0.9.26}
