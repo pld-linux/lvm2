@@ -1,6 +1,3 @@
-# TODO
-# - lvdisplay segfaults for me (somewhere in dm lib)
-#
 # Conditional build:
 %bcond_without	initrd	# don't build initrd version
 %bcond_without	uClibc	# link initrd version with static glibc instead of uClibc
@@ -16,7 +13,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.06
-Release:	0.4
+Release:	0.5
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -49,6 +46,9 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_exec_prefix	/
 %define		_sbindir	/sbin
 %define		_libdir		/%{_lib}
+
+# changing CFLAGS in the middle confuses confcache
+%undefine	configure_cache
 
 %description
 This package includes a number of utilities for creating, checking,
