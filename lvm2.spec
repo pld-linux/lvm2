@@ -25,10 +25,17 @@ BuildRequires:	device-mapper-devel >= %{devmapper_ver}
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
 BuildRequires:	rpmbuild(macros) >= 1.213
 %if %{with initrd}
-%{?with_uClibc:BuildRequires:	device-mapper-initrd-devel >= 1.02.07-0.17}
-%{!?with_uClibc:BuildRequires:	device-mapper-static}
-%{!?with_uClibc:BuildRequires:	glibc-static}
-%{?with_uClibc:BuildRequires:	uClibc-static >= 0.9.26}
+	%if %{with uClibc}
+BuildRequires:	device-mapper-initrd-devel >= 1.02.07-0.17
+		%ifarch ppc
+BuildRequires:	uClibc-static >= 2:0.9.29
+		%else
+BuildRequires:	uClibc-static >= 2:0.9.26
+		%endif
+	%else
+BuildRequires:	device-mapper-static
+BuildRequires:	glibc-static
+	%endif
 %endif
 %if %{with clvmd}
 BuildRequires:	ccs-devel
