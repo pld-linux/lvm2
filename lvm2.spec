@@ -1,23 +1,25 @@
+#
 # Conditional build:
 %bcond_without	initrd	# don't build initrd version
 %bcond_without	uClibc	# link initrd version with static glibc instead of uClibc
-%bcond_with	clvmd	# build clvmd
+%bcond_without	clvmd	# build clvmd
+%bcond_with	cman	# use cman+dlm instead of gulm+ccs
 %bcond_without	selinux	# disable SELinux
 #
 %ifarch sparc64 sparc
 %undefine	with_uClibc
 %endif
 #
-%define	devmapper_ver	1.02.07
+%define	devmapper_ver	1.02.08
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.06
-Release:	0.5
+Version:	2.02.07
+Release:	0.1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	35c232e771812700e0ca7225da1431b8
+# Source0-md5:	b00b47a4c4554792a7edb241b01fa1c6
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -38,14 +40,24 @@ BuildRequires:	glibc-static
 	%endif
 %endif
 %if %{with clvmd}
-BuildRequires:	ccs-devel
+%if %{with cman}
+BuildRequires:	cman-devel >= 1.0
 BuildRequires:	dlm-devel >= 1.0-0.pre21.2
+%else
+BuildRequires:	ccs-devel >= 1.0
 BuildRequires:	gulm-devel >= 1.0-0.pre26.2
+%endif
 %endif
 BuildRequires:	readline-devel
 Requires:	device-mapper
+%if %{with clvmd}
+%if %{with cman}
+Requires:	cman >= 1.0
 Requires:	dlm >= 1.0-0.pre21.2
-%{?with_clvmd:Requires:	gulm >= 1.0-0.pre26.2}
+%else
+Requires:	gulm >= 1.0-0.pre26.2
+%endif
+%endif
 %{?with_selinux:Requires:	libselinux >= 1.10}
 Obsoletes:	lvm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -107,7 +119,7 @@ mv -f tools/lvm.static initrd-lvm
 	CFLAGS="%{rpmcflags}" \
 	--enable-readline \
 	--enable-fsadm \
-	%{?with_clvmd:--with-clvmd=gulm} \
+	%{?with_clvmd:--with-clvmd=%{?with_cman:cman}%{!?with_cman:gulm}} \
 	--with-lvm1=internal \
 	--with-pool=internal \
 	--with-cluster=internal \
