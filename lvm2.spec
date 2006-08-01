@@ -20,13 +20,13 @@ License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
 # Source0-md5:	b00b47a4c4554792a7edb241b01fa1c6
+Patch0:		%{name}-as-needed.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= %{devmapper_ver}
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
 BuildRequires:	rpmbuild(macros) >= 1.213
-BuildRequires:	sed >= 4.0
 %if %{with initrd}
 	%if %{with uClibc}
 BuildRequires:	device-mapper-initrd-devel >= 1.02.07-0.17
@@ -94,8 +94,7 @@ potrzeby initrd.
 
 %prep
 %setup -q -n LVM2.%{version}
-sed 's/ncurses/tinfo ncurses/' -i configure.in
-sed '/-rdynamic/s/$(CC)/$(CC) $(LDFLAGS)/' -i tools/fsadm/Makefile.in
+%patch0 -p1
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
