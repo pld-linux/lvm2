@@ -95,6 +95,7 @@ potrzeby initrd.
 %prep
 %setup -q -n LVM2.%{version}
 sed 's/ncurses/tinfo ncurses/' -i configure.in
+sed '/-rdynamic/s/$(CC)/$(CC) $(LDFLAGS)/' -i tools/fsadm/Makefile.in
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
