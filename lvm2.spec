@@ -119,6 +119,7 @@ mv -f tools/lvm.static initrd-lvm
 
 %configure \
 	CFLAGS="%{rpmcflags}" \
+	--with-optimisation="" \
 	--enable-readline \
 	--enable-fsadm \
 	%{?with_clvmd:--with-clvmd=%{?with_cman:cman}%{!?with_cman:gulm}} \
