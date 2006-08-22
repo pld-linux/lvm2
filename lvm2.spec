@@ -10,16 +10,16 @@
 %undefine	with_uClibc
 %endif
 #
-%define	devmapper_ver	1.02.08
+%define	devmapper_ver	1.02.09
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.07
+Version:	2.02.09
 Release:	0.1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	b00b47a4c4554792a7edb241b01fa1c6
+# Source0-md5:	04aa4bd7781e9b57bf214654d5a0267c
 Patch0:		%{name}-as-needed.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
@@ -29,14 +29,14 @@ BuildRequires:	device-mapper-devel >= %{devmapper_ver}
 BuildRequires:	rpmbuild(macros) >= 1.213
 %if %{with initrd}
 	%if %{with uClibc}
-BuildRequires:	device-mapper-initrd-devel >= 1.02.07-0.17
+BuildRequires:	device-mapper-initrd-devel >= %{devmapper_ver}
 		%ifarch ppc
 BuildRequires:	uClibc-static >= 2:0.9.29
 		%else
 BuildRequires:	uClibc-static >= 2:0.9.26
 		%endif
 	%else
-BuildRequires:	device-mapper-static
+BuildRequires:	device-mapper-static >= %{devmapper_ver}
 BuildRequires:	glibc-static
 	%endif
 %endif
@@ -50,7 +50,7 @@ BuildRequires:	gulm-devel >= 1.0-0.pre26.2
 %endif
 %endif
 BuildRequires:	readline-devel
-Requires:	device-mapper
+Requires:	device-mapper >= %{devmapper_ver}
 %if %{with clvmd}
 %if %{with cman}
 Requires:	cman >= 1.0
