@@ -41,9 +41,9 @@ BuildRequires:	glibc-static
 	%endif
 %endif
 %if %{with clvmd}
+BuildRequires:	dlm-devel >= 1.0-0.pre21.2
 %if %{with cman}
 BuildRequires:	cman-devel >= 1.0
-BuildRequires:	dlm-devel >= 1.0-0.pre21.2
 %else
 BuildRequires:	ccs-devel >= 1.0
 BuildRequires:	gulm-devel >= 1.0-0.pre26.2
