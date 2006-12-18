@@ -22,6 +22,7 @@ Source1:	ftp://sources.redhat.com/pub/dm/device-mapper.%{devmapper_ver}.tgz
 # Source1-md5:	074cf116cc2c7194f2d100bc5f743833
 URL:		http://sources.redhat.com/lvm2/
 Patch0:		%{name}-sscanf.patch
+Patch1:		device-mapper-ac.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= %{devmapper_ver}
@@ -46,6 +47,9 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sbindir	/sbin
 %define		_libdir		/%{_lib}
+
+# CFLAGS changed during %%build
+%undefine	configure_cache
 
 %description
 This package includes a number of utilities for creating, checking,
@@ -72,6 +76,8 @@ potrzeby initrd.
 %prep
 %setup -q -n LVM2.%{version} -a1
 %patch0 -p1
+cd device-mapper*
+%patch1 -p1
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
