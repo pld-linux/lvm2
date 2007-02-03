@@ -17,7 +17,7 @@ diff -Nur LVM2.2.02.07/tools/fsadm/Makefile.in LVM2.2.02.07.as-needed/tools/fsad
  include $(top_srcdir)/make.tmpl
  
  fsadm: $(OBJECTS)
--	$(CC) -o $@ $(OBJECTS) -rdynamic
+-	$(CC) -o $@ $(CFLAGS) $(OBJECTS) -rdynamic
 +	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) -rdynamic
  
  install: fsadm

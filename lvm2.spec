@@ -14,12 +14,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.16
+Version:	2.02.21
 Release:	0.1
 License:	GPL
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	fb711403e1b763e135686aaa800b3d6a
+# Source0-md5:	3bd758564012805f1243fc39b8dace31
 Patch0:		%{name}-as-needed.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
