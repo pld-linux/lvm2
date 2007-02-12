@@ -12,7 +12,7 @@
 #
 %define	devmapper_ver	1.02.17
 Summary:	The new version of Logical Volume Manager for Linux
-Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa
+Summary(pl.UTF-8):   Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.21
 Release:	0.1
@@ -74,22 +74,22 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 This package includes a number of utilities for creating, checking,
 and repairing logical volumes.
 
-%description -l pl
-Pakiet ten zawiera narzêdzia do tworzenia, sprawdzania i naprawiania
-logicznych wolumenów dyskowych (LVM2).
+%description -l pl.UTF-8
+Pakiet ten zawiera narzÄ™dzia do tworzenia, sprawdzania i naprawiania
+logicznych wolumenÃ³w dyskowych (LVM2).
 
 %package initrd
 Summary:	The new version of Logical Volume Manager for Linux - initrd version
-Summary(pl):	Nowa wersja Logical Volume Managera dla Linuksa - wersja dla initrd
+Summary(pl.UTF-8):   Nowa wersja Logical Volume Managera dla Linuksa - wersja dla initrd
 Group:		Base
 
 %description initrd
 This package includes a number of utilities for creating, checking,
 and repairing logical volumes - staticaly linked for initrd.
 
-%description initrd -l pl
-Pakiet ten zawiera narzêdzia do tworzenia, sprawdzania i naprawiania
-logicznych wolumenów dyskowych (LVM2) - statycznie skonsolidowane na
+%description initrd -l pl.UTF-8
+Pakiet ten zawiera narzÄ™dzia do tworzenia, sprawdzania i naprawiania
+logicznych wolumenÃ³w dyskowych (LVM2) - statycznie skonsolidowane na
 potrzeby initrd.
 
 %prep
