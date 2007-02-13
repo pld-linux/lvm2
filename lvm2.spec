@@ -12,7 +12,7 @@
 #
 %define	devmapper_ver	1.02.17
 Summary:	The new version of Logical Volume Manager for Linux
-Summary(pl.UTF-8):   Nowa wersja Logical Volume Managera dla Linuksa
+Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.21
 Release:	0.1
@@ -80,7 +80,7 @@ logicznych wolumenów dyskowych (LVM2).
 
 %package initrd
 Summary:	The new version of Logical Volume Manager for Linux - initrd version
-Summary(pl.UTF-8):   Nowa wersja Logical Volume Managera dla Linuksa - wersja dla initrd
+Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa - wersja dla initrd
 Group:		Base
 
 %description initrd
