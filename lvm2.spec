@@ -3,7 +3,6 @@
 %bcond_without	initrd	# don't build initrd version
 %bcond_without	uClibc	# link initrd version with static glibc instead of uClibc
 %bcond_without	clvmd	# build clvmd
-%bcond_with	cman	# use cman+dlm instead of gulm+ccs
 %bcond_without	selinux	# disable SELinux
 #
 %ifarch sparc64 sparc
@@ -42,22 +41,13 @@ BuildRequires:	glibc-static
 %endif
 %if %{with clvmd}
 BuildRequires:	dlm-devel >= 1.0-0.pre21.2
-%if %{with cman}
 BuildRequires:	cman-devel >= 1.0
-%else
-BuildRequires:	ccs-devel >= 1.0
-BuildRequires:	gulm-devel >= 1.0-0.pre26.2
-%endif
 %endif
 BuildRequires:	readline-devel
 Requires:	device-mapper >= %{devmapper_ver}
 %if %{with clvmd}
-%if %{with cman}
-Requires:	cman >= 1.0
+Requires:	cman-libs >= 1.0
 Requires:	dlm >= 1.0-0.pre21.2
-%else
-Requires:	gulm >= 1.0-0.pre26.2
-%endif
 %endif
 %{?with_selinux:Requires:	libselinux >= 1.10}
 Obsoletes:	lvm
@@ -122,7 +112,7 @@ mv -f tools/lvm.static initrd-lvm
 	--with-optimisation="" \
 	--enable-readline \
 	--enable-fsadm \
-	%{?with_clvmd:--with-clvmd=%{?with_cman:cman}%{!?with_cman:gulm}} \
+	%{?with_clvmd:--with-clvmd=cman} \
 	--with-lvm1=internal \
 	--with-pool=internal \
 	--with-cluster=internal \
