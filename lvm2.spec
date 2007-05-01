@@ -9,7 +9,7 @@
 %undefine	with_uClibc
 %endif
 #
-%define	devmapper_ver	1.02.18
+%define	devmapper_ver	1.02.19
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
