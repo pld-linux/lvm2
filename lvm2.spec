@@ -20,6 +20,7 @@ Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
 # Source0-md5:	41b36c12a4ff25859ee9076a0bf2260f
 Patch0:		%{name}-as-needed.patch
+Patch1:		%{name}-susv3.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -85,6 +86,7 @@ potrzeby initrd.
 %prep
 %setup -q -n LVM2.%{version}
 %patch0 -p1
+%patch1 -p1
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
