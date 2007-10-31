@@ -5,7 +5,7 @@
 %bcond_with	clvmd	# build clvmd
 %bcond_without	selinux	# disable SELinux
 #
-%ifarch sparc64 sparc
+%ifarch sparc64 sparc %{x8664}
 %undefine	with_uClibc
 %endif
 #
@@ -14,7 +14,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.28
-Release:	1.14
+Release:	1.15
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
