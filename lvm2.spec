@@ -2,23 +2,23 @@
 # Conditional build:
 %bcond_without	initrd	# don't build initrd version
 %bcond_without	uClibc	# link initrd version with static glibc instead of uClibc
-%bcond_with	clvmd	# build clvmd
+%bcond_without	clvmd	# don't build clvmd
 %bcond_without	selinux	# disable SELinux
 #
 %ifarch sparc64 sparc %{x8664}
 %undefine	with_uClibc
 %endif
 #
-%define	devmapper_ver	1.02.22
+%define	devmapper_ver	1.02.23
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.28
-Release:	1.15
+Version:	2.02.29
+Release:	0.1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	940a882a71cae84f6befc8069a260ad1
+# Source0-md5:	61d7f49ef4908818278713564039a1ed
 Patch0:		%{name}-as-needed.patch
 Patch1:		%{name}-selinux.patch
 URL:		http://sources.redhat.com/lvm2/
