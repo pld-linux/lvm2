@@ -37,8 +37,9 @@ BuildRequires:	uClibc-static >= 2:0.9.26
 		%endif
 	%else
 BuildRequires:	device-mapper-static >= %{devmapper_ver}
-%{?with_selinux:BuildRequires:	libsepol-static}
 BuildRequires:	glibc-static
+%{?with_selinux:BuildRequires:	libselinux-static >= 1.10}
+%{?with_selinux:BuildRequires:	libsepol-static}
 	%endif
 %endif
 %if %{with clvmd}
