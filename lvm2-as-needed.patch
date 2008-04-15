@@ -10,15 +10,3 @@ diff -Nur LVM2.2.02.07/configure.in LVM2.2.02.07.as-needed/configure.in
  		AC_MSG_ERROR(
  termcap could not be found which is required for the
  --enable-readline option (which is enabled by default).  Either disable readline
-diff -Nur LVM2.2.02.07/tools/fsadm/Makefile.in LVM2.2.02.07.as-needed/tools/fsadm/Makefile.in
---- LVM2.2.02.07/tools/fsadm/Makefile.in	2004-06-15 19:29:20.000000000 +0200
-+++ LVM2.2.02.07.as-needed/tools/fsadm/Makefile.in	2006-08-02 01:01:14.000000000 +0200
-@@ -23,7 +23,7 @@
- include $(top_srcdir)/make.tmpl
- 
- fsadm: $(OBJECTS)
--	$(CC) -o $@ $(CFLAGS) $(OBJECTS) -rdynamic
-+	$(CC) $(LDFLAGS) -o $@ $(CFLAGS) $(OBJECTS) -rdynamic -llvm
- 
- install: fsadm
- 	$(INSTALL) -D $(OWNER) $(GROUP) -m 555 $(STRIP) fsadm \
