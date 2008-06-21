@@ -14,7 +14,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.35
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -26,6 +26,7 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= %{devmapper_ver}
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
+%{?with_selinux:BuildRequires:	libsepol-devel}
 BuildRequires:	rpmbuild(macros) >= 1.213
 %if %{with initrd}
 	%if %{with uClibc}
