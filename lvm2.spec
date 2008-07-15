@@ -13,12 +13,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.35
-Release:	3
+Version:	2.02.39
+Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	0544fb7e791f78e3824653dbf4574c2e
+# Source0-md5:	32ad429461070f0813aff758e0988bc2
 Patch0:		%{name}-as-needed.patch
 Patch1:		%{name}-selinux.patch
 URL:		http://sources.redhat.com/lvm2/
@@ -47,6 +47,7 @@ BuildRequires:	glibc-static
 BuildRequires:	cman-devel >= 1.0
 BuildRequires:	dlm-devel >= 1.0-0.pre21.2
 %endif
+BuildRequires:	ncurses-devel
 BuildRequires:	readline-devel
 Requires:	device-mapper >= %{devmapper_ver}
 %if %{with clvmd}
@@ -104,8 +105,11 @@ cp -f /usr/share/automake/config.sub autoconf
 	--with-optimisation="-Os" \
 	--enable-static_link \
 	--with-lvm1=internal \
-	--disable-selinux \
+	--%{?with_uClibc:dis}%{!?with_uClibc:en}able-selinux \
+	--disable-readline \
 	--disable-nls
+# non uclibc version links with normal static libdevicemapper which has selinux enabled
+# and we need to keep these in sync between device-mapper and lvm2
 
 %{__sed} -i -e 's#rpl_malloc#malloc#g' lib/misc/configure.h
 
