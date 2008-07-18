@@ -13,12 +13,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.34
+Version:	2.02.35
 Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	f71c0f63df887ae1b39b15a63d405de2
+# Source0-md5:	0544fb7e791f78e3824653dbf4574c2e
 Patch0:		%{name}-as-needed.patch
 Patch1:		%{name}-selinux.patch
 URL:		http://sources.redhat.com/lvm2/
@@ -26,6 +26,7 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	device-mapper-devel >= %{devmapper_ver}
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
+%{?with_selinux:BuildRequires:	libsepol-devel}
 BuildRequires:	rpmbuild(macros) >= 1.213
 %if %{with initrd}
 	%if %{with uClibc}
@@ -37,8 +38,9 @@ BuildRequires:	uClibc-static >= 2:0.9.26
 		%endif
 	%else
 BuildRequires:	device-mapper-static >= %{devmapper_ver}
-%{?with_selinux:BuildRequires:	libsepol-static}
 BuildRequires:	glibc-static
+%{?with_selinux:BuildRequires:	libselinux-static >= 1.10}
+%{?with_selinux:BuildRequires:	libsepol-static}
 	%endif
 %endif
 %if %{with clvmd}
@@ -52,6 +54,7 @@ Requires:	cman-libs >= 1.0
 Requires:	dlm >= 1.0-0.pre21.2
 %endif
 %{?with_selinux:Requires:	libselinux >= 1.10}
+Requires:	uname(release) >= 2.6
 Obsoletes:	lvm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
