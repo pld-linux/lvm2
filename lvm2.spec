@@ -55,6 +55,8 @@ Requires:	cman-libs >= 1.0
 Requires:	dlm >= 1.0-0.pre21.2
 %endif
 %{?with_selinux:Requires:	libselinux >= 1.10}
+# doesn't work with 2.4 kernels
+Requires:	uname(release) >= 2.6
 Obsoletes:	lvm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
