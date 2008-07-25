@@ -9,12 +9,12 @@
 %undefine	with_uClibc
 %endif
 #
-%define	devmapper_ver	1.02.25
+%define	devmapper_ver	1.02.27
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.39
-Release:	2
+Release:	3
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
