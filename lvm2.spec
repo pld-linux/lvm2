@@ -21,6 +21,7 @@ Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
 # Source0-md5:	91817f19c744691180f1183a87525e1b
 Patch0:		%{name}-as-needed.patch
 Patch1:		%{name}-selinux.patch
+Patch2:		%{name}-no-partial-mode.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -92,6 +93,7 @@ potrzeby initrd.
 %prep
 %setup -q -n LVM2.%{version}
 %patch0 -p1
+%patch2 -p1
 %{?with_selinux:%patch1 -p1}
 
 %build
