@@ -1,0 +1,12 @@
+--- LVM2.2.02.40/daemons/clvmd/lvm-functions.c.orig	2008-09-19 08:41:57.000000000 +0200
++++ LVM2.2.02.40/daemons/clvmd/lvm-functions.c	2008-10-06 20:39:48.634636497 +0200
+@@ -141,8 +141,7 @@
+ {
+ 	static char buf[128];
+ 
+-	sprintf(buf, "0x%x (%s%s%s)", flags,
+-		flags & LCK_PARTIAL_MODE	  ? "PARTIAL " : "",
++	sprintf(buf, "0x%x (%s%s)", flags,
+ 		flags & LCK_MIRROR_NOSYNC_MODE	  ? "MIRROR_NOSYNC " : "",
+ 		flags & LCK_DMEVENTD_MONITOR_MODE ? "DMEVENTD_MONITOR " : "");
+ 
