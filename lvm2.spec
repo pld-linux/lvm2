@@ -14,7 +14,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.42
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -62,6 +62,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_exec_prefix	/
 %define		_sbindir	/sbin
+%define		_usrsbindir	/usr/sbin
 %define		_libdir		/%{_lib}
 
 # changing CFLAGS in the middle confuses confcache
@@ -155,6 +156,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc README WHATS_NEW doc/*
 %attr(755,root,root) %{_sbindir}/*
+%attr(755,root,root) %{_usrsbindir}/clvmd
 %{?with_initrd:%exclude %{_sbindir}/initrd-lvm}
 %{_mandir}/man?/*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
