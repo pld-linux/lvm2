@@ -13,15 +13,14 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.40
+Version:	2.02.42
 Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	91817f19c744691180f1183a87525e1b
+# Source0-md5:	1044f9646abe417108ffdf0c69ac0d8d
 Patch0:		%{name}-as-needed.patch
 Patch1:		%{name}-selinux.patch
-Patch2:		%{name}-no-partial-mode.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -93,7 +92,6 @@ potrzeby initrd.
 %prep
 %setup -q -n LVM2.%{version}
 %patch0 -p1
-%patch2 -p1
 %{?with_selinux:%patch1 -p1}
 
 %build
