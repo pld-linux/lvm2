@@ -156,7 +156,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc README WHATS_NEW doc/*
 %attr(755,root,root) %{_sbindir}/*
-%attr(755,root,root) %{_usrsbindir}/clvmd
+%{?with_clvmd:%attr(755,root,root) %{_usrsbindir}/clvmd}
 %{?with_initrd:%exclude %{_sbindir}/initrd-lvm}
 %{_mandir}/man?/*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
