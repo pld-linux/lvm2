@@ -9,35 +9,31 @@
 %undefine	with_uClibc
 %endif
 #
-%define	devmapper_ver	1.02.28
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.42
-Release:	2
+Version:	2.02.43
+Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	1044f9646abe417108ffdf0c69ac0d8d
+# Source0-md5:	fc34655706a2aa116b92328b24fad619
 Patch0:		%{name}-as-needed.patch
 Patch1:		%{name}-selinux.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	device-mapper-devel >= %{devmapper_ver}
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
 %{?with_selinux:BuildRequires:	libsepol-devel}
 BuildRequires:	rpmbuild(macros) >= 1.213
 %if %{with initrd}
 	%if %{with uClibc}
-BuildRequires:	device-mapper-initrd-devel >= %{devmapper_ver}
 		%ifarch ppc
 BuildRequires:	uClibc-static >= 2:0.9.29
 		%else
 BuildRequires:	uClibc-static >= 2:0.9.26
 		%endif
 	%else
-BuildRequires:	device-mapper-static >= %{devmapper_ver}
 BuildRequires:	glibc-static
 %{?with_selinux:BuildRequires:	libselinux-static >= 1.10}
 %{?with_selinux:BuildRequires:	libsepol-static}
@@ -49,7 +45,7 @@ BuildRequires:	dlm-devel >= 1.0-0.pre21.2
 %endif
 BuildRequires:	ncurses-devel
 BuildRequires:	readline-devel
-Requires:	device-mapper >= %{devmapper_ver}
+Requires:	device-mapper >= %{version}-%{release}
 %if %{with clvmd}
 Requires:	cman-libs >= 1.0
 Requires:	dlm >= 1.0-0.pre21.2
@@ -60,10 +56,8 @@ Requires:	uname(release) >= 2.6
 Obsoletes:	lvm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_exec_prefix	/
 %define		_sbindir	/sbin
 %define		_usrsbindir	/usr/sbin
-%define		_libdir		/%{_lib}
 
 # changing CFLAGS in the middle confuses confcache
 %undefine	configure_cache
@@ -90,10 +84,65 @@ Pakiet ten zawiera narzędzia do tworzenia, sprawdzania i naprawiania
 logicznych wolumenów dyskowych (LVM2) - statycznie skonsolidowane na
 potrzeby initrd.
 
+%package -n device-mapper
+Summary:	Userspace support for the device-mapper
+Summary(pl.UTF-8):	Wsparcie dla mapowania urządzeń w przestrzeni użytkownika
+Group:		Base
+
+%description -n device-mapper
+The goal of this driver is to support volume management. The driver
+enables the definition of new block devices composed of ranges of
+sectors of existing devices. This can be used to define disk
+partitions - or logical volumes. This light-weight kernel component
+can support user-space tools for logical volume management.
+
+%description -n device-mapper -l pl.UTF-8
+Celem tego sterownika jest obsługa zarządzania wolumenami. Sterownik
+włącza definiowanie nowych urządzeń blokowych złożonych z przedziałów
+sektorów na istniejących urządzeniach. Może to być wykorzystane do
+definiowania partycji na dysku lub logicznych wolumenów. Ten lekki
+składnik jądra może wspierać działające w przestrzeni użytkownika
+narzędzia do zarządzania logicznymi wolumenami.
+
+%package -n device-mapper-devel
+Summary:	Header files and development documentation for %{name}
+Summary(pl.UTF-8):	Pliki nagłówkowe i dokumentacja do %{name}
+Group:		Development/Libraries
+Requires:	device-mapper = %{version}-%{release}
+%if %{with selinux}
+Requires:	libselinux-devel
+Requires:	libsepol-devel
+%endif
+
+%description -n device-mapper-devel
+Header files and development documentation for %{name}.
+
+%description -n device-mapper-devel -l pl.UTF-8
+Pliki nagłówkowe i dokumentacja do %{name}.
+
+%package -n device-mapper-static
+Summary:	Static devmapper library
+Summary(pl.UTF-8):	Statyczna biblioteka devmapper
+License:	LGPL v2.1
+Group:		Development/Libraries
+Requires:	%{name}-devel = %{version}-%{release}
+
+%description -n device-mapper-static
+Static devmapper library.
+
+%description -n device-mapper-static -l pl.UTF-8
+Statyczna biblioteka devmapper.
+
 %prep
 %setup -q -n LVM2.%{version}
 %patch0 -p1
 %{?with_selinux:%patch1 -p1}
+
+# maybe it's already fixed upstream?
+grep LIB_VERSION_LVM tools/Makefile* && exit 1
+
+# if not
+sed -i -e 's#LIB_VERSION#LIB_VERSION_LVM#g' tools/Makefile*
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
@@ -116,51 +165,92 @@ cp -f /usr/share/automake/config.sub autoconf
 
 %{__sed} -i -e 's#rpl_malloc#malloc#g' lib/misc/configure.h
 
-%{__make}
+%{__make} -j1
 mv -f tools/lvm.static initrd-lvm
 %{__make} clean
 %endif
 
 %configure \
 	CFLAGS="%{rpmcflags}" \
+	--with-usrlibdir=%{_libdir} \
 	%{?debug:--enable-debug} \
-	--with-optimisation="" \
+	--with-optimisation="%{rpmcflags}" \
 	--enable-readline \
 	--enable-fsadm \
+	--enable-cmdlib \
+	--enable-dmeventd \
+	--enable-pkgconfig \
 	%{?with_clvmd:--with-clvmd=cman} \
 	--with-lvm1=internal \
 	--with-pool=internal \
 	--with-cluster=internal \
 	--with-snapshots=internal \
 	--with-mirrors=internal \
+	--with-interface=ioctl \
 	%{!?with_selinux:--disable-selinux}
-%{__make}
+%{__make} -j1
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/lvm
+install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER="" \
 	GROUP=""
 
+mv $RPM_BUILD_ROOT%{_libdir}/lib*.so.* $RPM_BUILD_ROOT/%{_lib}
+for lib in $RPM_BUILD_ROOT/%{_lib}/lib*.so.*; do
+	lib=$(echo $lib | sed -e "s#$RPM_BUILD_ROOT##g")
+	slib=$(basename $lib | sed -e 's#\.so\..*#.so#g')
+	ln -sf $lib $RPM_BUILD_ROOT%{_libdir}/$slib
+done
+
 touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 
 %{?with_initrd:install initrd-lvm $RPM_BUILD_ROOT%{_sbindir}/initrd-lvm}
 
+install libdm/ioctl/libdevmapper.a $RPM_BUILD_ROOT%{_libdir}
+
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%post   -n device-mapper -p /sbin/ldconfig
+%postun -n device-mapper -p /sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
 %doc README WHATS_NEW doc/*
 %attr(755,root,root) %{_sbindir}/*
+%exclude %{_sbindir}/dmeventd
+%exclude %{_sbindir}/dmsetup
 %{?with_clvmd:%attr(755,root,root) %{_usrsbindir}/clvmd}
 %{?with_initrd:%exclude %{_sbindir}/initrd-lvm}
 %{_mandir}/man?/*
+%exclude %{_mandir}/man8/dmsetup.8*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
+
+%files -n device-mapper
+%defattr(644,root,root,755)
+%doc *_DM
+%attr(755,root,root) %{_sbindir}/dmeventd
+%attr(755,root,root) %{_sbindir}/dmsetup
+%attr(755,root,root) /%{_lib}/libdevmapper*.so.*.*
+%attr(755,root,root) /%{_lib}/liblvm2cmd.so.*.*
+%{_mandir}/man8/dmsetup.8*
+
+%files -n device-mapper-devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libdevmapper*.so
+%attr(755,root,root) %{_libdir}/liblvm2cmd.so
+%{_includedir}/libdevmapper*.h
+%{_includedir}/lvm2cmd.h
+%{_pkgconfigdir}/devmapper*.pc
+
+%files -n device-mapper-static
+%defattr(644,root,root,755)
+%{_libdir}/libdevmapper*.a
 
 %if %{with initrd}
 %files initrd
