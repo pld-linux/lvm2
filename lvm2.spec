@@ -1,3 +1,4 @@
+# TODO: kill -lreadline from libs (using -as-needed or moving from LIBS to binaries linking)
 #
 # Conditional build:
 %bcond_without	initrd	# don't build initrd version
@@ -142,7 +143,7 @@ Statyczna biblioteka devmapper.
 grep LIB_VERSION_LVM tools/Makefile* && exit 1
 
 # if not
-sed -i -e 's#LIB_VERSION#LIB_VERSION_LVM#g' tools/Makefile*
+sed -i -e 's#LIB_VERSION#LIB_VERSION_LVM#g;17aLIB_VERSION = $(LIB_VERSION_LVM)' tools/Makefile.in
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
@@ -171,7 +172,6 @@ mv -f tools/lvm.static initrd-lvm
 %endif
 
 %configure \
-	CFLAGS="%{rpmcflags}" \
 	--with-usrlibdir=%{_libdir} \
 	%{?debug:--enable-debug} \
 	--with-optimisation="%{rpmcflags}" \
