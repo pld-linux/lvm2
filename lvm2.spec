@@ -75,6 +75,8 @@ logicznych wolumenów dyskowych (LVM2).
 Summary:	The new version of Logical Volume Manager for Linux - initrd version
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa - wersja dla initrd
 Group:		Base
+Obsoletes:	device-mapper-initrd
+Obsoletes:	device-mapper-initrd-devel
 
 %description initrd
 This package includes a number of utilities for creating, checking,
