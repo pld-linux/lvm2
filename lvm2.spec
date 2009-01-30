@@ -13,14 +13,13 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.43
-Release:	3
+Version:	2.02.44
+Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	fc34655706a2aa116b92328b24fad619
-Patch0:		%{name}-as-needed.patch
-Patch1:		%{name}-selinux.patch
+# Source0-md5:	4ed7b99903a6fc5165b7b0b8def42486
+Patch0:		%{name}-selinux.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -138,14 +137,7 @@ Statyczna biblioteka devmapper.
 
 %prep
 %setup -q -n LVM2.%{version}
-%patch0 -p1
-%{?with_selinux:%patch1 -p1}
-
-# maybe it's already fixed upstream?
-grep LIB_VERSION_LVM tools/Makefile* && exit 1
-
-# if not
-sed -i -e 's#LIB_VERSION#LIB_VERSION_LVM#g;17aLIB_VERSION = $(LIB_VERSION_LVM)' tools/Makefile.in
+%{?with_selinux:%patch0 -p1}
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
