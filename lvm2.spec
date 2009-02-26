@@ -137,6 +137,21 @@ Static devmapper library.
 %description -n device-mapper-static -l pl.UTF-8
 Statyczna biblioteka devmapper.
 
+%package initramfs
+Summary:	The new version of Logical Volume Manager for Linux - support scripts for initramfs-tools
+Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa - skrypty dla initramfs-tools
+Group:		Base
+Requires:	%{name} = %{version}-%{release}
+Requires:	initramfs-tools
+
+%description initramfs
+The new version of Logical Volume Manager for Linux - support
+scripts for initramfs-tools.
+
+%description initramfs -l pl.UTF-8
+Nowa wersja Logical Volume Managera dla Linuksa - skrypty dla
+initramfs-tools.
+
 %prep
 %setup -q -n LVM2.%{version}
 %{?with_selinux:%patch0 -p1}
@@ -188,7 +203,8 @@ mv -f tools/lvm.static initrd-lvm
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm}
+install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm} \
+	$RPM_BUILD_ROOT%{_datadir}/initramfs-tools/{hooks,scripts/local-top}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -205,6 +221,9 @@ done
 touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 
 %{?with_initrd:install initrd-lvm $RPM_BUILD_ROOT%{_sbindir}/initrd-lvm}
+
+install %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/hooks/lvm2
+install %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/scripts/local-top/lvm2
 
 install libdm/ioctl/libdevmapper.a $RPM_BUILD_ROOT%{_libdir}
 
@@ -253,3 +272,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sbindir}/initrd-lvm
 %endif
+
+%files initramfs
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_datadir}/initramfs-tools/hooks/lvm2
+%attr(755,root,root) %{_datadir}/initramfs-tools/scripts/local-top/lvm2
