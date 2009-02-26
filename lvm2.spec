@@ -19,6 +19,8 @@ License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
 # Source0-md5:	4ed7b99903a6fc5165b7b0b8def42486
+Source1:	%{name}-initramfs-hook
+Source2:	%{name}-initramfs-local-top
 Patch0:		%{name}-selinux.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
