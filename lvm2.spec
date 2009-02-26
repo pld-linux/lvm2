@@ -204,6 +204,7 @@ cp -f /usr/share/automake/config.sub autoconf
 
 %{__make} -j1
 mv -f tools/lvm.static initrd-lvm
+%{__make} -j1 -C tools dmsetup.static
 mv -f tools/dmsetup.static initrd-dmsetup
 %{__make} clean
 %endif
