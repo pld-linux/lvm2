@@ -6,7 +6,7 @@
 %bcond_without	clvmd	# don't build clvmd
 %bcond_without	selinux	# disable SELinux
 #
-%ifarch sparc64 sparc %{x8664}
+%ifarch sparc64 sparc
 %undefine	with_uClibc
 %endif
 #
@@ -14,7 +14,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.44
-Release:	4
+Release:	5
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -76,8 +76,6 @@ logicznych wolumenów dyskowych (LVM2).
 Summary:	The new version of Logical Volume Manager for Linux - initrd version
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa - wersja dla initrd
 Group:		Base
-Obsoletes:	device-mapper-initrd
-Obsoletes:	device-mapper-initrd-devel
 
 %description initrd
 This package includes a number of utilities for creating, checking,
@@ -137,6 +135,33 @@ Static devmapper library.
 %description -n device-mapper-static -l pl.UTF-8
 Statyczna biblioteka devmapper.
 
+%package -n device-mapper-initrd
+Summary:	Userspace support for the device-mapper - initrd version
+Summary(pl.UTF-8):	Wsparcie dla mapowania urządzeń w przestrzeni użytkownika - wersja dla initrd
+Group:		Base
+Obsoletes:	device-mapper-initrd-devel
+
+%description -n device-mapper-initrd
+The goal of this driver is to support volume management. The driver
+enables the definition of new block devices composed of ranges of
+sectors of existing devices. This can be used to define disk
+partitions - or logical volumes. This light-weight kernel component
+can support user-space tools for logical volume management.
+
+This package contains dmsetup program linked staticaly for use in
+initrd.
+
+%description -n device-mapper-initrd -l pl.UTF-8
+Celem tego sterownika jest obsługa zarządzania wolumenami. Sterownik
+włącza definiowanie nowych urządzeń blokowych złożonych z przedziałów
+sektorów na istniejących urządzeniach. Może to być wykorzystane do
+definiowania partycji na dysku lub logicznych wolumenów. Ten lekki
+składnik jądra może wspierać działające w przestrzeni użytkownika
+narzędzia do zarządzania logicznymi wolumenami.
+
+Ten pakiet zawiera program dmsetup skonsolidowany statycznie na
+potrzeby initrd.
+
 %package initramfs
 Summary:	The new version of Logical Volume Manager for Linux - support scripts for initramfs-tools
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa - skrypty dla initramfs-tools
@@ -179,6 +204,7 @@ cp -f /usr/share/automake/config.sub autoconf
 
 %{__make} -j1
 mv -f tools/lvm.static initrd-lvm
+mv -f tools/dmsetup.static initrd-dmsetup
 %{__make} clean
 %endif
 
@@ -221,6 +247,7 @@ done
 touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 
 %{?with_initrd:install initrd-lvm $RPM_BUILD_ROOT%{_sbindir}/initrd-lvm}
+%{?with_initrd:install initrd-dmsetup $RPM_BUILD_ROOT%{_sbindir}/initrd-dmsetup}
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/hooks/lvm2
 install %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/scripts/local-top/lvm2
@@ -240,7 +267,7 @@ rm -rf $RPM_BUILD_ROOT
 %exclude %{_sbindir}/dmeventd
 %exclude %{_sbindir}/dmsetup
 %{?with_clvmd:%attr(755,root,root) %{_usrsbindir}/clvmd}
-%{?with_initrd:%exclude %{_sbindir}/initrd-lvm}
+%{?with_initrd:%exclude %{_sbindir}/initrd-*}
 %{_mandir}/man?/*
 %exclude %{_mandir}/man8/dmsetup.8*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
@@ -268,6 +295,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libdevmapper*.a
 
 %if %{with initrd}
+%files -n device-mapper-initrd
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_sbindir}/initrd-dmsetup
+
 %files initrd
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sbindir}/initrd-lvm
