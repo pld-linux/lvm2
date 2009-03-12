@@ -1,4 +1,6 @@
-# TODO: kill -lreadline from libs (using -as-needed or moving from LIBS to binaries linking)
+# TODO
+# - kill -lreadline from libs (using -as-needed or moving from LIBS to binaries linking)
+# - vgscan --ignorelocking failure creates /var/lock/lvm (even if /var is not yet mounted)
 #
 # Conditional build:
 %bcond_without	initrd	# don't build initrd version
