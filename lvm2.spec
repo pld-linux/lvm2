@@ -27,7 +27,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.45
-Release:	2
+Release:	2.1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -227,7 +227,8 @@ cp -f /usr/share/automake/config.sub autoconf
 
 %{__sed} -i -e 's#rpl_malloc#malloc#g' lib/misc/configure.h
 
-%{__make} -j1
+%{__make} -j1 -C libdm
+%{__make} -j1 -C lib
 %{__make} -j1 -C tools dmsetup.static lvm.static
 mv -f tools/lvm.static initrd-lvm
 mv -f tools/dmsetup.static initrd-dmsetup
