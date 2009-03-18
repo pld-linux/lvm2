@@ -227,7 +227,7 @@ cp -f /usr/share/automake/config.sub autoconf
 
 %{__sed} -i -e 's#rpl_malloc#malloc#g' lib/misc/configure.h
 
-%{__make} -j1 lib
+%{__make} -j1 lib LIB_SHARED= VERSIONED_SHLIB=
 %{__make} -j1 -C tools dmsetup.static lvm.static
 mv -f tools/lvm.static initrd-lvm
 mv -f tools/dmsetup.static initrd-dmsetup
