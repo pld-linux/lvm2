@@ -3,20 +3,31 @@
 # - vgscan --ignorelocking failure creates /var/lock/lvm (even if /var is not yet mounted)
 #
 # Conditional build:
-%bcond_without	initrd	# don't build initrd version
-%bcond_without	uClibc	# link initrd version with static glibc instead of uClibc
-%bcond_without	clvmd	# don't build clvmd
-%bcond_without	selinux	# disable SELinux
-#
+%bcond_without	initrd		# don't build initrd version
+%bcond_with	uClibc		# link initrd version with uClibc
+%bcond_without	dietlibc	# link initrd version with dietlibc
+%bcond_with	glibc		# link initrd version with static glibc
+%bcond_without	clvmd		# don't build clvmd
+%bcond_without	selinux		# disable SELinux
+
 %ifarch sparc64 sparc
-%undefine	with_uClibc
+%define		with_glibc 1
 %endif
-#
+
+# if one of the *libc is enabled disable default dietlibc
+%if %{with dietlibc} && %{with uClibc}
+%undefine	with_dietlibc
+%endif
+
+%if %{with glibc} && %{with dietlibc}
+%undefine	with_dietlibc
+%endif
+
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.45
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -24,6 +35,7 @@ Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
 Source1:	%{name}-initramfs-hook
 Source2:	%{name}-initramfs-local-top
 Patch0:		%{name}-selinux.patch
+Patch1:		%{name}-diet.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -31,17 +43,9 @@ BuildRequires:	automake
 %{?with_selinux:BuildRequires:	libsepol-devel}
 BuildRequires:	rpmbuild(macros) >= 1.213
 %if %{with initrd}
-	%if %{with uClibc}
-		%ifarch ppc
-BuildRequires:	uClibc-static >= 2:0.9.29
-		%else
-BuildRequires:	uClibc-static >= 2:0.9.26
-		%endif
-	%else
-BuildRequires:	glibc-static
-%{?with_selinux:BuildRequires:	libselinux-static >= 1.10}
-%{?with_selinux:BuildRequires:	libsepol-static}
-	%endif
+%{?with_dietlibc:BuildRequires:	dietlibc-static >= 2:0.31-5}
+%{?with_glibc:BuildRequires:	glibc-static}
+%{?with_uClibc:BuildRequires:	uClibc-static >= 2:0.9.29}
 %endif
 %if %{with clvmd}
 BuildRequires:	cman-devel >= 1.0
@@ -65,6 +69,10 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # changing CFLAGS in the middle confuses confcache
 %undefine	configure_cache
+
+# for some reason known only to rpm there must be "\\|" not "\|" here
+%define		dietarch	%(echo %{_target_cpu} | sed -e 's/i.86\\|pentium.\\|athlon/i386/;s/amd64/x86_64/;s/armv.*/arm/')
+%define		dietlibdir	%{_prefix}/lib/dietlibc/lib-%{dietarch}
 
 %description
 This package includes a number of utilities for creating, checking,
@@ -137,6 +145,19 @@ Static devmapper library.
 %description -n device-mapper-static -l pl.UTF-8
 Statyczna biblioteka devmapper.
 
+%package -n device-mapper-dietlibc
+Summary:	Static devmapper library built with dietlibc
+Summary(pl.UTF-8):	Statyczna biblioteka devmapper zbudowana z dietlibc
+License:	LGPL v2.1
+Group:		Development/Libraries
+Requires:	device-mapper-devel = %{version}-%{release}
+
+%description -n device-mapper-dietlibc
+Static devmapper library built with dietlibc.
+
+%description -n device-mapper-dietlibc -l pl.UTF-8
+Statyczna biblioteka devmapper zbudowana z dietlibc.
+
 %package -n device-mapper-initrd
 Summary:	Userspace support for the device-mapper - initrd version
 Summary(pl.UTF-8):	Wsparcie dla mapowania urządzeń w przestrzeni użytkownika - wersja dla initrd
@@ -182,6 +203,7 @@ initramfs-tools.
 %prep
 %setup -q -n LVM2.%{version}
 %{?with_selinux:%patch0 -p1}
+%patch1 -p1
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
@@ -191,23 +213,25 @@ cp -f /usr/share/automake/config.sub autoconf
 %if %{with initrd}
 %configure \
 	%{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc"} \
+	%{?with_dietlibc:CC="diet %{__cc}"} \
 	ac_cv_lib_dl_dlopen=no \
 	%{?debug:--enable-debug} \
 	--with-optimisation="-Os" \
 	--enable-static_link \
 	--with-lvm1=internal \
-	--%{?with_uClibc:dis}%{!?with_uClibc:en}able-selinux \
+	--%{?with_glibc:en}%{!?with_glibc:dis}able-selinux \
 	--disable-readline \
 	--disable-nls
-# non uclibc version links with normal static libdevicemapper which has selinux enabled
+# glibc version links with normal static libdevicemapper which has selinux enabled
 # and we need to keep these in sync between device-mapper and lvm2
 
 %{__sed} -i -e 's#rpl_malloc#malloc#g' lib/misc/configure.h
 
 %{__make} -j1
+%{__make} -j1 -C tools dmsetup.static lvm.static
 mv -f tools/lvm.static initrd-lvm
-%{__make} -j1 -C tools dmsetup.static
 mv -f tools/dmsetup.static initrd-dmsetup
+%{?with_dietlibc:mv -f libdm/ioctl/libdevmapper.a diet-libdevmapper.a}
 %{__make} clean
 %endif
 
@@ -234,6 +258,7 @@ mv -f tools/dmsetup.static initrd-dmsetup
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm} \
 	$RPM_BUILD_ROOT%{_datadir}/initramfs-tools/{hooks,scripts/local-top}
+%{?with_dietlibc:install -d $RPM_BUILD_ROOT%{dietlibdir}}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -251,6 +276,8 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 
 %{?with_initrd:install initrd-lvm $RPM_BUILD_ROOT%{_sbindir}/initrd-lvm}
 %{?with_initrd:install initrd-dmsetup $RPM_BUILD_ROOT%{_sbindir}/initrd-dmsetup}
+
+%{?with_dietlibc:install diet-libdevmapper.a $RPM_BUILD_ROOT%{dietlibdir}/libdevmapper.a}
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/hooks/lvm2
 install %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/scripts/local-top/lvm2
@@ -296,6 +323,12 @@ rm -rf $RPM_BUILD_ROOT
 %files -n device-mapper-static
 %defattr(644,root,root,755)
 %{_libdir}/libdevmapper*.a
+
+%if %{with dietlibc}
+%files -n device-mapper-dietlibc
+%defattr(644,root,root,755)
+%{dietlibdir}/libdevmapper.a
+%endif
 
 %if %{with initrd}
 %files -n device-mapper-initrd
