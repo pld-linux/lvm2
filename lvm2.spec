@@ -274,8 +274,11 @@ done
 
 touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 
-%{?with_initrd:install initrd-lvm $RPM_BUILD_ROOT%{_sbindir}/initrd-lvm}
-%{?with_initrd:install initrd-dmsetup $RPM_BUILD_ROOT%{_sbindir}/initrd-dmsetup}
+%if %{with initrd}
+install -d $RPM_BUILD_ROOT%{_libdir}/initrd
+install initrd-lvm $RPM_BUILD_ROOT%{_libdir}/initrd/lvm
+install initrd-dmsetup $RPM_BUILD_ROOT%{_libdir}/initrd/dmsetup
+%endif
 
 %{?with_dietlibc:install diet-libdevmapper.a $RPM_BUILD_ROOT%{dietlibdir}/libdevmapper.a}
 
@@ -297,7 +300,6 @@ rm -rf $RPM_BUILD_ROOT
 %exclude %{_sbindir}/dmeventd
 %exclude %{_sbindir}/dmsetup
 %{?with_clvmd:%attr(755,root,root) %{_usrsbindir}/clvmd}
-%{?with_initrd:%exclude %{_sbindir}/initrd-*}
 %{_mandir}/man?/*
 %exclude %{_mandir}/man8/dmsetup.8*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
@@ -333,11 +335,11 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with initrd}
 %files -n device-mapper-initrd
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_sbindir}/initrd-dmsetup
+%attr(755,root,root) %{_libdir}/initrd/dmsetup
 
 %files initrd
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_sbindir}/initrd-lvm
+%attr(755,root,root) %{_libdir}/initrd/lvm
 %endif
 
 %files initramfs
