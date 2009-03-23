@@ -218,7 +218,7 @@ cp -f /usr/share/automake/config.sub autoconf
 	%{?with_dietlibc:CC="diet %{__cc}"} \
 	ac_cv_lib_dl_dlopen=no \
 	%{?debug:--enable-debug} \
-	--with-optimisation="-Os" \
+	--with-optimisation="%{rpmcflags} -Os" \
 	--enable-static_link \
 	--with-lvm1=internal \
 	--%{?with_glibc:en}%{!?with_glibc:dis}able-selinux \
