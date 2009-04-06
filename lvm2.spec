@@ -27,7 +27,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.45
-Release:	3
+Release:	4
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -86,7 +86,7 @@ logicznych wolumenów dyskowych (LVM2).
 Summary:	The new version of Logical Volume Manager for Linux - initrd version
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa - wersja dla initrd
 Group:		Base
-Conflicts:	geninitrd <= 10000.3
+Conflicts:	geninitrd < 10000.10
 
 %description initrd
 This package includes a number of utilities for creating, checking,
