@@ -1,7 +1,7 @@
 diff --git a/dmsetup/dmsetup.c b/dmsetup/dmsetup.c
 index 25f14a6..b693008 100644
---- a/dmsetup/dmsetup.c
-+++ b/dmsetup/dmsetup.c
+--- a/tools/dmsetup.c
++++ b/tools/dmsetup.c
 @@ -995,6 +995,94 @@ static int _status(int argc, char **argv
  	return r;
  }
@@ -107,8 +107,8 @@ index 25f14a6..b693008 100644
  	{"mknodes", "[<device>]", 0, 1, _mknodes},
 diff --git a/man/dmsetup.8 b/man/dmsetup.8
 index 5b2ed9f..c4524aa 100644
---- a/man/dmsetup.8
-+++ b/man/dmsetup.8
+--- a/man/dmsetup.8.in
++++ b/man/dmsetup.8.in
 @@ -39,13 +39,16 @@ dmsetup \- low level logical volume mana
  .B dmsetup ls
  .I [--target target_type] [--exec command] [--tree [-o options]]

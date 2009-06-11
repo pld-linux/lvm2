@@ -27,7 +27,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.45
-Release:	4
+Release:	5
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -36,6 +36,7 @@ Source1:	%{name}-initramfs-hook
 Source2:	%{name}-initramfs-local-top
 Patch0:		%{name}-selinux.patch
 Patch1:		%{name}-diet.patch
+Patch2:		device-mapper-dmsetup-export.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -69,6 +70,8 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # changing CFLAGS in the middle confuses confcache
 %undefine	configure_cache
+# can't work with diet
+%undefine	with_ccache
 
 # for some reason known only to rpm there must be "\\|" not "\|" here
 %define		dietarch	%(echo %{_target_cpu} | sed -e 's/i.86\\|pentium.\\|athlon/i386/;s/amd64/x86_64/;s/armv.*/arm/')
@@ -206,6 +209,7 @@ initramfs-tools.
 %setup -q -n LVM2.%{version}
 %{?with_selinux:%patch0 -p1}
 %patch1 -p1
+%patch2 -p1
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
