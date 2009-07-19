@@ -26,12 +26,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.45
-Release:	5
+Version:	2.02.49
+Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	440daa01b8f2ec4fe97b1cc621108220
+# Source0-md5:	ae49c161e7533c8e33b669c80154bd46
 Source1:	%{name}-initramfs-hook
 Source2:	%{name}-initramfs-local-top
 Patch0:		%{name}-selinux.patch
@@ -233,7 +233,9 @@ cp -f /usr/share/automake/config.sub autoconf
 
 %{__sed} -i -e 's#rpl_malloc#malloc#g' lib/misc/configure.h
 
-%{__make} -j1 lib LIB_SHARED= VERSIONED_SHLIB=
+%{__make} -j1 -C include
+%{__make} -j1 -C lib LIB_SHARED= VERSIONED_SHLIB=
+%{__make} -j1 -C libdm LIB_SHARED= VERSIONED_SHLIB=
 %{__make} -j1 -C tools dmsetup.static lvm.static
 mv -f tools/lvm.static initrd-lvm
 mv -f tools/dmsetup.static initrd-dmsetup
@@ -259,6 +261,7 @@ mv -f tools/dmsetup.static initrd-dmsetup
 	--with-interface=ioctl \
 	%{!?with_selinux:--disable-selinux}
 %{__make} -j1
+%{__make} -j1 -C libdm LIB_STATIC=libdevmapper.a
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -291,7 +294,7 @@ install initrd-dmsetup $RPM_BUILD_ROOT%{_libdir}/initrd/dmsetup
 install %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/hooks/lvm2
 install %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/scripts/local-top/lvm2
 
-install libdm/ioctl/libdevmapper.a $RPM_BUILD_ROOT%{_libdir}
+install libdm/libdevmapper.a $RPM_BUILD_ROOT%{_libdir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT

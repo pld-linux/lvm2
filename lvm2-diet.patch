@@ -147,21 +147,29 @@ diff -ur LVM2.2.02.45/tools/dmsetup.c LVM2.2.02.45-diet/tools/dmsetup.c
  
 --- LVM2.2.02.45/tools/Makefile.in~	2009-03-18 13:52:30.000000000 +0100
 +++ LVM2.2.02.45/tools/Makefile.in	2009-03-18 13:53:06.000000000 +0100
-@@ -106,7 +106,7 @@
+@@ -109,19 +109,19 @@
+ device-mapper: $(TARGETS_DM)
  
  dmsetup: dmsetup.o $(top_srcdir)/libdm/libdevmapper.$(LIB_SUFFIX)
- 	$(CC) -o $@ dmsetup.o $(CFLAGS) $(LDFLAGS) \
--	      -L$(top_srcdir)/libdm -L$(DESTDIR)/lib -ldevmapper $(LIBS)
-+	      -L$(interfacedir) -L$(top_srcdir)/libdm -L$(DESTDIR)/lib -ldevmapper $(LIBS)
+-	$(CC) -o $@ dmsetup.o $(CFLAGS) $(LDFLAGS) \
+-	      -L$(top_srcdir)/libdm -ldevmapper $(LIBS)
++	$(CC) -o $@ dmsetup.o $(CFLAGS) \
++	      -L$(interfacedir) -L$(top_srcdir)/libdm $(LDFLAGS) -ldevmapper $(LIBS)
  
  dmsetup.static: dmsetup.o $(interfacedir)/libdevmapper.a
- 	$(CC) -o $@ dmsetup.o $(CFLAGS) $(LDFLAGS) -static \
-@@ -117,7 +117,7 @@
+-	$(CC) -o $@ dmsetup.o $(CFLAGS) $(LDFLAGS) -static \
+-	      -L$(interfacedir) -ldevmapper $(LIBS) \
++	$(CC) -o $@ dmsetup.o $(CFLAGS) -static \
++	      -L$(interfacedir) $(LDFLAGS) -ldevmapper $(LIBS) \
+ 	      $(LIB_PTHREAD)
  
- lvm: $(OBJECTS) lvm.o $(top_srcdir)/lib/liblvm.a
+ all: device-mapper
+ 
+ lvm: $(OBJECTS) lvm.o $(top_srcdir)/lib/liblvm-internal.a
  	$(CC) -o $@ $(CFLAGS) $(OBJECTS) lvm.o \
 -		$(LDFLAGS) $(LVMLIBS) $(LIBS) -rdynamic
 +		-L$(interfacedir) $(LDFLAGS) $(LVMLIBS) $(LIBS) -rdynamic
  
  LIB_PTHREAD = @LIB_PTHREAD@
- lvm.static: $(OBJECTS) lvm-static.o $(top_srcdir)/lib/liblvm.a  $(interfacedir)/libdevmapper.a
+ lvm.static: $(OBJECTS) lvm-static.o $(top_srcdir)/lib/liblvm-internal.a  $(interfacedir)/libdevmapper.a
+
