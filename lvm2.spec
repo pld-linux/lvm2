@@ -44,7 +44,10 @@ BuildRequires:	automake
 %{?with_selinux:BuildRequires:	libsepol-devel}
 BuildRequires:	rpmbuild(macros) >= 1.213
 %if %{with initrd}
-%{?with_dietlibc:BuildRequires:	dietlibc-static >= 2:0.31-5}
+%if %{with dietlibc}
+BuildRequires:	dietlibc-static >= 2:0.31-5
+BuildConflicts:	device-mapper-dietlibc
+%endif
 %{?with_glibc:BuildRequires:	glibc-static}
 %{?with_uClibc:BuildRequires:	uClibc-static >= 2:0.9.29}
 %endif
