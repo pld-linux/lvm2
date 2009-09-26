@@ -26,12 +26,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.52
+Version:	2.02.53
 Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	f3b3aed6f6aacd8f351d9a5da097293f
+# Source0-md5:	f9ae3579bf15467b7f1d7aea8b9ed9b3
 Source1:	%{name}-initramfs-hook
 Source2:	%{name}-initramfs-local-top
 Patch0:		%{name}-selinux.patch
