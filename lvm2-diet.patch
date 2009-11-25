@@ -1,4 +1,3 @@
-diff -ur LVM2.2.02.45/lib/commands/toolcontext.c LVM2.2.02.45-diet/lib/commands/toolcontext.c
 --- LVM2.2.02.45/lib/commands/toolcontext.c	2009-02-22 22:14:38.000000000 +0100
 +++ LVM2.2.02.45-diet/lib/commands/toolcontext.c	2009-03-18 12:18:23.000000000 +0100
 @@ -1006,10 +1006,10 @@
@@ -14,7 +13,6 @@ diff -ur LVM2.2.02.45/lib/commands/toolcontext.c LVM2.2.02.45-diet/lib/commands/
  #ifdef INTL_PACKAGE
  	bindtextdomain(INTL_PACKAGE, LOCALEDIR);
  #endif
-diff -ur LVM2.2.02.45/lib/locking/file_locking.c LVM2.2.02.45-diet/lib/locking/file_locking.c
 --- LVM2.2.02.45/lib/locking/file_locking.c	2008-11-12 10:30:52.000000000 +0100
 +++ LVM2.2.02.45-diet/lib/locking/file_locking.c	2009-03-18 12:18:52.000000000 +0100
 @@ -30,6 +30,10 @@
@@ -28,7 +26,6 @@ diff -ur LVM2.2.02.45/lib/locking/file_locking.c LVM2.2.02.45-diet/lib/locking/f
  struct lock_list {
  	struct dm_list list;
  	int lf;
-diff -ur LVM2.2.02.45/libdm/libdevmapper.h LVM2.2.02.45-diet/libdm/libdevmapper.h
 --- LVM2.2.02.45/libdm/libdevmapper.h	2008-11-04 16:07:45.000000000 +0100
 +++ LVM2.2.02.45-diet/libdm/libdevmapper.h	2009-03-18 12:17:27.000000000 +0100
 @@ -160,6 +160,10 @@
@@ -42,7 +39,6 @@ diff -ur LVM2.2.02.45/libdm/libdevmapper.h LVM2.2.02.45-diet/libdm/libdevmapper.
  #define DM_READ_AHEAD_AUTO UINT32_MAX	/* Use kernel default readahead */
  #define DM_READ_AHEAD_NONE 0		/* Disable readahead */
  
-diff -ur LVM2.2.02.45/lib/config/config.c LVM2.2.02.45-diet/lib/config/config.c
 --- LVM2.2.02.45/lib/config/config.c	2008-11-03 23:14:27.000000000 +0100
 +++ LVM2.2.02.45-diet/lib/config/config.c	2009-03-18 12:22:31.000000000 +0100
 @@ -28,6 +28,10 @@
@@ -56,7 +52,6 @@ diff -ur LVM2.2.02.45/lib/config/config.c LVM2.2.02.45-diet/lib/config/config.c
  #define SECTION_B_CHAR '{'
  #define SECTION_E_CHAR '}'
  
-diff -ur LVM2.2.02.45/lib/misc/lib.h LVM2.2.02.45-diet/lib/misc/lib.h
 --- LVM2.2.02.45/lib/misc/lib.h	2008-11-03 19:59:58.000000000 +0100
 +++ LVM2.2.02.45-diet/lib/misc/lib.h	2009-03-18 12:24:30.000000000 +0100
 @@ -45,4 +45,20 @@
@@ -80,7 +75,6 @@ diff -ur LVM2.2.02.45/lib/misc/lib.h LVM2.2.02.45-diet/lib/misc/lib.h
 +#endif
 +
  #endif
-diff -ur LVM2.2.02.45/tools/tools.h LVM2.2.02.45-diet/tools/tools.h
 --- LVM2.2.02.45/tools/tools.h	2008-11-04 15:57:06.000000000 +0100
 +++ LVM2.2.02.45-diet/tools/tools.h	2009-03-18 12:24:58.000000000 +0100
 @@ -55,6 +55,21 @@
@@ -105,7 +99,6 @@ diff -ur LVM2.2.02.45/tools/tools.h LVM2.2.02.45-diet/tools/tools.h
  #define CMD_LEN 256
  #define MAX_ARGS 64
  
-diff -ur LVM2.2.02.45/lib/report/report.c LVM2.2.02.45-diet/lib/report/report.c
 --- LVM2.2.02.45/lib/report/report.c	2009-02-09 10:45:49.000000000 +0100
 +++ LVM2.2.02.45-diet/lib/report/report.c	2009-03-18 12:45:23.000000000 +0100
 @@ -24,6 +24,11 @@
@@ -120,7 +113,6 @@ diff -ur LVM2.2.02.45/lib/report/report.c LVM2.2.02.45-diet/lib/report/report.c
  struct lvm_report_object {
  	struct volume_group *vg;
  	struct logical_volume *lv;
-diff -ur LVM2.2.02.45/tools/dmsetup.c LVM2.2.02.45-diet/tools/dmsetup.c
 --- LVM2.2.02.45/tools/dmsetup.c	2008-10-30 18:52:06.000000000 +0100
 +++ LVM2.2.02.45-diet/tools/dmsetup.c	2009-03-18 12:47:46.000000000 +0100
 @@ -40,6 +40,21 @@
@@ -145,31 +137,26 @@ diff -ur LVM2.2.02.45/tools/dmsetup.c LVM2.2.02.45-diet/tools/dmsetup.c
  /* FIXME Unused so far */
  #undef HAVE_SYS_STATVFS_H
  
---- LVM2.2.02.45/tools/Makefile.in~	2009-03-18 13:52:30.000000000 +0100
-+++ LVM2.2.02.45/tools/Makefile.in	2009-03-18 13:53:06.000000000 +0100
-@@ -109,19 +109,19 @@
+--- LVM2.2.02.56/tools/Makefile.in~	2009-11-25 08:28:12.000000000 +0200
++++ LVM2.2.02.56/tools/Makefile.in	2009-11-25 08:31:43.694158250 +0200
+@@ -115,17 +115,17 @@
  device-mapper: $(TARGETS_DM)
  
- dmsetup: dmsetup.o $(top_srcdir)/libdm/libdevmapper.$(LIB_SUFFIX)
--	$(CC) -o $@ dmsetup.o $(CFLAGS) $(LDFLAGS) \
--	      -L$(top_srcdir)/libdm -ldevmapper $(LIBS)
-+	$(CC) -o $@ dmsetup.o $(CFLAGS) \
-+	      -L$(interfacedir) -L$(top_srcdir)/libdm $(LDFLAGS) -ldevmapper $(LIBS)
+ dmsetup: dmsetup.o $(top_builddir)/libdm/libdevmapper.$(LIB_SUFFIX)
+-	$(CC) $(CFLAGS) $(LDFLAGS) -L$(top_builddir)/libdm \
++	$(CC) $(CFLAGS) -L$(interfacedir) -L$(top_builddir)/libdm $(LDFLAGS) \
+ 	      -o $@ dmsetup.o -ldevmapper $(LIBS) $(LIB_PTHREAD)
  
  dmsetup.static: dmsetup.o $(interfacedir)/libdevmapper.a
--	$(CC) -o $@ dmsetup.o $(CFLAGS) $(LDFLAGS) -static \
--	      -L$(interfacedir) -ldevmapper $(LIBS) \
-+	$(CC) -o $@ dmsetup.o $(CFLAGS) -static \
-+	      -L$(interfacedir) $(LDFLAGS) -ldevmapper $(LIBS) \
- 	      $(LIB_PTHREAD)
+-	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacedir) \
++	$(CC) $(CFLAGS) -static -L$(interfacedir) $(LDFLAGS) \
+ 	      -o $@ dmsetup.o -ldevmapper $(LIBS) $(LIB_PTHREAD)
  
  all: device-mapper
  
- lvm: $(OBJECTS) lvm.o $(top_srcdir)/lib/liblvm-internal.a
- 	$(CC) -o $@ $(CFLAGS) $(OBJECTS) lvm.o \
--		$(LDFLAGS) $(LVMLIBS) $(LIBS) -rdynamic
-+		-L$(interfacedir) $(LDFLAGS) $(LVMLIBS) $(LIBS) -rdynamic
+ lvm: $(OBJECTS) lvm.o $(top_builddir)/lib/liblvm-internal.a
+-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) lvm.o \
++	$(CC) $(CFLAGS) -L$(interfacedir) $(LDFLAGS) -o $@ $(OBJECTS) lvm.o \
+ 		$(LVMLIBS) $(LIBS) $(LIB_PTHREAD) -rdynamic
  
- LIB_PTHREAD = @LIB_PTHREAD@
- lvm.static: $(OBJECTS) lvm-static.o $(top_srcdir)/lib/liblvm-internal.a  $(interfacedir)/libdevmapper.a
-
+ lvm.static: $(OBJECTS) lvm-static.o $(top_builddir)/lib/liblvm-internal.a  $(interfacedir)/libdevmapper.a
