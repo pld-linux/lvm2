@@ -136,27 +136,28 @@
 +
  /* FIXME Unused so far */
  #undef HAVE_SYS_STATVFS_H
- 
---- LVM2.2.02.56/tools/Makefile.in~	2009-11-25 08:28:12.000000000 +0200
-+++ LVM2.2.02.56/tools/Makefile.in	2009-11-25 08:31:43.694158250 +0200
-@@ -115,17 +115,17 @@
+
+--- LVM2.2.02.65/tools/Makefile.in~	2010-05-18 13:18:54.344217166 +0200
++++ LVM2.2.02.65/tools/Makefile.in	2010-05-18 13:21:19.303172002 +0200
+@@ -122,17 +122,17 @@
  device-mapper: $(TARGETS_DM)
  
  dmsetup: dmsetup.o $(top_builddir)/libdm/libdevmapper.$(LIB_SUFFIX)
 -	$(CC) $(CFLAGS) $(LDFLAGS) -L$(top_builddir)/libdm \
 +	$(CC) $(CFLAGS) -L$(interfacedir) -L$(top_builddir)/libdm $(LDFLAGS) \
- 	      -o $@ dmsetup.o -ldevmapper $(LIBS) $(LIB_PTHREAD)
+ 	      -o $@ dmsetup.o -ldevmapper $(LIBS)
  
- dmsetup.static: dmsetup.o $(interfacedir)/libdevmapper.a
--	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacedir) \
-+	$(CC) $(CFLAGS) -static -L$(interfacedir) $(LDFLAGS) \
- 	      -o $@ dmsetup.o -ldevmapper $(LIBS) $(LIB_PTHREAD)
+ dmsetup.static: dmsetup.o $(interfacebuilddir)/libdevmapper.a
+-	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) \
++	$(CC) $(CFLAGS) -static -L$(interfacebuilddir) $(LDFLAGS) \
+ 	      -o $@ dmsetup.o -ldevmapper $(STATIC_LIBS) $(LIBS)
  
  all: device-mapper
  
  lvm: $(OBJECTS) lvm.o $(top_builddir)/lib/liblvm-internal.a
 -	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) lvm.o \
 +	$(CC) $(CFLAGS) -L$(interfacedir) $(LDFLAGS) -o $@ $(OBJECTS) lvm.o \
- 		$(LVMLIBS) $(LIBS) $(LIB_PTHREAD) -rdynamic
+ 		$(LVMLIBS) $(READLINE_LIBS) $(LIBS) -rdynamic
  
- lvm.static: $(OBJECTS) lvm-static.o $(top_builddir)/lib/liblvm-internal.a  $(interfacedir)/libdevmapper.a
+ lvm.static: $(OBJECTS) lvm-static.o $(top_builddir)/lib/liblvm-internal.a  $(interfacebuilddir)/libdevmapper.a
+

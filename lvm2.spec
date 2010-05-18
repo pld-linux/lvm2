@@ -26,12 +26,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.58
+Version:	2.02.65
 Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	f90ae2225e32cd3e4d4815297930f5b3
+# Source0-md5:	1ce72f18492ffaa92e2a20b54c0b7cc6
 Source1:	%{name}-initramfs-hook
 Source2:	%{name}-initramfs-local-top
 Patch0:		%{name}-selinux.patch
@@ -290,9 +290,9 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 install -d $RPM_BUILD_ROOT%{_libdir}/initrd
 install initrd-lvm $RPM_BUILD_ROOT%{_libdir}/initrd/lvm
 install initrd-dmsetup $RPM_BUILD_ROOT%{_libdir}/initrd/dmsetup
-%endif
 
 %{?with_dietlibc:install diet-libdevmapper.a $RPM_BUILD_ROOT%{dietlibdir}/libdevmapper.a}
+%endif
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/hooks/lvm2
 install %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/scripts/local-top/lvm2
@@ -324,6 +324,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sbindir}/dmsetup
 %attr(755,root,root) /%{_lib}/libdevmapper*.so.*.*
 %attr(755,root,root) /%{_lib}/liblvm2cmd.so.*.*
+%dir %{_libdir}/device-mapper
+%attr(755,root,root) %{_libdir}/device-mapper/*.so
 %{_mandir}/man8/dmsetup.8*
 
 %files -n device-mapper-devel
@@ -338,13 +340,13 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{_libdir}/libdevmapper*.a
 
+%if %{with initrd}
 %if %{with dietlibc}
 %files -n device-mapper-dietlibc
 %defattr(644,root,root,755)
 %{dietlibdir}/libdevmapper.a
 %endif
 
-%if %{with initrd}
 %files -n device-mapper-initrd
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/initrd/dmsetup
