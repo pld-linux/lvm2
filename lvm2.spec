@@ -42,6 +42,7 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
 %{?with_selinux:BuildRequires:	libsepol-devel}
+BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.213
 %if %{with initrd}
 %if %{with dietlibc}
@@ -201,8 +202,8 @@ Requires:	%{name} = %{version}-%{release}
 Requires:	initramfs-tools
 
 %description initramfs
-The new version of Logical Volume Manager for Linux - support
-scripts for initramfs-tools.
+The new version of Logical Volume Manager for Linux - support scripts
+for initramfs-tools.
 
 %description initramfs -l pl.UTF-8
 Nowa wersja Logical Volume Managera dla Linuksa - skrypty dla
