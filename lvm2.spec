@@ -239,7 +239,7 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__make} -j1 -C include
 %{__make} -j1 -C lib LIB_SHARED= VERSIONED_SHLIB=
 %{__make} -j1 -C libdm LIB_SHARED= VERSIONED_SHLIB=
-%{__make} -j1 -C tools dmsetup.static lvm.static
+%{__make} -j1 -C tools dmsetup.static lvm.static DIETLIBC_LIBS="-lcompat"
 mv -f tools/lvm.static initrd-lvm
 mv -f tools/dmsetup.static initrd-dmsetup
 %{?with_dietlibc:mv -f libdm/ioctl/libdevmapper.a diet-libdevmapper.a}

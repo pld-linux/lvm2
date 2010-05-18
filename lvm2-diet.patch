@@ -161,3 +161,14 @@
  
  lvm.static: $(OBJECTS) lvm-static.o $(top_builddir)/lib/liblvm-internal.a  $(interfacebuilddir)/libdevmapper.a
 
+--- LVM2.2.02.65/tools/Makefile.in~	2010-05-18 13:39:46.797633173 +0200
++++ LVM2.2.02.65/tools/Makefile.in	2010-05-18 13:46:01.629690313 +0200
+@@ -137,7 +137,7 @@
+ 
+ lvm.static: $(OBJECTS) lvm-static.o $(top_builddir)/lib/liblvm-internal.a  $(interfacebuilddir)/libdevmapper.a
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) -o $@ \
+-	      $(OBJECTS) lvm-static.o $(LVMLIBS) $(STATIC_LIBS) $(LIBS)
++	      $(OBJECTS) lvm-static.o $(LVMLIBS) $(STATIC_LIBS) $(LIBS) $(DIETLIBC_LIBS)
+ 
+ liblvm2cmd.a: $(top_builddir)/lib/liblvm-internal.a $(OBJECTS) lvmcmdlib.o lvm2cmd.o
+ 	cat $(top_builddir)/lib/liblvm-internal.a > $@
