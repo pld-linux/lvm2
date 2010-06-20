@@ -1,5 +1,4 @@
 # TODO
-# - kill -lreadline from libs (using -as-needed or moving from LIBS to binaries linking)
 # - vgscan --ignorelocking failure creates /var/lock/lvm (even if /var is not yet mounted)
 #
 # Conditional build:
@@ -26,12 +25,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.65
+Version:	2.02.67
 Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	1ce72f18492ffaa92e2a20b54c0b7cc6
+# Source0-md5:	088d037e77660f48cd1591e91ed59d20
 Source1:	%{name}-initramfs-hook
 Source2:	%{name}-initramfs-local-top
 Patch0:		%{name}-selinux.patch
@@ -309,12 +308,17 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc README WHATS_NEW doc/*
-%attr(755,root,root) %{_sbindir}/*
-%exclude %{_sbindir}/dmeventd
-%exclude %{_sbindir}/dmsetup
+%attr(755,root,root) %{_sbindir}/fsadm
+%attr(755,root,root) %{_sbindir}/lv*
+%attr(755,root,root) %{_sbindir}/pv*
+%attr(755,root,root) %{_sbindir}/vg*
 %{?with_clvmd:%attr(755,root,root) %{_usrsbindir}/clvmd}
-%{_mandir}/man?/*
-%exclude %{_mandir}/man8/dmsetup.8*
+%{_mandir}/man5/lvm.conf.5*
+%{?with_clvmd:%{_mandir}/man8/clvmd.8*}
+%{_mandir}/man8/fsadm.8*
+%{_mandir}/man8/lv*.8*
+%{_mandir}/man8/pv*.8*
+%{_mandir}/man8/vg*.8*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
 
