@@ -7,6 +7,7 @@
 %bcond_without	dietlibc	# link initrd version with dietlibc
 %bcond_with	glibc		# link initrd version with static glibc
 %bcond_without	clvmd		# don't build clvmd
+%bcond_with	clvmd3		# build clvmd for 3rd generation of cluster
 %bcond_without	selinux		# disable SELinux
 
 %ifarch sparc64 sparc
@@ -22,20 +23,25 @@
 %undefine	with_dietlibc
 %endif
 
+%if %{with clvmd3} 
+%undefine	with_clvmd
+%endif
+
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.67
+Version:	2.02.69
 Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	088d037e77660f48cd1591e91ed59d20
+# Source0-md5:	2463f4ee7da9015af4b62a4e691fff76
 Source1:	%{name}-initramfs-hook
 Source2:	%{name}-initramfs-local-top
 Patch0:		%{name}-selinux.patch
 Patch1:		%{name}-diet.patch
 Patch2:		device-mapper-dmsetup-export.patch
+Patch3:		%{name}-clvmd_init.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -55,12 +61,20 @@ BuildConflicts:	device-mapper-dietlibc
 BuildRequires:	cman-devel >= 1.0
 BuildRequires:	dlm-devel >= 1.0-0.pre21.2
 %endif
+%if %{with clvmd3}
+BuildRequires:	cluster-cman-devel
+BuildRequires:	cluster-dlm-devel
+%endif
 BuildRequires:	ncurses-devel
 BuildRequires:	readline-devel
 Requires:	device-mapper >= %{version}-%{release}
 %if %{with clvmd}
 Requires:	cman-libs >= 1.0
 Requires:	dlm >= 1.0-0.pre21.2
+%endif
+%if %{with clvmd3}
+Requires:	cluster-cman-libs
+Requires:	cluster-dlm
 %endif
 %{?with_selinux:Requires:	libselinux >= 1.10}
 # doesn't work with 2.4 kernels
@@ -213,6 +227,7 @@ initramfs-tools.
 %{?with_selinux:%patch0 -p1}
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
@@ -332,6 +347,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/device-mapper
 %attr(755,root,root) %{_libdir}/device-mapper/*.so
 %{_mandir}/man8/dmsetup.8*
+%{_mandir}/man8/dmeventd.8*
 
 %files -n device-mapper-devel
 %defattr(644,root,root,755)
