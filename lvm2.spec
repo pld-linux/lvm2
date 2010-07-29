@@ -42,6 +42,7 @@ Patch0:		%{name}-selinux.patch
 Patch1:		%{name}-diet.patch
 Patch2:		device-mapper-dmsetup-export.patch
 Patch3:		%{name}-clvmd_init.patch
+Patch4:		dl-dlsym.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -231,6 +232,7 @@ initramfs-tools.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 %build
 %if %{with initrd}

@@ -1,0 +1,18 @@
+--- LVM2.2.02.72/lib/commands/toolcontext.c~	2010-07-29 13:21:40.000000000 +0300
++++ LVM2.2.02.72/lib/commands/toolcontext.c	2010-07-29 13:21:42.552959287 +0300
+@@ -876,6 +876,7 @@
+ 	return 1;
+ }
+ 
++#ifdef HAVE_LIBDL
+ static int _init_single_segtype(struct cmd_context *cmd,
+ 				struct segtype_library *seglib)
+ {
+@@ -893,6 +894,7 @@
+ 
+ 	return lvm_register_segtype(seglib, segtype);
+ }
++#endif
+ 
+ static int _init_segtypes(struct cmd_context *cmd)
+ {
