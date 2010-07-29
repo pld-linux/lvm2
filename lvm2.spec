@@ -23,7 +23,7 @@
 %undefine	with_dietlibc
 %endif
 
-%if %{with clvmd3} 
+%if %{with clvmd3}
 %undefine	with_clvmd
 %endif
 
@@ -89,6 +89,9 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %undefine	configure_cache
 # can't work with diet
 %undefine	with_ccache
+
+# borken on AC
+%define		filterout_ld	-Wl,--as-needed
 
 # for some reason known only to rpm there must be "\\|" not "\|" here
 %define		dietarch	%(echo %{_target_cpu} | sed -e 's/i.86\\|pentium.\\|athlon/i386/;s/amd64/x86_64/;s/armv.*/arm/')
@@ -230,6 +233,9 @@ initramfs-tools.
 %patch3 -p1
 
 %build
+%if %{with initrd}
+echo Using %{?with_glibc:GLIBC} %{?with_uClibc:uClibc} %{?with_dietlibc:diet} for initrd
+%endif
 cp -f /usr/share/automake/config.sub autoconf
 %{__aclocal}
 %{__autoconf}
