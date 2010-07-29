@@ -30,12 +30,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.69
+Version:	2.02.72
 Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	2463f4ee7da9015af4b62a4e691fff76
+# Source0-md5:	a7d0d1235a589869bd13cde0f0d7375d
 Source1:	%{name}-initramfs-hook
 Source2:	%{name}-initramfs-local-top
 Patch0:		%{name}-selinux.patch
@@ -260,7 +260,7 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__make} -j1 -C include
 %{__make} -j1 -C lib LIB_SHARED= VERSIONED_SHLIB=
 %{__make} -j1 -C libdm LIB_SHARED= VERSIONED_SHLIB=
-%{__make} -j1 -C tools dmsetup.static lvm.static DIETLIBC_LIBS="-lcompat"
+%{__make} -j1 -C tools dmsetup.static lvm.static %{?with_dietlibc:DIETLIBC_LIBS="-lcompat"}
 mv -f tools/lvm.static initrd-lvm
 mv -f tools/dmsetup.static initrd-dmsetup
 %{?with_dietlibc:mv -f libdm/ioctl/libdevmapper.a diet-libdevmapper.a}
