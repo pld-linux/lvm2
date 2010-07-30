@@ -3,11 +3,11 @@
 #
 # Conditional build:
 %bcond_without	initrd		# don't build initrd version
-%bcond_with	uClibc		# link initrd version with uClibc
+%bcond_with	uClibc			# link initrd version with uClibc
 %bcond_without	dietlibc	# link initrd version with dietlibc
-%bcond_with	glibc		# link initrd version with static glibc
+%bcond_with	glibc			# link initrd version with static GLIBC
 %bcond_without	clvmd		# don't build clvmd
-%bcond_with	clvmd3		# build clvmd for 3rd generation of cluster
+%bcond_with	clvmd3			# build clvmd for 3rd generation of cluster
 %bcond_without	selinux		# disable SELinux
 
 %ifarch sparc64 sparc
@@ -24,8 +24,14 @@
 %undefine	with_dietlibc
 %endif
 
+# with glibc disables default dietlibc
 %if %{with glibc} && %{with dietlibc}
 %undefine	with_dietlibc
+%endif
+
+# fallback is glibc if neither alternatives are enabled
+%if %{without dietlibc} && %{without uClibc}
+%define		with_glibc	1
 %endif
 
 %if %{with clvmd3}
