@@ -66,6 +66,10 @@ BuildRequires:	rpmbuild(macros) >= 1.213
 BuildRequires:	dietlibc-static >= 2:0.31-5
 BuildConflicts:	device-mapper-dietlibc
 %endif
+%if %{with glibc}
+%{?with_selinux:BuildRequires:	libselinux-static}
+%{?with_selinux:BuildRequires:	libsepol-static}
+%endif
 %{?with_glibc:BuildRequires:	glibc-static}
 %{?with_uClibc:BuildRequires:	uClibc-static >= 2:0.9.29}
 %endif
