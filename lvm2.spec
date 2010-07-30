@@ -241,9 +241,10 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__autoconf}
 
 %if %{with initrd}
+CC="%{__cc}"
 %configure \
 	%{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc"} \
-	%{?with_dietlibc:CC="diet %{__cc}"} \
+	%{?with_dietlibc:CC="diet ${CC#*ccache }"} \
 	ac_cv_lib_dl_dlopen=no \
 	%{?debug:--enable-debug} \
 	--with-optimisation="%{rpmcflags} -Os" \
@@ -256,6 +257,7 @@ cp -f /usr/share/automake/config.sub autoconf
 # and we need to keep these in sync between device-mapper and lvm2
 
 %{__sed} -i -e 's#rpl_malloc#malloc#g' lib/misc/configure.h
+%{__sed} -i -e 's#rpl_realloc#realloc#g' lib/misc/configure.h
 
 %{__make} -j1 -C include
 %{__make} -j1 -C lib LIB_SHARED= VERSIONED_SHLIB=
