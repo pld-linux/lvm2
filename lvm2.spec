@@ -17,6 +17,7 @@
 %ifarch %{x8664} ppc ppc64 alpha
 # missing implementation for floor from -lm
 %undefine	with_dietlibc
+%define		with_uClibc 1
 %endif
 
 # if one of the *libc is enabled disable default dietlibc
@@ -42,7 +43,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.72
-Release:	1
+Release:	0.1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -265,6 +266,7 @@ CC="%{__cc}"
 	--with-optimisation="%{rpmcflags} -Os" \
 	--enable-static_link \
 	--with-lvm1=internal \
+	--disable-selinux \
 	--%{?with_glibc:en}%{!?with_glibc:dis}able-selinux \
 	--disable-readline \
 	--disable-nls
