@@ -14,12 +14,6 @@
 %define		with_glibc 1
 %endif
 
-%ifarch %{x8664} ppc ppc64 alpha
-# missing implementation for floor from -lm
-%undefine	with_dietlibc
-%define		with_uClibc 1
-%endif
-
 # if one of the *libc is enabled disable default dietlibc
 %if %{with dietlibc} && %{with uClibc}
 %undefine	with_dietlibc
@@ -55,6 +49,7 @@ Patch1:		%{name}-diet.patch
 Patch2:		device-mapper-dmsetup-export.patch
 Patch3:		%{name}-clvmd_init.patch
 Patch4:		dl-dlsym.patch
+Patch5:		%{name}-no-floor.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -247,6 +242,7 @@ initramfs-tools.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 %build
 %if %{with initrd}
