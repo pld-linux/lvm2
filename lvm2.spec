@@ -14,6 +14,11 @@
 %define		with_glibc 1
 %endif
 
+%ifarch %{x8664} ppc ppc64 alpha
+# missing implementation for floor from -lm
+%undefine	with_dietlibc
+%endif
+
 # if one of the *libc is enabled disable default dietlibc
 %if %{with dietlibc} && %{with uClibc}
 %undefine	with_dietlibc
@@ -311,16 +316,16 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 
 %if %{with initrd}
 install -d $RPM_BUILD_ROOT%{_libdir}/initrd
-install initrd-lvm $RPM_BUILD_ROOT%{_libdir}/initrd/lvm
-install initrd-dmsetup $RPM_BUILD_ROOT%{_libdir}/initrd/dmsetup
+install -p initrd-lvm $RPM_BUILD_ROOT%{_libdir}/initrd/lvm
+install -p initrd-dmsetup $RPM_BUILD_ROOT%{_libdir}/initrd/dmsetup
 
-%{?with_dietlibc:install diet-libdevmapper.a $RPM_BUILD_ROOT%{dietlibdir}/libdevmapper.a}
+%{?with_dietlibc:cp -a diet-libdevmapper.a $RPM_BUILD_ROOT%{dietlibdir}/libdevmapper.a}
 %endif
 
-install %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/hooks/lvm2
-install %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/scripts/local-top/lvm2
+install -p %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/hooks/lvm2
+install -p %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/scripts/local-top/lvm2
 
-install libdm/libdevmapper.a $RPM_BUILD_ROOT%{_libdir}
+cp -a libdm/libdevmapper.a $RPM_BUILD_ROOT%{_libdir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
