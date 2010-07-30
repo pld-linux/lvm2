@@ -88,8 +88,6 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # changing CFLAGS in the middle confuses confcache
 %undefine	configure_cache
-# can't work with diet
-%undefine	with_ccache
 
 # borken on AC
 %define		filterout_ld	-Wl,--as-needed
