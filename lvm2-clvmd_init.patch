@@ -6,7 +6,7 @@
  	if ! rh_status_q; then
 -		echo -n "Starting $DAEMON: "
 +		msg_starting "$DAEMON"
- 		daemon $DAEMON $CLVMDOPTS || return $?
+ 		$DAEMON $CLVMDOPTS || return $?
 -		echo
  	fi
  
