@@ -257,10 +257,11 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__autoconf}
 
 %if %{with initrd}
-CC="%{__cc}"
+%{?with_glibc:export CC="%{__cc}"}
+%{?with_uClibc:export CC="%{_target_cpu}-uclibc-gcc"}
+%{?with_dietlibc:export CC="diet %{__cc}"}
+
 %configure \
-	%{?with_uClibc:CC="%{_target_cpu}-uclibc-gcc"} \
-	%{?with_dietlibc:CC="diet ${CC#*ccache }"} \
 	ac_cv_lib_dl_dlopen=no \
 	%{?debug:--enable-debug} \
 	--with-optimisation="%{rpmcflags} -Os" \
@@ -284,6 +285,8 @@ mv -f tools/lvm.static initrd-lvm
 mv -f tools/dmsetup.static initrd-dmsetup
 %{?with_dietlibc:mv -f libdm/ioctl/libdevmapper.a diet-libdevmapper.a}
 %{__make} clean
+
+unset CC
 %endif
 
 %configure \
