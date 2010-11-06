@@ -107,6 +107,8 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		dietarch	%(echo %{_target_cpu} | sed -e 's/i.86\\|pentium.\\|athlon/i386/;s/amd64/x86_64/;s/armv.*/arm/')
 %define		dietlibdir	%{_prefix}/lib/dietlibc/lib-%{dietarch}
 
+%define		skip_post_check_so	'.*libdevmapper-event-lvm2.so.*'
+
 %description
 This package includes a number of utilities for creating, checking,
 and repairing logical volumes.
