@@ -1,0 +1,2 @@
+- export CC for initrd's configure/make time but linking still fails
+  on LVM2.2.02.75/tools/dmsetup.c:2969: undefined reference to `canonicalize_file_name'
