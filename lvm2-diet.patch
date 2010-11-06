@@ -139,7 +139,7 @@
 
 --- LVM2.2.02.65/tools/Makefile.in~	2010-05-18 13:18:54.344217166 +0200
 +++ LVM2.2.02.65/tools/Makefile.in	2010-05-18 13:21:19.303172002 +0200
-@@ -122,17 +122,17 @@
+@@ -122,18 +122,18 @@
  device-mapper: $(TARGETS_DM)
  
  dmsetup: dmsetup.o $(top_builddir)/libdm/libdevmapper.$(LIB_SUFFIX)
@@ -149,8 +149,9 @@
  
  dmsetup.static: dmsetup.o $(interfacebuilddir)/libdevmapper.a
 -	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) \
+-	      -o $@ dmsetup.o -ldevmapper $(STATIC_LIBS) $(LIBS)
 +	$(CC) $(CFLAGS) -static -L$(interfacebuilddir) $(LDFLAGS) \
- 	      -o $@ dmsetup.o -ldevmapper $(STATIC_LIBS) $(LIBS)
++	      -o $@ dmsetup.o -ldevmapper $(STATIC_LIBS) $(LIBS) $(DIETLIBC_LIBS)
  
  all: device-mapper
  
