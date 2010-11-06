@@ -1,0 +1,5 @@
+- fix one linking issue...
+  now uClibc/glibc build fails on unresolved symbols checking:
+   .../lib64/libdevmapper-event-lvm2.so.2.02
+        dmeventd_debug
+  while dietlibc build fails on lack of -lcompat.
