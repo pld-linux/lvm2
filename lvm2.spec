@@ -244,6 +244,10 @@ initramfs-tools.
 %patch4 -p1
 #%patch5 -p1
 
+# do not force --export-symbol linker option for e.g. statically linked exacutables
+# -rdynamic compiler option drives linker in the right way.
+%{__sed} -i -e 's#-Wl,--export-dynamic#-rdynamic#g' configure.in
+
 %build
 %if %{with initrd}
 echo Using %{?with_glibc:GLIBC} %{?with_uClibc:uClibc} %{?with_dietlibc:diet} for initrd
