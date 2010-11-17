@@ -59,7 +59,7 @@ BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.213
 %if %{with initrd}
 %if %{with dietlibc}
-BuildRequires:	dietlibc-static >= 2:0.31-5
+BuildRequires:	dietlibc-static >= 2:0.32-7
 BuildConflicts:	device-mapper-dietlibc
 %endif
 %if %{with glibc}
@@ -246,7 +246,7 @@ initramfs-tools.
 %patch4 -p1
 #%patch5 -p1
 
-# do not force --export-symbol linker option for e.g. statically linked exacutables
+# do not force --export-symbol linker option for e.g. statically linked executables
 # -rdynamic compiler option drives linker in the right way.
 %{__sed} -i -e 's#-Wl,--export-dynamic#-rdynamic#g' configure.in
 
