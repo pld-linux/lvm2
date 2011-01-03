@@ -177,12 +177,14 @@
  	cat $(top_builddir)/lib/liblvm-internal.a > $@
 --- LVM2.2.02.75/lib/metadata/pv.c.orig	2010-09-30 22:47:18.000000000 +0200
 +++ LVM2.2.02.75/lib/metadata/pv.c	2010-11-06 12:05:40.672884033 +0100
-@@ -17,6 +17,10 @@
+@@ -17,6 +17,12 @@
  #include "metadata.h"
  #include "lvmcache.h"
  
 +#ifdef __dietlibc__
-+# define UINT64_MAX             __UINT64_MAX__
++# ifndef UINT64_MAX
++#  define UINT64_MAX             __UINT64_MAX__
++# endif
 +#endif
 +
  /*
