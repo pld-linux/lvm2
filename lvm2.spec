@@ -37,7 +37,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.84
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -78,6 +78,7 @@ BuildRequires:	cluster-dlm-devel
 %endif
 BuildRequires:	ncurses-devel
 BuildRequires:	readline-devel
+BuildRequires:	udev-devel
 Requires:	device-mapper >= %{version}-%{release}
 %if %{with clvmd}
 Requires:	cman-libs >= 1.0
@@ -305,7 +306,11 @@ unset CC
 	--with-snapshots=internal \
 	--with-mirrors=internal \
 	--with-interface=ioctl \
+	--enable-udev_sync \
+	--enable-udev_rules \
+	--with-udev-prefix=/ \
 	%{!?with_selinux:--disable-selinux}
+
 %{__make} -j1
 %{__make} -j1 -C libdm LIB_STATIC=libdevmapper.a
 
@@ -368,6 +373,10 @@ rm -rf $RPM_BUILD_ROOT
 %files -n device-mapper
 %defattr(644,root,root,755)
 %doc *_DM
+/lib/udev/rules.d/10-dm.rules
+/lib/udev/rules.d/11-dm-lvm.rules
+/lib/udev/rules.d/13-dm-disk.rules
+/lib/udev/rules.d/95-dm-notify.rules
 %attr(755,root,root) %{_sbindir}/dmeventd
 %attr(755,root,root) %{_sbindir}/dmsetup
 %attr(755,root,root) /%{_lib}/libdevmapper*.so.*.*
