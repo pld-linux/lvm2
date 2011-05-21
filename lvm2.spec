@@ -36,12 +36,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.84
-Release:	2
+Version:	2.02.85
+Release:	0.1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	8b4e0897ee48f02c0dff11940e44e23b
+# Source0-md5:	91785ca438e5ce679dd3a386b183d552
 Source1:	%{name}-initramfs-hook
 Source2:	%{name}-initramfs-local-top
 Patch0:		%{name}-selinux.patch
@@ -296,6 +296,7 @@ unset CC
 	--with-optimisation="%{rpmcflags}" \
 	--enable-readline \
 	--enable-fsadm \
+	--enable-applib \
 	--enable-cmdlib \
 	--enable-dmeventd \
 	--enable-pkgconfig \
@@ -320,7 +321,7 @@ install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm} \
 	$RPM_BUILD_ROOT%{_datadir}/initramfs-tools/{hooks,scripts/local-top}
 %{?with_dietlibc:install -d $RPM_BUILD_ROOT%{dietlibdir}}
 
-%{__make} install \
+%{__make} install install_system_dirs install_initscripts \
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER="" \
 	GROUP=""
@@ -350,6 +351,16 @@ cp -a libdm/libdevmapper.a $RPM_BUILD_ROOT%{_libdir}
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post
+/sbin/chkconfig --add lvm2-monitor
+%service lvm2-monitor restart
+
+%postun
+if [ "$1" = "0" ]; then
+	%service lvm2-monitor stop
+	/sbin/chkconfig --del lvm2-monitor
+fi
+
 %post   -n device-mapper -p /sbin/ldconfig
 %postun -n device-mapper -p /sbin/ldconfig
 
@@ -369,6 +380,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/vg*.8*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
+%dir %{_sysconfdir}/lvm/cache
+%ghost %{_sysconfdir}/lvm/cache/.cache
+%attr(754,root,root) /etc/rc.d/init.d/lvm2-monitor
 
 %files -n device-mapper
 %defattr(644,root,root,755)
@@ -380,6 +394,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sbindir}/dmeventd
 %attr(755,root,root) %{_sbindir}/dmsetup
 %attr(755,root,root) /%{_lib}/libdevmapper*.so.*.*
+%attr(755,root,root) /%{_lib}/liblvm2app.so.*.*
 %attr(755,root,root) /%{_lib}/liblvm2cmd.so.*.*
 %dir %{_libdir}/device-mapper
 %attr(755,root,root) %{_libdir}/device-mapper/*.so
@@ -389,10 +404,13 @@ rm -rf $RPM_BUILD_ROOT
 %files -n device-mapper-devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libdevmapper*.so
+%attr(755,root,root) %{_libdir}/liblvm2app.so
 %attr(755,root,root) %{_libdir}/liblvm2cmd.so
 %{_includedir}/libdevmapper*.h
+%{_includedir}/lvm2app.h
 %{_includedir}/lvm2cmd.h
 %{_pkgconfigdir}/devmapper*.pc
+%{_pkgconfigdir}/lvm2app.pc
 
 %files -n device-mapper-static
 %defattr(644,root,root,755)

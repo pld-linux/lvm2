@@ -98,13 +98,13 @@ index 25f14a6..b693008 100644
  static int _targets(int argc __attribute((unused)), char **argv __attribute((unused)), void *data __attribute((unused)))
  {
 @@ -1699,6 +1787,7 @@ static struct command _commands[] = {
- 	{"info", "[<device>]", 0, 1, _info},
- 	{"deps", "[<device>]", 0, 1, _deps},
- 	{"status", "[<device>] [--target <target_type>]", 0, 1, _status},
-+	{"export", "[<device>]", 0, 1, _export},
- 	{"table", "[<device>] [--target <target_type>] [--showkeys]", 0, 1, _status},
- 	{"wait", "<device> [<event_nr>]", 0, 2, _wait},
- 	{"mknodes", "[<device>]", 0, 1, _mknodes},
+ 	{"info", "[<device>]", 0, -1, 1, _info},
+ 	{"deps", "[<device>]", 0, -1, 1, _deps},
+ 	{"status", "[<device>] [--target <target_type>]", 0, -1, 1, _status},
++	{"export", "[<device>]", 0, -1, 1, _export},
+ 	{"table", "[<device>] [--target <target_type>] [--showkeys]", 0, -1, 1, _status},
+ 	{"wait", "<device> [<event_nr>]", 0, 2, 0, _wait},
+ 	{"mknodes", "[<device>]", 0, -1, 1, _mknodes},
 diff --git a/man/dmsetup.8 b/man/dmsetup.8
 index 5b2ed9f..c4524aa 100644
 --- a/man/dmsetup.8.in
