@@ -260,7 +260,7 @@ cp -f /usr/share/automake/config.sub autoconf
 %if %{with initrd}
 %{?with_glibc:export CC="%{__cc}"}
 %{?with_uClibc:export CC="%{_target_cpu}-uclibc-gcc"}
-%{?with_dietlibc:export CC="diet %{__cc}"}
+%{?with_dietlibc:cc="%{__cc}"; export CC="diet ${cc#ccache }"}
 
 %configure \
 	ac_cv_lib_dl_dlopen=no \
