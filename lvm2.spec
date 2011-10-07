@@ -37,7 +37,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.85
-Release:	0.1
+Release:	0.2
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -49,6 +49,7 @@ Patch1:		%{name}-diet.patch
 Patch2:		device-mapper-dmsetup-export.patch
 Patch3:		%{name}-clvmd_init.patch
 Patch4:		dl-dlsym.patch
+Patch5:		pldize_lvm2_monitor.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -244,6 +245,7 @@ initramfs-tools.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 # do not force --export-symbol linker option for e.g. statically linked executables
 # -rdynamic compiler option drives linker in the right way.
