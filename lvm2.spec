@@ -36,12 +36,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.85
-Release:	0.2
+Version:	2.02.88
+Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	91785ca438e5ce679dd3a386b183d552
+# Source0-md5:	321429cd1b1526a29cf6d75018b1e4bb
 Source1:	%{name}-initramfs-hook
 Source2:	%{name}-initramfs-local-top
 Patch0:		%{name}-selinux.patch
@@ -385,6 +385,7 @@ fi
 %dir %{_sysconfdir}/lvm/cache
 %ghost %{_sysconfdir}/lvm/cache/.cache
 %attr(754,root,root) /etc/rc.d/init.d/lvm2-monitor
+%{?with_clvmd:%attr(754,root,root) /etc/rc.d/init.d/clvmd}
 
 %files -n device-mapper
 %defattr(644,root,root,755)
