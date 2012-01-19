@@ -1,13 +1,16 @@
 # TODO
 # - vgscan --ignorelocking failure creates /var/lock/lvm (even if /var is not yet mounted)
+# - --with-replicators (=internal/shared/none, default is none)?
+# - OCF agents?
 #
 # Conditional build:
 %bcond_without	initrd		# don't build initrd version
-%bcond_with	uClibc			# link initrd version with uClibc
+%bcond_with	uClibc		# link initrd version with uClibc
 %bcond_without	dietlibc	# link initrd version with dietlibc
-%bcond_with	glibc			# link initrd version with static GLIBC
+%bcond_with	glibc		# link initrd version with static GLIBC
 %bcond_without	clvmd		# don't build clvmd
-%bcond_with	clvmd3			# build clvmd for 3rd generation of cluster
+%bcond_with	clvmd3		# build clvmd for 3rd generation of cluster
+%bcond_with	openais		# enable corosync&openais managers and cmirrord
 %bcond_without	selinux		# disable SELinux
 
 %ifarch sparc64 sparc
@@ -51,12 +54,15 @@ Patch3:		%{name}-clvmd_init.patch
 Patch4:		dl-dlsym.patch
 Patch5:		pldize_lvm2_monitor.patch
 URL:		http://sources.redhat.com/lvm2/
-BuildRequires:	autoconf
+BuildRequires:	autoconf >= 2.61
 BuildRequires:	automake
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
 %{?with_selinux:BuildRequires:	libsepol-devel}
+BuildRequires:	ncurses-devel
 BuildRequires:	pkgconfig
+BuildRequires:	readline-devel
 BuildRequires:	rpmbuild(macros) >= 1.213
+BuildRequires:	udev-devel >= 143
 %if %{with initrd}
 %if %{with dietlibc}
 BuildRequires:	dietlibc-static >= 2:0.32-7
@@ -77,9 +83,10 @@ BuildRequires:	dlm-devel >= 1.0-0.pre21.2
 BuildRequires:	cluster-cman-devel
 BuildRequires:	cluster-dlm-devel
 %endif
-BuildRequires:	ncurses-devel
-BuildRequires:	readline-devel
-BuildRequires:	udev-devel
+%if %{with openais}
+BuildRequires:	corosync-devel
+BuildRequires:	openais-devel >= 1.0
+%endif
 Requires:	device-mapper >= %{version}-%{release}
 %if %{with clvmd}
 Requires:	cman-libs >= 1.0
@@ -300,17 +307,18 @@ unset CC
 	--enable-fsadm \
 	--enable-applib \
 	--enable-cmdlib \
+	%{?with_openais:--enable-cmirrord} \
 	--enable-dmeventd \
 	--enable-pkgconfig \
-	%{?with_clvmd:--with-clvmd=cman} \
+	--enable-udev_sync \
+	--enable-udev_rules \
+	%{?with_clvmd:--with-clvmd=cman%{?with_openais:,corosync,openais}} \
 	--with-lvm1=internal \
 	--with-pool=internal \
 	--with-cluster=internal \
 	--with-snapshots=internal \
 	--with-mirrors=internal \
 	--with-interface=ioctl \
-	--enable-udev_sync \
-	--enable-udev_rules \
 	--with-udev-prefix=/ \
 	%{!?with_selinux:--disable-selinux}
 
