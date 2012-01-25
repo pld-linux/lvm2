@@ -40,13 +40,14 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.88
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
 # Source0-md5:	321429cd1b1526a29cf6d75018b1e4bb
 Source1:	%{name}-initramfs-hook
 Source2:	%{name}-initramfs-local-top
+Source3:	%{name}-tmpfiles.conf
 Patch0:		%{name}-selinux.patch
 Patch1:		%{name}-diet.patch
 Patch2:		device-mapper-dmsetup-export.patch
@@ -61,7 +62,7 @@ BuildRequires:	automake
 BuildRequires:	ncurses-devel
 BuildRequires:	pkgconfig
 BuildRequires:	readline-devel
-BuildRequires:	rpmbuild(macros) >= 1.213
+BuildRequires:	rpmbuild(macros) >= 1.628
 BuildRequires:	udev-devel >= 143
 %if %{with initrd}
 %if %{with dietlibc}
@@ -209,6 +210,14 @@ Group:		Base
 Obsoletes:	device-mapper-initrd-devel
 Conflicts:	geninitrd < 10000.10
 
+%package systemd
+Summary:	systemd unit for lvm2
+Group:		Daemons
+Requires:	%{name} = %{version}-%{release}
+
+%description systemd
+systemd unit for lvm2.
+
 %description -n device-mapper-initrd
 The goal of this driver is to support volume management. The driver
 enables the definition of new block devices composed of ranges of
@@ -320,7 +329,8 @@ unset CC
 	--with-mirrors=internal \
 	--with-interface=ioctl \
 	--with-udev-prefix=/ \
-	%{!?with_selinux:--disable-selinux}
+	--with-systemd_dir=%{systemdunitdir} \
+        %{!?with_selinux:--disable-selinux}
 
 %{__make} -j1
 %{__make} -j1 -C libdm LIB_STATIC=libdevmapper.a
@@ -331,10 +341,13 @@ install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm} \
 	$RPM_BUILD_ROOT%{_datadir}/initramfs-tools/{hooks,scripts/local-top}
 %{?with_dietlibc:install -d $RPM_BUILD_ROOT%{dietlibdir}}
 
-%{__make} install install_system_dirs install_initscripts \
+%{__make} install install_system_dirs install_systemd_units install_initscripts \
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER="" \
 	GROUP=""
+
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d
+install -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
 
 mv $RPM_BUILD_ROOT%{_libdir}/lib*.so.* $RPM_BUILD_ROOT/%{_lib}
 for lib in $RPM_BUILD_ROOT/%{_lib}/lib*.so.*; do
@@ -373,6 +386,15 @@ fi
 
 %post   -n device-mapper -p /sbin/ldconfig
 %postun -n device-mapper -p /sbin/ldconfig
+
+%post systemd
+%systemd_post lvm2-monitor.service
+
+%preun systemd
+%systemd_preun lvm2-monitor.service
+
+%postun systemd
+%systemd_reload
 
 %files
 %defattr(644,root,root,755)
@@ -437,6 +459,13 @@ fi
 %files -n device-mapper-initrd
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/initrd/dmsetup
+
+%files systemd
+%defattr(644,root,root,755)
+%{_sysconfdir}/tmpfiles.d/lvm2.conf
+%{systemdunitdir}/dm-event.service
+%{systemdunitdir}/dm-event.socket
+%{systemdunitdir}/lvm2-monitor.service
 
 %files initrd
 %defattr(644,root,root,755)
