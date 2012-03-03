@@ -114,7 +114,7 @@ index 5b2ed9f..c4524aa 100644
  .RE
  .br
 +.B dmsetup export
-+.I [device_name]
++.RI [ device_name ]
 +.br
  .B dmsetup load
  .I device_name
@@ -125,7 +125,7 @@ index 5b2ed9f..c4524aa 100644
  .br
 +.TP
 +.B export
-+.RI [device_name]
++.RI [ device_name ]
 +.br
 +Outputs information in key/value format to be imported by other programs.
 +.br
