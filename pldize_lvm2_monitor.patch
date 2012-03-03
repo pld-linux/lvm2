@@ -6,22 +6,22 @@
  #
  # Copyright (C) 2007-2009 Red Hat, Inc. All rights reserved.
 @@ -50,7 +50,8 @@ start()
- 	VGSLIST=`$VGS --noheadings -o name 2> /dev/null`
+ 	VGSLIST=`$VGS --noheadings -o name --config 'log{command_names=0 prefix="  "}' 2> /dev/null`
  	for vg in $VGSLIST
  	do
--	    action "Starting monitoring for VG $vg:" $VGCHANGE --monitor y --poll y $vg || ret=$?
-+		msg_starting "Starting monitoring for VG $vg"
-+		daemon $VGCHANGE --monitor y --poll y $vg || return $?
+-	    action "Starting monitoring for VG $vg:" $VGCHANGE --monitor y --poll y --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
++	    msg_starting "Starting monitoring for VG $vg:" \
++		daemon $VGCHANGE --monitor y --poll y --config 'log{command_names=0 prefix="  "}' $vg || return $?
  	done
  
  	return $ret
 @@ -68,7 +71,8 @@ stop()
- 	VGSLIST=`$VGS --noheadings -o name 2> /dev/null`
+ 	VGSLIST=`$VGS --noheadings -o name --config 'log{command_names=0 prefix="  "}' 2> /dev/null`
  	for vg in $VGSLIST
  	do
--	    action "Stopping monitoring for VG $vg:" $VGCHANGE --monitor n $vg || ret=$?
-+		msg_stopping "Stopping monitoring for VG $vg"
-+	    	$VGCHANGE --monitor n $vg || return $?
+-	    action "Stopping monitoring for VG $vg:" $VGCHANGE --monitor n --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
++	    msg_stopping "Stopping monitoring for VG $vg:" \
++		$VGCHANGE --monitor n --config 'log{command_names=0 prefix="  "}' $vg || return $?
  	done
  	return $ret
  }
