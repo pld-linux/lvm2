@@ -39,12 +39,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.88
-Release:	2
+Version:	2.02.94
+Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	321429cd1b1526a29cf6d75018b1e4bb
+# Source0-md5:	5ca593ec1a0b15902ce3da0fb13ea17b
 Source1:	%{name}-initramfs-hook
 Source2:	%{name}-initramfs-local-top
 Source3:	%{name}-tmpfiles.conf
@@ -101,6 +101,7 @@ Requires:	cluster-dlm
 # doesn't work with 2.4 kernels
 Requires:	uname(release) >= 2.6
 Obsoletes:	lvm
+Obsoletes:	lvm2-systemd
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sbindir	/sbin
@@ -209,14 +210,6 @@ Summary(pl.UTF-8):	Wsparcie dla mapowania urządzeń w przestrzeni użytkownika 
 Group:		Base
 Obsoletes:	device-mapper-initrd-devel
 Conflicts:	geninitrd < 10000.10
-
-%package systemd
-Summary:	systemd unit for lvm2
-Group:		Daemons
-Requires:	%{name} = %{version}-%{release}
-
-%description systemd
-systemd unit for lvm2.
 
 %description -n device-mapper-initrd
 The goal of this driver is to support volume management. The driver
@@ -377,24 +370,34 @@ rm -rf $RPM_BUILD_ROOT
 %post
 /sbin/chkconfig --add lvm2-monitor
 %service lvm2-monitor restart
+%systemd_post lvm2-monitor.service
+
+%preun
+%systemd_preun lvm2-monitor.service
 
 %postun
 if [ "$1" = "0" ]; then
 	%service lvm2-monitor stop
 	/sbin/chkconfig --del lvm2-monitor
 fi
-
-%post   -n device-mapper -p /sbin/ldconfig
-%postun -n device-mapper -p /sbin/ldconfig
-
-%post systemd
-%systemd_post lvm2-monitor.service
-
-%preun systemd
-%systemd_preun lvm2-monitor.service
-
-%postun systemd
 %systemd_reload
+
+%triggerpostun -- %{name} < 2.02.94-1
+%systemd_trigger lvm2-monitor.service
+
+%post -n device-mapper
+/sbin/ldconfig
+%systemd_post dm-event.socket
+
+%preun -n device-mapper
+%systemd_preun dm-event.socket dm-event.service
+
+%postun -n device-mapper
+/sbin/ldconfig
+%systemd_reload
+
+%triggerpostun -n device-mapper -- device-mapper < 2.02.94-1
+%systemd_trigger dm-event.socket
 
 %files
 %defattr(644,root,root,755)
@@ -412,6 +415,8 @@ fi
 %{_mandir}/man8/vg*.8*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
+%{_sysconfdir}/tmpfiles.d/lvm2.conf
+%{systemdunitdir}/lvm2-monitor.service
 %dir %{_sysconfdir}/lvm/cache
 %ghost %{_sysconfdir}/lvm/cache/.cache
 %attr(754,root,root) /etc/rc.d/init.d/lvm2-monitor
@@ -420,6 +425,8 @@ fi
 %files -n device-mapper
 %defattr(644,root,root,755)
 %doc *_DM
+%{systemdunitdir}/dm-event.service
+%{systemdunitdir}/dm-event.socket
 /lib/udev/rules.d/10-dm.rules
 /lib/udev/rules.d/11-dm-lvm.rules
 /lib/udev/rules.d/13-dm-disk.rules
@@ -459,13 +466,6 @@ fi
 %files -n device-mapper-initrd
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/initrd/dmsetup
-
-%files systemd
-%defattr(644,root,root,755)
-%{_sysconfdir}/tmpfiles.d/lvm2.conf
-%{systemdunitdir}/dm-event.service
-%{systemdunitdir}/dm-event.socket
-%{systemdunitdir}/lvm2-monitor.service
 
 %files initrd
 %defattr(644,root,root,755)
