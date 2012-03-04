@@ -5,8 +5,8 @@
 #
 # Conditional build:
 %bcond_without	initrd		# don't build initrd version
-%bcond_with	uClibc		# link initrd version with uClibc
-%bcond_without	dietlibc	# link initrd version with dietlibc
+%bcond_without	uClibc		# link initrd version with uClibc
+%bcond_with	dietlibc	# link initrd version with dietlibc
 %bcond_with	glibc		# link initrd version with static GLIBC
 %bcond_without	clvmd		# don't build clvmd
 %bcond_with	clvmd3		# build clvmd for 3rd generation of cluster
@@ -40,7 +40,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.94
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
