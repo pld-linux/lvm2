@@ -54,6 +54,7 @@ Patch2:		device-mapper-dmsetup-export.patch
 Patch3:		%{name}-clvmd_init.patch
 Patch4:		dl-dlsym.patch
 Patch5:		pldize_lvm2_monitor.patch
+Patch6:		%{name}-wrapper.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf >= 2.61
 BuildRequires:	automake
@@ -255,6 +256,7 @@ initramfs-tools.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 # do not force --export-symbol linker option for e.g. statically linked executables
 # -rdynamic compiler option drives linker in the right way.
@@ -275,6 +277,7 @@ cp -f /usr/share/automake/config.sub autoconf
 
 %configure \
 	ac_cv_lib_dl_dlopen=no \
+	%{?with_uClibc:ac_cv_func_siginterrupt=no} \
 	%{?debug:--enable-debug} \
 	--with-optimisation="%{rpmcflags} -Os" \
 	--enable-static_link \

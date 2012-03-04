@@ -1,0 +1,22 @@
+--- LVM2.2.02.94/lib/misc/lvm-wrappers.h~	2011-04-22 14:00:00.000000000 +0200
++++ LVM2.2.02.94/lib/misc/lvm-wrappers.h	2012-03-04 10:43:46.032807285 +0100
+@@ -33,7 +34,8 @@
+  */
+ int read_urandom(void *buf, size_t len);
+ 
+-#  ifndef HAVE_SIGINTERRUPT
++#ifndef HAVE_SIGINTERRUPT
++#include <signal.h>
+ #    define siginterrupt(sig, flag) \
+ 	do { \
+ 		int ret; \
+@@ -45,7 +47,7 @@
+ 			act.sa_flags |= SA_RESTART; \
+ 		ret = sigaction(sig, &act, NULL); \
+ 		return ret; \
+-	while (0)
+-#  endif
++	} while (0);
++#endif
+ 
+ #endif
