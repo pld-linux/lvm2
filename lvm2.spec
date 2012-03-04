@@ -298,6 +298,18 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__make} -j1 -C tools dmsetup.static lvm.static %{?with_dietlibc:DIETLIBC_LIBS="-lcompat"}
 mv -f tools/lvm.static initrd-lvm
 mv -f tools/dmsetup.static initrd-dmsetup
+
+# check if tools works
+for tool in initrd-lvm initrd-dmsetup; do
+	LVM_SYSTEM_DIR=$(pwd) ./${tool} help > /dev/null 2>&1
+	rc=$?
+	if [ $rc -gt 127 ]; then
+		echo "Unexpected failure (exit status: $rc) from $tool. Does this tool work?!" >&2
+		exit 1
+	fi
+done
+
+
 %{?with_dietlibc:mv -f libdm/ioctl/libdevmapper.a diet-libdevmapper.a}
 %{__make} clean
 
