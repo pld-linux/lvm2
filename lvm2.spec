@@ -1,5 +1,7 @@
 # TODO
 # - vgscan --ignorelocking failure creates /var/lock/lvm (even if /var is not yet mounted)
+# - Installed (but unpackaged) file(s) found:
+#   /etc/rc.d/init.d/clvmd
 # - --with-replicators (=internal/shared/none, default is none)?
 # - OCF agents?
 #
@@ -301,10 +303,9 @@ mv -f tools/dmsetup.static initrd-dmsetup
 
 # check if tools works
 for tool in initrd-lvm initrd-dmsetup; do
-	LVM_SYSTEM_DIR=$(pwd) ./${tool} help > /dev/null 2>&1
-	rc=$?
+	LVM_SYSTEM_DIR=$(pwd) ./$tool help && rc=$? || rc=$?
 	if [ $rc -gt 127 ]; then
-		echo "Unexpected failure (exit status: $rc) from $tool. Does this tool work?!" >&2
+		echo >&2 "Unexpected failure (exit status: $rc) from $tool. Does this tool work?!"
 		exit 1
 	fi
 done
@@ -338,7 +339,7 @@ unset CC
 	--with-interface=ioctl \
 	--with-udev-prefix=/ \
 	--with-systemd_dir=%{systemdunitdir} \
-        %{!?with_selinux:--disable-selinux}
+	%{!?with_selinux:--disable-selinux}
 
 %{__make} -j1
 %{__make} -j1 -C libdm LIB_STATIC=libdevmapper.a
