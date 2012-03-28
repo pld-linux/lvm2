@@ -25,3 +25,14 @@
  	done
  	return $ret
  }
+--- LVM2.2.02.94/scripts/lvm2_monitoring_systemd_red_hat.service.in~	2012-02-01 15:08:39.000000000 +0200
++++ LVM2.2.02.94/scripts/lvm2_monitoring_systemd_red_hat.service.in	2012-03-29 00:12:31.886921407 +0300
+@@ -1,7 +1,7 @@
+ [Unit]
+ Description=Monitoring of LVM2 mirrors, snapshots etc. using dmeventd or progress polling
+ Requires=dm-event.socket
+-After=dm-event.socket fedora-storage-init.service fedora-storage-init-late.service
++After=dm-event.socket pld-storage-init.service pld-storage-init-late.service
+ Before=local-fs.target
+ DefaultDependencies=no
+ Conflicts=shutdown.target
