@@ -327,6 +327,7 @@ unset CC
 	--enable-cmdlib \
 	%{?with_openais:--enable-cmirrord} \
 	--enable-dmeventd \
+	--with-dmeventd-path=%{_sbindir}/dmeventd \
 	--enable-pkgconfig \
 	--enable-udev_sync \
 	--enable-udev_rules \
