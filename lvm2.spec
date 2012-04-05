@@ -41,12 +41,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.94
-Release:	4
+Version:	2.02.95
+Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	5ca593ec1a0b15902ce3da0fb13ea17b
+# Source0-md5:	bd470a802046c807603618a443732ea7
 Source1:	%{name}-initramfs-hook
 Source2:	%{name}-initramfs-local-top
 Source3:	%{name}-tmpfiles.conf
