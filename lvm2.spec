@@ -42,7 +42,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.95
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -65,7 +65,7 @@ BuildRequires:	automake
 BuildRequires:	ncurses-devel
 BuildRequires:	pkgconfig
 BuildRequires:	readline-devel
-BuildRequires:	rpmbuild(macros) >= 1.628
+BuildRequires:	rpmbuild(macros) >= 1.647
 BuildRequires:	udev-devel >= 143
 %if %{with initrd}
 %if %{with dietlibc}
@@ -91,6 +91,7 @@ BuildRequires:	cluster-dlm-devel
 BuildRequires:	corosync-devel
 BuildRequires:	openais-devel >= 1.0
 %endif
+Requires(post,preun,postun):	systemd-units >= 38
 Requires:	device-mapper >= %{version}-%{release}
 %if %{with clvmd}
 Requires:	cman-libs >= 1.0
@@ -101,6 +102,7 @@ Requires:	cluster-cman-libs
 Requires:	cluster-dlm
 %endif
 %{?with_selinux:Requires:	libselinux >= 1.10}
+Requires:	systemd-units >= 38
 # doesn't work with 2.4 kernels
 Requires:	uname(release) >= 2.6
 Obsoletes:	lvm
@@ -149,6 +151,8 @@ potrzeby initrd.
 Summary:	Userspace support for the device-mapper
 Summary(pl.UTF-8):	Wsparcie dla mapowania urządzeń w przestrzeni użytkownika
 Group:		Base
+Requires(post,preun,postun):	systemd-units >= 38
+Requires:	systemd-units >= 38
 
 %description -n device-mapper
 The goal of this driver is to support volume management. The driver
@@ -325,6 +329,7 @@ unset CC
 	--enable-fsadm \
 	--enable-applib \
 	--enable-cmdlib \
+	--enable-lvmetad \
 	%{?with_openais:--enable-cmirrord} \
 	--enable-dmeventd \
 	--with-dmeventd-path=%{_sbindir}/dmeventd \
@@ -337,6 +342,7 @@ unset CC
 	--with-cluster=internal \
 	--with-snapshots=internal \
 	--with-mirrors=internal \
+	--with-thin=internal \
 	--with-interface=ioctl \
 	--with-udev-prefix=/ \
 	--with-systemd_dir=%{systemdunitdir} \
