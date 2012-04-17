@@ -13,6 +13,7 @@
 %bcond_without	clvmd		# don't build clvmd
 %bcond_with	clvmd3		# build clvmd for 3rd generation of cluster
 %bcond_with	openais		# enable corosync&openais managers and cmirrord
+%bcond_with	lvmetad		# enable lvmetad
 %bcond_without	selinux		# disable SELinux
 
 %ifarch sparc64 sparc
@@ -329,7 +330,7 @@ unset CC
 	--enable-fsadm \
 	--enable-applib \
 	--enable-cmdlib \
-	--enable-lvmetad \
+	%{?with_lvmetad:--enable-lvmetad} \
 	%{?with_openais:--enable-cmirrord} \
 	--enable-dmeventd \
 	--with-dmeventd-path=%{_sbindir}/dmeventd \
