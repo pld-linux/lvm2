@@ -10,7 +10,7 @@
  	for vg in $VGSLIST
  	do
 -	    action "Starting monitoring for VG $vg:" $VGCHANGE --monitor y --poll y --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
-+	    msg_starting "Starting monitoring for VG $vg:" \
++	    msg_starting "Starting monitoring for VG $vg:"
 +		daemon $VGCHANGE --monitor y --poll y --config 'log{command_names=0 prefix="  "}' $vg || return $?
  	done
  
@@ -20,8 +20,8 @@
  	for vg in $VGSLIST
  	do
 -	    action "Stopping monitoring for VG $vg:" $VGCHANGE --monitor n --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
-+	    msg_stopping "Stopping monitoring for VG $vg:" \
-+		$VGCHANGE --monitor n --config 'log{command_names=0 prefix="  "}' $vg || return $?
++	    msg_stopping "Stopping monitoring for VG $vg:"
++		daemon $VGCHANGE --monitor n --config 'log{command_names=0 prefix="  "}' $vg || return $?
  	done
  	return $ret
  }
