@@ -43,14 +43,12 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.95
-Release:	6
+Release:	7
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
 # Source0-md5:	bd470a802046c807603618a443732ea7
-Source1:	%{name}-initramfs-hook
-Source2:	%{name}-initramfs-local-top
-Source3:	%{name}-tmpfiles.conf
+Source1:	%{name}-tmpfiles.conf
 Patch0:		%{name}-selinux.patch
 Patch1:		%{name}-diet.patch
 Patch2:		device-mapper-dmsetup-export.patch
@@ -240,21 +238,6 @@ narzędzia do zarządzania logicznymi wolumenami.
 Ten pakiet zawiera program dmsetup skonsolidowany statycznie na
 potrzeby initrd.
 
-%package initramfs
-Summary:	The new version of Logical Volume Manager for Linux - support scripts for initramfs-tools
-Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa - skrypty dla initramfs-tools
-Group:		Base
-Requires:	%{name} = %{version}-%{release}
-Requires:	initramfs-tools
-
-%description initramfs
-The new version of Logical Volume Manager for Linux - support scripts
-for initramfs-tools.
-
-%description initramfs -l pl.UTF-8
-Nowa wersja Logical Volume Managera dla Linuksa - skrypty dla
-initramfs-tools.
-
 %prep
 %setup -q -n LVM2.%{version}
 %{?with_selinux:%patch0 -p1}
@@ -354,8 +337,7 @@ unset CC
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm} \
-	$RPM_BUILD_ROOT%{_datadir}/initramfs-tools/{hooks,scripts/local-top}
+install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm}
 %{?with_dietlibc:install -d $RPM_BUILD_ROOT%{dietlibdir}}
 
 %{__make} install install_system_dirs install_systemd_units install_initscripts \
@@ -364,7 +346,7 @@ install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm} \
 	GROUP=""
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d
-install -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
+install -m 0644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
 
 mv $RPM_BUILD_ROOT%{_libdir}/lib*.so.* $RPM_BUILD_ROOT/%{_lib}
 for lib in $RPM_BUILD_ROOT/%{_lib}/lib*.so.*; do
@@ -382,9 +364,6 @@ install -p initrd-dmsetup $RPM_BUILD_ROOT%{_libdir}/initrd/dmsetup
 
 %{?with_dietlibc:cp -a diet-libdevmapper.a $RPM_BUILD_ROOT%{dietlibdir}/libdevmapper.a}
 %endif
-
-install -p %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/hooks/lvm2
-install -p %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/initramfs-tools/scripts/local-top/lvm2
 
 cp -a libdm/libdevmapper.a $RPM_BUILD_ROOT%{_libdir}
 
@@ -497,8 +476,3 @@ fi
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/initrd/lvm
 %endif
-
-%files initramfs
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_datadir}/initramfs-tools/hooks/lvm2
-%attr(755,root,root) %{_datadir}/initramfs-tools/scripts/local-top/lvm2
