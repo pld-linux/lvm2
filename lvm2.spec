@@ -428,8 +428,10 @@ fi
 %attr(755,root,root) %{_sbindir}/pv*
 %attr(755,root,root) %{_sbindir}/vg*
 %{?with_clvmd:%attr(755,root,root) %{_usrsbindir}/clvmd}
+%{?with_openais:%attr(755,root,root) %{_usrsbindir}/cmirrord}
 %{_mandir}/man5/lvm.conf.5*
 %{?with_clvmd:%{_mandir}/man8/clvmd.8*}
+%{?with_openais:%{_mandir}/man8/cmirrord.8*}
 %{_mandir}/man8/fsadm.8*
 %{_mandir}/man8/lv*.8*
 %{_mandir}/man8/pv*.8*
@@ -442,6 +444,7 @@ fi
 %ghost %{_sysconfdir}/lvm/cache/.cache
 %attr(754,root,root) /etc/rc.d/init.d/lvm2-monitor
 %{?with_clvmd:%attr(754,root,root) /etc/rc.d/init.d/clvmd}
+%{?with_openais:%attr(754,root,root) /etc/rc.d/init.d/cmirrord}
 
 %files -n device-mapper
 %defattr(644,root,root,755)
