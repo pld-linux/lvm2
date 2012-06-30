@@ -4,6 +4,9 @@
 #   /etc/rc.d/init.d/clvmd
 # - --with-replicators (=internal/shared/none, default is none)?
 # - OCF agents?
+# - corosync without openais?
+# - does the 'clvmd3' bcond make sense at all - it only changes build requires
+#   and _disables_ clvmd.
 #
 # Conditional build:
 %bcond_without	initrd		# don't build initrd version
@@ -12,6 +15,7 @@
 %bcond_with	glibc		# link initrd version with static GLIBC
 %bcond_without	clvmd		# don't build clvmd
 %bcond_with	clvmd3		# build clvmd for 3rd generation of cluster
+%bcond_without  cman		# don't use 'cman' for clvmd
 %bcond_with	openais		# enable corosync&openais managers and cmirrord
 %bcond_with	lvmetad		# enable lvmetad
 %bcond_without	selinux		# disable SELinux
@@ -33,6 +37,11 @@
 # fallback is glibc if neither alternatives are enabled
 %if %{without dietlibc} && %{without uClibc}
 %define		with_glibc	1
+%endif
+
+%if %{without cman} && %{without openais}
+%undefine	with_clvmd
+%undefine	with_clvmd3
 %endif
 
 %if %{with clvmd3}
@@ -79,7 +88,7 @@ BuildConflicts:	device-mapper-dietlibc
 %{?with_glibc:BuildRequires:	glibc-static}
 %{?with_uClibc:BuildRequires:	uClibc-static >= 2:0.9.29}
 %endif
-%if %{with clvmd}
+%if %{with cman}
 BuildRequires:	cman-devel >= 1.0
 BuildRequires:	dlm-devel >= 1.0-0.pre21.2
 %endif
@@ -93,7 +102,7 @@ BuildRequires:	openais-devel >= 1.0
 %endif
 Requires(post,preun,postun):	systemd-units >= 38
 Requires:	device-mapper >= %{version}-%{release}
-%if %{with clvmd}
+%if %{with cman}
 Requires:	cman-libs >= 1.0
 Requires:	dlm >= 1.0-0.pre21.2
 %endif
@@ -322,7 +331,14 @@ unset CC
 	--enable-pkgconfig \
 	--enable-udev_sync \
 	--enable-udev_rules \
-	%{?with_clvmd:--with-clvmd=cman%{?with_openais:,corosync,openais}} \
+%if %{with clvmd}
+%if %{with cman}
+	--with-clvmd=cman%{?with_openais:,corosync,openais} \
+%endif
+%if %{with openais}
+	--with-clvmd=corosync,openais \
+%endif
+%endif
 	--with-lvm1=internal \
 	--with-pool=internal \
 	--with-cluster=internal \
