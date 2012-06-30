@@ -90,6 +90,8 @@ BuildConflicts:	device-mapper-dietlibc
 %endif
 %if %{with cman}
 BuildRequires:	cman-devel >= 1.0
+%endif
+%if %{with clvmd}
 BuildRequires:	dlm-devel >= 1.0-0.pre21.2
 %endif
 %if %{with clvmd3}
