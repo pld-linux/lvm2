@@ -1,22 +1,17 @@
 # TODO
 # - vgscan --ignorelocking failure creates /var/lock/lvm (even if /var is not yet mounted)
-# - Installed (but unpackaged) file(s) found:
-#   /etc/rc.d/init.d/clvmd
 # - --with-replicators (=internal/shared/none, default is none)?
 # - OCF agents?
-# - corosync without openais?
-# - does the 'clvmd3' bcond make sense at all - it only changes build requires
-#   and _disables_ clvmd.
 #
 # Conditional build:
 %bcond_without	initrd		# don't build initrd version
 %bcond_without	uClibc		# link initrd version with uClibc
 %bcond_with	dietlibc	# link initrd version with dietlibc
 %bcond_with	glibc		# link initrd version with static GLIBC
-%bcond_without	clvmd		# don't build clvmd
-%bcond_with	clvmd3		# build clvmd for 3rd generation of cluster
-%bcond_without  cman		# don't use 'cman' for clvmd
-%bcond_with	openais		# enable corosync&openais managers and cmirrord
+%bcond_without  cluster		# disable all cluster support (clvmd&cmirrord)
+%bcond_without  cman		# disable cman cluster support (clvmd)
+%bcond_without	corosync	# disable corosync cluster support (clvmd&cmirrord)
+%bcond_without	openais		# disable openais cluster support (clvmd)
 %bcond_with	lvmetad		# enable lvmetad
 %bcond_without	selinux		# disable SELinux
 
@@ -39,13 +34,8 @@
 %define		with_glibc	1
 %endif
 
-%if %{without cman} && %{without openais}
-%undefine	with_clvmd
-%undefine	with_clvmd3
-%endif
-
-%if %{with clvmd3}
-%undefine	with_clvmd
+%if %{without cman} && %{without corosync} && %{without openais}
+%undefine	with_cluster
 %endif
 
 Summary:	The new version of Logical Volume Manager for Linux
@@ -88,30 +78,16 @@ BuildConflicts:	device-mapper-dietlibc
 %{?with_glibc:BuildRequires:	glibc-static}
 %{?with_uClibc:BuildRequires:	uClibc-static >= 2:0.9.29}
 %endif
-%if %{with cman}
-BuildRequires:	cman-devel >= 1.0
-%endif
-%if %{with clvmd}
-BuildRequires:	dlm-devel >= 1.0-0.pre21.2
-%endif
-%if %{with clvmd3}
-BuildRequires:	cluster-cman-devel
+%if %{with cluster}
+%{?with_cman:BuildRequires:	cluster-cman-devel}
 BuildRequires:	cluster-dlm-devel
-%endif
-%if %{with openais}
+%if %{with corosync} || %{with openais}
 BuildRequires:	corosync-devel
-BuildRequires:	openais-devel >= 1.0
+%endif
+%{?with_openais:BuildRequires:	openais-devel >= 1.0}
 %endif
 Requires(post,preun,postun):	systemd-units >= 38
 Requires:	device-mapper >= %{version}-%{release}
-%if %{with cman}
-Requires:	cman-libs >= 1.0
-Requires:	dlm >= 1.0-0.pre21.2
-%endif
-%if %{with clvmd3}
-Requires:	cluster-cman-libs
-Requires:	cluster-dlm
-%endif
 %{?with_selinux:Requires:	libselinux >= 1.10}
 Requires:	systemd-units >= 38
 # doesn't work with 2.4 kernels
@@ -157,6 +133,36 @@ and repairing logical volumes - staticaly linked for initrd.
 Pakiet ten zawiera narzędzia do tworzenia, sprawdzania i naprawiania
 logicznych wolumenów dyskowych (LVM2) - statycznie skonsolidowane na
 potrzeby initrd.
+
+%package clvmd
+Summary:	Cluster LVM daemon
+Summary(pl.UTF-8):	Demon clustra LVM
+Group:		Applications/System
+
+%description clvmd
+clvmd is the daemon that distributes  LVM  metadata  updates  around
+a cluster.   It must be running on all nodes in the cluster and will
+give an error if a node in the cluster does not have this daemon
+running.
+
+%description clvmd -l pl.UTF-8
+clvmd to demon który rozprowadza zmiany meta-danych LVM po klastrze.
+Mysi działać na wszystkich węzłach klastra i zgłosi błąd gdy
+jakiś węzeł w klastrze nie ma tego demona uruchomionego.
+
+%package cmirrord
+Summary:	Cluster mirror log daemon
+Group:		Applications/System
+Requires:	cluster-cman
+
+%description cmirrord
+cmirrord is the daemon that tracks mirror log information in a cluster.
+It is specific to device-mapper based mirrors (and by extension, LVM cluster
+mirrors). Cluster mirrors are not possible without this daemon running.
+
+This daemon relies on the cluster infrastructure provided by the Cluster
+MANager (CMAN), which must be set up and running in order for cmirrord to
+function.
 
 %package -n device-mapper
 Summary:	Userspace support for the device-mapper
@@ -327,19 +333,14 @@ unset CC
 	--enable-applib \
 	--enable-cmdlib \
 	%{?with_lvmetad:--enable-lvmetad} \
-	%{?with_openais:--enable-cmirrord} \
 	--enable-dmeventd \
 	--with-dmeventd-path=%{_sbindir}/dmeventd \
 	--enable-pkgconfig \
 	--enable-udev_sync \
 	--enable-udev_rules \
-%if %{with clvmd}
-%if %{with cman}
-	--with-clvmd=cman%{?with_openais:,corosync,openais} \
-%endif
-%if %{with openais}
-	--with-clvmd=corosync,openais \
-%endif
+%if %{with cluster}
+	%{?with_corosync:--enable-cmirrord} \
+	--with-clvmd=%{?with_cman:cman,}%{?with_openais:openais,}%{?with_corosync:corosync} \
 %endif
 	--with-lvm1=internal \
 	--with-pool=internal \
@@ -429,11 +430,7 @@ fi
 %attr(755,root,root) %{_sbindir}/lv*
 %attr(755,root,root) %{_sbindir}/pv*
 %attr(755,root,root) %{_sbindir}/vg*
-%{?with_clvmd:%attr(755,root,root) %{_usrsbindir}/clvmd}
-%{?with_openais:%attr(755,root,root) %{_usrsbindir}/cmirrord}
 %{_mandir}/man5/lvm.conf.5*
-%{?with_clvmd:%{_mandir}/man8/clvmd.8*}
-%{?with_openais:%{_mandir}/man8/cmirrord.8*}
 %{_mandir}/man8/fsadm.8*
 %{_mandir}/man8/lv*.8*
 %{_mandir}/man8/pv*.8*
@@ -445,8 +442,22 @@ fi
 %dir %{_sysconfdir}/lvm/cache
 %ghost %{_sysconfdir}/lvm/cache/.cache
 %attr(754,root,root) /etc/rc.d/init.d/lvm2-monitor
-%{?with_clvmd:%attr(754,root,root) /etc/rc.d/init.d/clvmd}
-%{?with_openais:%attr(754,root,root) /etc/rc.d/init.d/cmirrord}
+
+%if %{with cluster}
+%files clvmd
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_usrsbindir}/clvmd
+%attr(754,root,root) /etc/rc.d/init.d/clvmd
+%{_mandir}/man8/clvmd.8*
+
+%if %{with corosync}
+%files cmirrord
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_usrsbindir}/cmirrord
+%{_mandir}/man8/cmirrord.8*
+%attr(754,root,root) /etc/rc.d/init.d/cmirrord
+%endif
+%endif
 
 %files -n device-mapper
 %defattr(644,root,root,755)
