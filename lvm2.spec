@@ -138,6 +138,7 @@ potrzeby initrd.
 Summary:	Cluster LVM daemon
 Summary(pl.UTF-8):	Demon clustra LVM
 Group:		Applications/System
+Requires:	%{name} = %{version}-%{release}
 
 %description clvmd
 clvmd is the daemon that distributes  LVM  metadata  updates  around
@@ -154,6 +155,7 @@ jakiś węzeł w klastrze nie ma tego demona uruchomionego.
 Summary:	Cluster mirror log daemon
 Group:		Applications/System
 Requires:	cluster-cman
+Requires:	%{name} = %{version}-%{release}
 
 %description cmirrord
 cmirrord is the daemon that tracks mirror log information in a cluster.
