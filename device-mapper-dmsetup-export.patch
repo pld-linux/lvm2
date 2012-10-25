@@ -1,8 +1,33 @@
-diff --git a/dmsetup/dmsetup.c b/dmsetup/dmsetup.c
-index 25f14a6..b693008 100644
---- a/tools/dmsetup.c
-+++ b/tools/dmsetup.c
-@@ -995,6 +995,94 @@ static int _status(int argc, char **argv
+diff -dur -x '*~' -x '*.orig' -x '*.rej' LVM2.2.02.98.orig/man/dmsetup.8.in LVM2.2.02.98/man/dmsetup.8.in
+--- LVM2.2.02.98.orig/man/dmsetup.8.in	2012-10-15 16:24:58.000000000 +0200
++++ LVM2.2.02.98/man/dmsetup.8.in	2012-10-25 10:24:13.000000000 +0200
+@@ -43,6 +43,9 @@
+ .RI [ device_name ]
+ .RE
+ .br
++.B dmsetup export
++.RI [ device_name ]
++.br
+ .B dmsetup load
+ .I device_name
+ .RB [ \-\-table
+@@ -287,6 +290,12 @@
+ See below for information on the table format.
+ .br
+ .TP
++.B export
++.RI [ device_name ]
++.br
++Outputs information in key/value format to be imported by other programs.
++.br
++.TP
+ .B deps
+ .RB [ \-o
+ .IR options ]
+diff -dur -x '*~' -x '*.orig' -x '*.rej' LVM2.2.02.98.orig/tools/dmsetup.c LVM2.2.02.98/tools/dmsetup.c
+--- LVM2.2.02.98.orig/tools/dmsetup.c	2012-10-25 10:23:32.000000000 +0200
++++ LVM2.2.02.98/tools/dmsetup.c	2012-10-25 10:24:35.000000000 +0200
+@@ -1725,6 +1725,94 @@
  	return r;
  }
  
@@ -95,40 +120,13 @@ index 25f14a6..b693008 100644
 +}
 +
  /* Show target names and their version numbers */
- static int _targets(int argc __attribute((unused)), char **argv __attribute((unused)), void *data __attribute((unused)))
+ static int _targets(CMD_ARGS)
  {
-@@ -1699,6 +1787,7 @@ static struct command _commands[] = {
+@@ -3075,6 +3163,7 @@
  	{"info", "[<device>]", 0, -1, 1, _info},
- 	{"deps", "[<device>]", 0, -1, 1, _deps},
- 	{"status", "[<device>] [--target <target_type>]", 0, -1, 1, _status},
+ 	{"deps", "[-o options] [<device>]", 0, -1, 1, _deps},
+ 	{"status", "[<device>] [--noflush] [--target <target_type>]", 0, -1, 1, _status},
 +	{"export", "[<device>]", 0, -1, 1, _export},
  	{"table", "[<device>] [--target <target_type>] [--showkeys]", 0, -1, 1, _status},
- 	{"wait", "<device> [<event_nr>]", 0, 2, 0, _wait},
+ 	{"wait", "<device> [<event_nr>] [--noflush]", 0, 2, 0, _wait},
  	{"mknodes", "[<device>]", 0, -1, 1, _mknodes},
-diff --git a/man/dmsetup.8 b/man/dmsetup.8
-index 5b2ed9f..c4524aa 100644
---- a/man/dmsetup.8.in
-+++ b/man/dmsetup.8.in
-@@ -39,6 +39,9 @@ dmsetup \- low level logical volume mana
- .RI [ device_name ]
- .RE
- .br
-+.B dmsetup export
-+.RI [ device_name ]
-+.br
- .B dmsetup load
- .I device_name
- .RB [ \-\-table
-@@ -138,6 +141,12 @@ device_name in subsequent dmsetup comman
- /dev/mapper/<device-name>.
- See below for information on the table format.
- .br
-+.TP
-+.B export
-+.RI [ device_name ]
-+.br
-+Outputs information in key/value format to be imported by other programs.
-+.br
- .TP
- .B deps
- .RB [ \-o

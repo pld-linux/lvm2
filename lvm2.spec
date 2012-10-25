@@ -9,9 +9,6 @@
 %bcond_with	dietlibc	# link initrd version with dietlibc
 %bcond_with	glibc		# link initrd version with static GLIBC
 %bcond_without  cluster		# disable all cluster support (clvmd&cmirrord)
-%bcond_without  cman		# disable cman cluster support (clvmd)
-%bcond_without	corosync	# disable corosync cluster support (clvmd&cmirrord)
-%bcond_without	openais		# disable openais cluster support (clvmd)
 %bcond_with	lvmetad		# enable lvmetad
 %bcond_without	selinux		# disable SELinux
 
@@ -34,29 +31,23 @@
 %define		with_glibc	1
 %endif
 
-%if %{without cman} && %{without corosync} && %{without openais}
-%undefine	with_cluster
-%endif
-
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.95
-Release:	11
+Version:	2.02.98
+Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	bd470a802046c807603618a443732ea7
+# Source0-md5:	1ce5b7f9981e1d02dfd1d3857c8d9fbe
 Source1:	%{name}-tmpfiles.conf
 Patch0:		%{name}-selinux.patch
 Patch1:		%{name}-diet.patch
 Patch2:		device-mapper-dmsetup-export.patch
-Patch3:		%{name}-clvmd_init.patch
+Patch3:		%{name}-pld_init.patch
 Patch4:		dl-dlsym.patch
-Patch5:		pldize_lvm2_monitor.patch
-Patch6:		%{name}-wrapper.patch
-Patch7:		udev-deprecated.patch
-Patch8:		%{name}-lvm_path.patch
+Patch5:		%{name}-wrapper.patch
+Patch6:		%{name}-lvm_path.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf >= 2.61
 BuildRequires:	automake
@@ -80,12 +71,8 @@ BuildConflicts:	device-mapper-dietlibc
 %{?with_uClibc:BuildRequires:	uClibc-static >= 2:0.9.29}
 %endif
 %if %{with cluster}
-%{?with_cman:BuildRequires:	cluster-cman-devel}
-BuildRequires:	cluster-dlm-devel
-%if %{with corosync} || %{with openais}
 BuildRequires:	corosync-devel
-%endif
-%{?with_openais:BuildRequires:	openais-devel >= 1.0}
+BuildRequires:	dlm-devel >= 3.99.5
 %endif
 Requires(post,preun,postun):	systemd-units >= 38
 Requires:	device-mapper >= %{version}-%{release}
@@ -105,6 +92,9 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # borken on AC
 %define		filterout_ld	-Wl,--as-needed
+
+# causes: undefined reference to `__stack_chk_fail_local'
+%define		filterout_c	-fstack-protector
 
 # for some reason known only to rpm there must be "\\|" not "\|" here
 %define		dietarch	%(echo %{_target_cpu} | sed -e 's/i.86\\|pentium.\\|athlon/i386/;s/amd64/x86_64/;s/armv.*/arm/')
@@ -142,30 +132,30 @@ Group:		Applications/System
 Requires:	%{name} = %{version}-%{release}
 
 %description clvmd
-clvmd is the daemon that distributes  LVM  metadata  updates  around
-a cluster.   It must be running on all nodes in the cluster and will
-give an error if a node in the cluster does not have this daemon
-running.
+clvmd is the daemon that distributes LVM metadata updates around a
+cluster. It must be running on all nodes in the cluster and will give
+an error if a node in the cluster does not have this daemon running.
 
 %description clvmd -l pl.UTF-8
 clvmd to demon który rozprowadza zmiany meta-danych LVM po klastrze.
-Mysi działać na wszystkich węzłach klastra i zgłosi błąd gdy
-jakiś węzeł w klastrze nie ma tego demona uruchomionego.
+Mysi działać na wszystkich węzłach klastra i zgłosi błąd gdy jakiś
+węzeł w klastrze nie ma tego demona uruchomionego.
 
 %package cmirrord
 Summary:	Cluster mirror log daemon
 Group:		Applications/System
-Requires:	cluster-cman
 Requires:	%{name} = %{version}-%{release}
+Requires:	cluster-cman
 
 %description cmirrord
-cmirrord is the daemon that tracks mirror log information in a cluster.
-It is specific to device-mapper based mirrors (and by extension, LVM cluster
-mirrors). Cluster mirrors are not possible without this daemon running.
+cmirrord is the daemon that tracks mirror log information in a
+cluster. It is specific to device-mapper based mirrors (and by
+extension, LVM cluster mirrors). Cluster mirrors are not possible
+without this daemon running.
 
-This daemon relies on the cluster infrastructure provided by the Cluster
-MANager (CMAN), which must be set up and running in order for cmirrord to
-function.
+This daemon relies on the cluster infrastructure provided by the
+Cluster MANager (CMAN), which must be set up and running in order for
+cmirrord to function.
 
 %package -n device-mapper
 Summary:	Userspace support for the device-mapper
@@ -268,8 +258,6 @@ potrzeby initrd.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
-%patch8 -p1
 
 # do not force --export-symbol linker option for e.g. statically linked executables
 # -rdynamic compiler option drives linker in the right way.
@@ -308,6 +296,7 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__make} -j1 -C include
 %{__make} -j1 -C lib LIB_SHARED= VERSIONED_SHLIB=
 %{__make} -j1 -C libdm LIB_SHARED= VERSIONED_SHLIB=
+%{__make} -j1 -C libdaemon/client LIB_SHARED= VERSIONED_SHLIB=
 %{__make} -j1 -C tools dmsetup.static lvm.static %{?with_dietlibc:DIETLIBC_LIBS="-lcompat"}
 mv -f tools/lvm.static initrd-lvm
 mv -f tools/dmsetup.static initrd-dmsetup
@@ -343,8 +332,8 @@ unset CC
 	--enable-udev_sync \
 	--enable-udev_rules \
 %if %{with cluster}
-	%{?with_corosync:--enable-cmirrord} \
-	--with-clvmd=%{?with_cman:cman,}%{?with_openais:openais,}%{?with_corosync:corosync} \
+	--with-clvmd=corosync \
+	--enable-cmirrord \
 %endif
 	--with-lvm1=internal \
 	--with-pool=internal \
@@ -352,6 +341,7 @@ unset CC
 	--with-snapshots=internal \
 	--with-mirrors=internal \
 	--with-thin=internal \
+	--with-thin-check="" \
 	--with-interface=ioctl \
 	--with-udev-prefix=/ \
 	--with-systemd_dir=%{systemdunitdir} \
@@ -370,8 +360,8 @@ install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm}
 	OWNER="" \
 	GROUP=""
 
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d
-install -m 0644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d
+install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
 
 mv $RPM_BUILD_ROOT%{_libdir}/lib*.so.* $RPM_BUILD_ROOT/%{_lib}
 for lib in $RPM_BUILD_ROOT/%{_lib}/lib*.so.*; do
@@ -399,14 +389,20 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/chkconfig --add lvm2-monitor
 %service lvm2-monitor restart
 %systemd_post lvm2-monitor.service
+/sbin/chkconfig --add blk-availability
+# no service blk-availability restart
+%systemd_post blk-availability.service
 
 %preun
 %systemd_preun lvm2-monitor.service
+%systemd_preun blk-availability.service
 
 %postun
 if [ "$1" = "0" ]; then
 	%service lvm2-monitor stop
 	/sbin/chkconfig --del lvm2-monitor
+	#no service blk-availability stop
+	/sbin/chkconfig --del blk-availability
 fi
 %systemd_reload
 
@@ -430,11 +426,13 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc README WHATS_NEW doc/*
+%attr(755,root,root) %{_sbindir}/blkdeactivate
 %attr(755,root,root) %{_sbindir}/fsadm
 %attr(755,root,root) %{_sbindir}/lv*
 %attr(755,root,root) %{_sbindir}/pv*
 %attr(755,root,root) %{_sbindir}/vg*
 %{_mandir}/man5/lvm.conf.5*
+%{_mandir}/man8/blkdeactivate.8*
 %{_mandir}/man8/fsadm.8*
 %{_mandir}/man8/lv*.8*
 %{_mandir}/man8/pv*.8*
@@ -443,8 +441,10 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
 %{_sysconfdir}/tmpfiles.d/lvm2.conf
 %{systemdunitdir}/lvm2-monitor.service
+%{systemdunitdir}/blk-availability.service
 %dir %{_sysconfdir}/lvm/cache
 %ghost %{_sysconfdir}/lvm/cache/.cache
+%attr(754,root,root) /etc/rc.d/init.d/blk-availability
 %attr(754,root,root) /etc/rc.d/init.d/lvm2-monitor
 
 %if %{with cluster}
@@ -454,13 +454,11 @@ fi
 %attr(754,root,root) /etc/rc.d/init.d/clvmd
 %{_mandir}/man8/clvmd.8*
 
-%if %{with corosync}
 %files cmirrord
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_usrsbindir}/cmirrord
 %{_mandir}/man8/cmirrord.8*
 %attr(754,root,root) /etc/rc.d/init.d/cmirrord
-%endif
 %endif
 
 %files -n device-mapper

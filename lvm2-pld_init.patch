@@ -1,0 +1,174 @@
+diff -dur LVM2.2.02.98.orig/scripts/blk_availability_init_red_hat.in LVM2.2.02.98/scripts/blk_availability_init_red_hat.in
+--- LVM2.2.02.98.orig/scripts/blk_availability_init_red_hat.in	2012-10-15 16:24:58.000000000 +0200
++++ LVM2.2.02.98/scripts/blk_availability_init_red_hat.in	2012-10-25 12:01:33.000000000 +0200
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ #
+ # Copyright (C) 2012 Red Hat, Inc. All rights reserved.
+ #
+@@ -43,16 +43,20 @@
+ case "$1" in
+   start)
+ 	touch $LOCK_FILE
++	exit 0
+ 	;;
+ 
+   stop)
+-	action "Stopping block device availability:" $sbindir/$script $options
++	run_cmd "Stopping block device availability:" $sbindir/$script $options
+ 	rm -f $LOCK_FILE
++	exit 0
+ 	;;
+ 
+   status)
++	exit 0
+ 	;;
+   *)
+-	echo $"Usage: $0 {start|stop|status}"
++	msg_usage "$0 {start|stop|status}"
++	exit 3
+ 	;;
+ esac
+diff -dur LVM2.2.02.98.orig/scripts/clvmd_init_red_hat.in LVM2.2.02.98/scripts/clvmd_init_red_hat.in
+--- LVM2.2.02.98.orig/scripts/clvmd_init_red_hat.in	2012-10-15 16:24:58.000000000 +0200
++++ LVM2.2.02.98/scripts/clvmd_init_red_hat.in	2012-10-25 11:57:52.000000000 +0200
+@@ -65,9 +65,8 @@
+ start()
+ {
+ 	if ! rh_status_q; then
+-		echo -n "Starting $DAEMON: "
++		msg_starting "$DAEMON"
+ 		$DAEMON $CLVMDOPTS || return $?
+-		echo
+ 	fi
+ 
+ 	# Refresh local cache.
+@@ -87,7 +86,7 @@
+ 
+ 	${lvm_vgscan} > /dev/null 2>&1
+ 
+-	action "Activating VG(s):" ${lvm_vgchange} -aay $LVM_VGS || return $?
++	run_cmd "Activating VG(s):" ${lvm_vgchange} -aay $LVM_VGS || return $?
+ 
+ 	touch $LOCK_FILE
+ 
+@@ -112,27 +111,23 @@
+ 
+ 	[ -z "$LVM_VGS" ] && LVM_VGS="$(clustered_vgs)"
+ 	if [ -n "$LVM_VGS" ]; then
+-		action "Deactivating clustered VG(s):" ${lvm_vgchange} -anl $LVM_VGS || return $?
++		run_cmd "Deactivating clustered VG(s):" ${lvm_vgchange} -anl $LVM_VGS || return $?
+ 	fi
+ 
+-	action "Signaling $DAEMON to exit" kill -TERM $(pidofproc $DAEMON) || return $?
++	run_cmd "Signaling $DAEMON to exit" kill -TERM $(pidofproc $DAEMON) || return $?
+ 
+ 	# wait half second before we start the waiting loop or we will show
+ 	# the loop more time than really necessary
+ 	usleep 500000
+ 
+ 	# clvmd could take some time to stop
+-	rh_status_q && action "Waiting for $DAEMON to exit:" wait_for_finish
++	rh_status_q && run_cmd "Waiting for $DAEMON to exit:" wait_for_finish
+ 
+ 	if rh_status_q; then
+-		echo -n "$DAEMON failed to exit"
+-		failure
+-		echo
++		fail
+ 		return 1
+ 	else
+-		echo -n "$DAEMON terminated"
+-		success
+-		echo
++		ok
+ 	fi
+ 
+ 	rm -f $LOCK_FILE
+@@ -142,7 +137,7 @@
+ 
+ reload() {
+ 	rh_status_q || exit 7
+-	action "Reloading $DAEMON configuration: " $DAEMON -R || return $?
++	run_cmd "Reloading $DAEMON configuration: " $DAEMON -R || return $?
+ }
+ 
+ restart() {
+@@ -153,7 +148,7 @@
+ 
+ 	# Try to get clvmd to restart itself. This will preserve 
+ 	# exclusive LV locks
+-	action "Restarting $DAEMON: " $DAEMON -S
++	run_cmd "Restarting $DAEMON: " $DAEMON -S
+ 
+ 	# If that fails then do a normal stop & restart
+ 	if  [ $? != 0 ]; then
+diff -dur LVM2.2.02.98.orig/scripts/lvm2_monitoring_init_red_hat.in LVM2.2.02.98/scripts/lvm2_monitoring_init_red_hat.in
+--- LVM2.2.02.98.orig/scripts/lvm2_monitoring_init_red_hat.in	2012-10-15 16:24:58.000000000 +0200
++++ LVM2.2.02.98/scripts/lvm2_monitoring_init_red_hat.in	2012-10-25 11:57:52.000000000 +0200
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ #
+ # Copyright (C) 2007-2009 Red Hat, Inc. All rights reserved.
+ #
+@@ -46,12 +46,19 @@
+ 
+ start()
+ {
+-	ret=0
++	local ret=0
+ 	# TODO do we want to separate out already active groups only?
+ 	VGSLIST=`$VGS --noheadings -o name --config 'log{command_names=0 prefix="  "}' 2> /dev/null`
+ 	for vg in $VGSLIST
+ 	do
+-	    action "Starting monitoring for VG $vg:" $VGCHANGE --monitor y --poll y --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
++	    msg_starting "Starting monitoring for VG $vg:"; busy
++		$VGCHANGE --monitor y --poll y --config 'log{command_names=0 prefix="  "}' $vg
++	   	ret=$?
++		if [ $ret -ne 0 ]; then
++			fail
++			return $ret
++		fi
++		ok
+ 	done
+ 
+ 	return $ret
+@@ -60,7 +67,7 @@
+ 
+ stop()
+ {
+-	ret=0
++	local ret=0
+ 	# TODO do we want to separate out already active groups only?
+ 	if test "$WARN" = "1"; then
+ 	   echo "Not stopping monitoring, this is a dangerous operation. Please use force-stop to override."
+@@ -69,7 +76,14 @@
+ 	VGSLIST=`$VGS --noheadings -o name --config 'log{command_names=0 prefix="  "}' 2> /dev/null`
+ 	for vg in $VGSLIST
+ 	do
+-	    action "Stopping monitoring for VG $vg:" $VGCHANGE --monitor n --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
++	    msg_stopping "Stopping monitoring for VG $vg:"; busy
++		$VGCHANGE --monitor n --config 'log{command_names=0 prefix="  "}' $vg
++	   	ret=$?
++		if [ $ret -ne 0 ]; then
++			fail
++			return $ret
++		fi
++		ok
+ 	done
+ 	return $ret
+ }
+diff -dur LVM2.2.02.98.orig/scripts/lvm2_monitoring_systemd_red_hat.service.in LVM2.2.02.98/scripts/lvm2_monitoring_systemd_red_hat.service.in
+--- LVM2.2.02.98.orig/scripts/lvm2_monitoring_systemd_red_hat.service.in	2012-10-15 16:24:58.000000000 +0200
++++ LVM2.2.02.98/scripts/lvm2_monitoring_systemd_red_hat.service.in	2012-10-25 11:57:52.000000000 +0200
+@@ -2,7 +2,7 @@
+ Description=Monitoring of LVM2 mirrors, snapshots etc. using dmeventd or progress polling
+ Documentation=man:dmeventd(8) man:lvcreate(8) man:lvchange(8) man:vgchange(8)
+ Requires=dm-event.socket
+-After=dm-event.socket fedora-storage-init.service fedora-storage-init-late.service lvm2-activation.service lvm2-lvmetad.service
++After=dm-event.socket pld-storage-init.service pld-storage-init-late.service lvm2-activation.service lvm2-lvmetad.service
+ Before=local-fs.target
+ DefaultDependencies=no
+ Conflicts=shutdown.target
