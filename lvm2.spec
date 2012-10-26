@@ -145,7 +145,6 @@ węzeł w klastrze nie ma tego demona uruchomionego.
 Summary:	Cluster mirror log daemon
 Group:		Applications/System
 Requires:	%{name} = %{version}-%{release}
-Requires:	cluster-cman
 
 %description cmirrord
 cmirrord is the daemon that tracks mirror log information in a
