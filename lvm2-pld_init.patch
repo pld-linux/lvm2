@@ -172,3 +172,15 @@ diff -dur LVM2.2.02.98.orig/scripts/lvm2_monitoring_systemd_red_hat.service.in L
  Before=local-fs.target
  DefaultDependencies=no
  Conflicts=shutdown.target
+diff -dur LVM2.2.02.98.orig/scripts/blk_availability_systemd_red_hat.service.in LVM2.2.02.98/scripts/blk_availability_systemd_red_hat.service.in
+--- LVM2.2.02.98.orig/scripts/blk_availability_systemd_red_hat.service.in	2012-10-15 16:24:58.000000000 +0200
++++ LVM2.2.02.98/scripts/blk_availability_systemd_red_hat.service.in	2012-10-29 15:38:31.000000000 +0100
+@@ -6,7 +6,7 @@
+ 
+ [Service]
+ Type=oneshot
+-ExecStart=/usr/bin/true
++ExecStart=/bin/true
+ ExecStop=@sbindir@/blkdeactivate -u -l wholevg
+ RemainAfterExit=yes
+ 
