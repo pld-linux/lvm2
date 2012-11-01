@@ -429,6 +429,24 @@ fi
 %triggerpostun -n device-mapper -- device-mapper < 2.02.94-1
 %systemd_trigger dm-event.socket
 
+%post clvmd
+/sbin/chkconfig --add clvmd
+# no service restart - it breaks current locks!
+export NORESTART=1
+%systemd_post clvmd.service
+# re-exec instead
+/usr/sbin/clvmd -S 2>/dev/null || :
+
+%preun clvmd
+%systemd_preun clvmd.service
+
+%postun clvmd
+if [ "$1" = "0" ]; then
+	%service clvmd stop
+	/sbin/chkconfig --del clvmd
+fi
+%systemd_reload
+
 %files
 %defattr(644,root,root,755)
 %doc README WHATS_NEW doc/*
