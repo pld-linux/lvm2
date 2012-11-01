@@ -7,7 +7,7 @@ Requires=dlm.service
 Type=notify
 NotifyAccess=main
 EnvironmentFile=/etc/sysconfig/clvmd
-ExecStart=/usr/sbin/clvmd $CLVMDOPTS
+ExecStart=/usr/sbin/clvmd -f $CLVMDOPTS
 ExecReload=/usr/sbin/clvmd -R
 
 [Install]
