@@ -470,6 +470,7 @@ fi
 %ghost %{_sysconfdir}/lvm/cache/.cache
 %attr(754,root,root) /etc/rc.d/init.d/blk-availability
 %attr(754,root,root) /etc/rc.d/init.d/lvm2-monitor
+%dir %attr(700,root,root) /var/run/lvm
 
 %if %{with cluster}
 %files clvmd
