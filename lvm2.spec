@@ -50,6 +50,7 @@ Patch3:		%{name}-pld_init.patch
 Patch4:		dl-dlsym.patch
 Patch5:		%{name}-wrapper.patch
 Patch6:		%{name}-lvm_path.patch
+Patch7:		%{name}-sd_notify.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf >= 2.61
 BuildRequires:	automake
@@ -75,6 +76,7 @@ BuildConflicts:	device-mapper-dietlibc
 %if %{with cluster}
 BuildRequires:	corosync-devel
 BuildRequires:	dlm-devel >= 3.99.5
+BuildRequires:	systemd-devel
 %endif
 Requires(post,preun,postun):	systemd-units >= 38
 Requires:	device-mapper >= %{version}-%{release}
@@ -259,6 +261,7 @@ potrzeby initrd.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 # do not force --export-symbol linker option for e.g. statically linked executables
 # -rdynamic compiler option drives linker in the right way.

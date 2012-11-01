@@ -1,0 +1,32 @@
+diff -dur LVM2.2.02.98.orig/daemons/clvmd/Makefile.in LVM2.2.02.98/daemons/clvmd/Makefile.in
+--- LVM2.2.02.98.orig/daemons/clvmd/Makefile.in	2012-10-15 16:24:58.000000000 +0200
++++ LVM2.2.02.98/daemons/clvmd/Makefile.in	2012-11-01 18:35:19.000000000 +0100
+@@ -90,6 +90,8 @@
+ DEFS += -D_REENTRANT
+ CFLAGS += -fno-strict-aliasing
+ 
++LIBS += `pkg-config --libs libsystemd-daemon`
++
+ INSTALL_TARGETS = \
+ 	install_clvmd
+ 
+diff -dur LVM2.2.02.98.orig/daemons/clvmd/clvmd.c LVM2.2.02.98/daemons/clvmd/clvmd.c
+--- LVM2.2.02.98.orig/daemons/clvmd/clvmd.c	2012-10-15 16:24:58.000000000 +0200
++++ LVM2.2.02.98/daemons/clvmd/clvmd.c	2012-11-01 18:34:20.000000000 +0100
+@@ -41,6 +41,8 @@
+ #include <sys/un.h>
+ #include <sys/utsname.h>
+ 
++#include <systemd/sd-daemon.h>
++
+ #ifndef TRUE
+ #define TRUE 1
+ #endif
+@@ -599,6 +601,7 @@
+ 		clops->cluster_init_completed();
+ 
+ 	DEBUGLOG("clvmd ready for work\n");
++	sd_notify(0, "READY=1");
+ 	child_init_signal(SUCCESS);
+ 
+ 	/* Try to shutdown neatly */
