@@ -1,0 +1,13 @@
+[Unit]
+Description=cluster LVM daemon
+After=syslog.target network.target corosync.service dlm.service
+Requires=dlm.service
+
+[Service]
+Type=forking
+EnvironmentFile=/etc/sysconfig/clvmd
+ExecStart=/usr/sbin/clvmd $CLVMDOPTS
+ExecReload=/usr/sbin/clvmd -R
+
+[Install]
+WantedBy=multi-user.target
