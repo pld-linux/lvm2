@@ -79,6 +79,7 @@ BuildRequires:	dlm-devel >= 3.99.5
 BuildRequires:	systemd-devel
 %endif
 Requires(post,preun,postun):	systemd-units >= 38
+Requires(post,postun):  /sbin/chkconfig
 Requires:	device-mapper >= %{version}-%{release}
 %{?with_selinux:Requires:	libselinux >= 1.10}
 Requires:	systemd-units >= 38
