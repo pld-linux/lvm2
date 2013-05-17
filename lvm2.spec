@@ -52,6 +52,7 @@ Patch5:		%{name}-wrapper.patch
 Patch6:		%{name}-lvm_path.patch
 Patch7:		%{name}-sd_notify.patch
 Patch8:		%{name}-clvmd_cmd_timeout.patch
+Patch9:		device-mapper-dmsetup-deps-export.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf >= 2.61
 BuildRequires:	automake
@@ -265,6 +266,7 @@ potrzeby initrd.
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 
 # do not force --export-symbol linker option for e.g. statically linked executables
 # -rdynamic compiler option drives linker in the right way.

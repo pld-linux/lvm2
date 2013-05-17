@@ -1,0 +1,53 @@
+---
+ tools/dmsetup.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+Index: LVM2.2.02.98/tools/dmsetup.c
+===================================================================
+--- LVM2.2.02.98.orig/tools/dmsetup.c
++++ LVM2.2.02.98/tools/dmsetup.c
+@@ -1717,10 +1717,11 @@ static int _export(CMD_ARGS)
+ 	char *target_type = NULL;
+ 	char *params;
+ 	const char *name = NULL;
+ 	const char *uuid = NULL;
+ 	struct dm_info info;
++	struct dm_deps *deps;
+ 
+ 	if (names)
+ 		name = names->name;
+ 	else if (argc == 2)
+ 		name = argv[1];
+@@ -1786,10 +1787,32 @@ static int _export(CMD_ARGS)
+ 				printf(",%s", target_type);
+ 		}
+ 		printf("\n");
+ 	}
+ 
++	dm_task_destroy(dmt);
++
++	if (!(dmt = dm_task_create(DM_DEVICE_DEPS)))
++		goto out;
++
++	name = NULL;
++	if (names)
++		name = names->name;
++	else if (argc == 2)
++		name = argv[1];
++
++	if (!_set_task_device(dmt, name, 0))
++		goto out;
++
++	if (!dm_task_run(dmt))
++		goto out;
++
++	if (!(deps = dm_task_get_deps(dmt)))
++		goto out;
++
++	printf("DM_DEPS=%d\n", deps->count);
++
+ 	r = 1;
+       out:
+ 	if (dmt)
+ 		dm_task_destroy(dmt);
+ 	return r;
