@@ -1,37 +1,52 @@
-diff -dur -x '*~' -x '*.orig' -x '*.rej' LVM2.2.02.98.orig/man/dmsetup.8.in LVM2.2.02.98/man/dmsetup.8.in
---- LVM2.2.02.98.orig/man/dmsetup.8.in	2012-10-15 16:24:58.000000000 +0200
-+++ LVM2.2.02.98/man/dmsetup.8.in	2012-10-25 10:24:13.000000000 +0200
-@@ -43,6 +43,9 @@
- .RI [ device_name ]
+---
+ man/dmsetup.8.in |    7 ++++
+ tools/dmsetup.c  |   88 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 95 insertions(+)
+
+Index: LVM2.2.02.98/man/dmsetup.8.in
+===================================================================
+--- LVM2.2.02.98.orig/man/dmsetup.8.in
++++ LVM2.2.02.98/man/dmsetup.8.in
+@@ -17,10 +17,13 @@ dmsetup \- low level logical volume mana
+ .RB [{ \-\-addnodeoncreate | \-\-addnodeonresume }]
+ .RB [ \-\-readahead
+ .RI [ \+ ]< sectors >| auto | none ]
  .RE
  .br
 +.B dmsetup export
-+.RI [ device_name ]
++.I [ device_name ]
 +.br
- .B dmsetup load
- .I device_name
- .RB [ \-\-table
-@@ -287,6 +290,12 @@
- See below for information on the table format.
+ .B dmsetup deps
+ .RB [ \-o
+ .IR options ]
+ .RI [ device_name ]
  .br
- .TP
-+.B export
-+.RI [ device_name ]
+@@ -283,10 +286,14 @@ Otherwise a table is read from standard
+ The optional uuid can be used in place of
+ device_name in subsequent dmsetup commands.
+ If successful a device will appear as
+ /dev/mapper/<device-name>.
+ See below for information on the table format.
++.IP \fBexport
++.I [ device_name ]
 +.br
 +Outputs information in key/value format to be imported by other programs.
-+.br
-+.TP
+ .br
+ .TP
  .B deps
  .RB [ \-o
  .IR options ]
-diff -dur -x '*~' -x '*.orig' -x '*.rej' LVM2.2.02.98.orig/tools/dmsetup.c LVM2.2.02.98/tools/dmsetup.c
---- LVM2.2.02.98.orig/tools/dmsetup.c	2012-10-25 10:23:32.000000000 +0200
-+++ LVM2.2.02.98/tools/dmsetup.c	2012-10-25 10:24:35.000000000 +0200
-@@ -1725,6 +1725,94 @@
+Index: LVM2.2.02.98/tools/dmsetup.c
+===================================================================
+--- LVM2.2.02.98.orig/tools/dmsetup.c
++++ LVM2.2.02.98/tools/dmsetup.c
+@@ -1706,10 +1706,97 @@ static int _status(CMD_ARGS)
+       out:
+ 	dm_task_destroy(dmt);
  	return r;
  }
  
-+static int _export(int argc, char **argv, void *data)
++static int _export(CMD_ARGS)
 +{
 +	int r = 0;
 +	struct dm_task *dmt = NULL;
@@ -39,12 +54,11 @@ diff -dur -x '*~' -x '*.orig' -x '*.rej' LVM2.2.02.98.orig/tools/dmsetup.c LVM2.
 +	uint64_t start, length;
 +	char *target_type = NULL;
 +	char *params;
-+	struct dm_names *names = (struct dm_names *) data;
 +	const char *name = NULL;
 +	const char *uuid = NULL;
 +	struct dm_info info;
 +
-+	if (data)
++	if (names)
 +		name = names->name;
 +	else if (argc == 2)
 +		name = argv[1];
@@ -77,7 +91,7 @@ diff -dur -x '*~' -x '*.orig' -x '*.rej' LVM2.2.02.98.orig/tools/dmsetup.c LVM2.
 +
 +	printf("DM_STATE=%s\n",
 +	       info.suspended ? "SUSPENDED" :
-+	       (info.read_only ? " READONLY" : "ACTIVE"));
++	       (info.read_only ? "READONLY" : "ACTIVE"));
 +
 +	if (!info.live_table && !info.inactive_table)
 +		printf("DM_TABLE_STATE=NONE\n");
@@ -122,11 +136,17 @@ diff -dur -x '*~' -x '*.orig' -x '*.rej' LVM2.2.02.98.orig/tools/dmsetup.c LVM2.
  /* Show target names and their version numbers */
  static int _targets(CMD_ARGS)
  {
-@@ -3075,6 +3163,7 @@
+ 	int r = 0;
+ 	struct dm_task *dmt;
+@@ -3056,10 +3143,11 @@ static struct command _commands[] = {
+ 	{"message", "<device> <sector> <message>", 2, -1, 0, _message},
+ 	{"ls", "[--target <target_type>] [--exec <command>] [-o options] [--tree]", 0, 0, 0, _ls},
  	{"info", "[<device>]", 0, -1, 1, _info},
  	{"deps", "[-o options] [<device>]", 0, -1, 1, _deps},
  	{"status", "[<device>] [--noflush] [--target <target_type>]", 0, -1, 1, _status},
-+	{"export", "[<device>]", 0, -1, 1, _export},
++	{"export", "[<device>]", 0, 1, 1, _export},
  	{"table", "[<device>] [--target <target_type>] [--showkeys]", 0, -1, 1, _status},
  	{"wait", "<device> [<event_nr>] [--noflush]", 0, 2, 0, _wait},
  	{"mknodes", "[<device>]", 0, -1, 1, _mknodes},
+ 	{"mangle", "[<device>]", 0, -1, 1, _mangle},
+ 	{"udevcreatecookie", "", 0, 0, 0, _udevcreatecookie},
