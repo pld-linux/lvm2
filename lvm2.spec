@@ -1,7 +1,6 @@
 # TODO
 # - vgscan --ignorelocking failure creates /var/lock/lvm (even if /var is not yet mounted)
 # - --with-replicators (=internal/shared/none, default is none)?
-# - OCF agents?
 #
 # Conditional build:
 %bcond_without	initrd		# don't build initrd version
@@ -34,12 +33,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.98
-Release:	3
+Version:	2.02.100
+Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	1ce5b7f9981e1d02dfd1d3857c8d9fbe
+# Source0-md5:	9629cf5728544d7e637cafde1f73d777
 Source1:	%{name}-tmpfiles.conf
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
@@ -62,7 +61,7 @@ BuildRequires:	ncurses-devel
 BuildRequires:	pkgconfig
 BuildRequires:	readline-devel
 BuildRequires:	rpmbuild(macros) >= 1.647
-BuildRequires:	udev-devel >= 143
+BuildRequires:	udev-devel >= 1:143
 %if %{with initrd}
 %if %{with dietlibc}
 BuildRequires:	dietlibc-static >= 2:0.32-7
@@ -162,6 +161,19 @@ without this daemon running.
 This daemon relies on the cluster infrastructure provided by the
 Cluster MANager (CMAN), which must be set up and running in order for
 cmirrord to function.
+
+%package resource-agents
+Summary:	OCF Resource Agents for LVM2 processes
+Summary(pl.UTF-8):	Agenci OCF do monitorowania procesów LVM2
+Group:		Applications/System
+Requires:	%{name} = %{version}-%{release}
+Requires:	resource-agents
+
+%description resource-agents
+OCF Resource Agents for LVM2 processes.
+
+%description resource-agents -l pl.UTF-8
+Agenci OCF do monitorowania procesów LVM2.
 
 %package -n device-mapper
 Summary:	Userspace support for the device-mapper
@@ -337,6 +349,7 @@ unset CC
 	%{?with_lvmetad:--enable-lvmetad} \
 	--enable-dmeventd \
 	--with-dmeventd-path=%{_sbindir}/dmeventd \
+	--enable-ocf \
 	--enable-pkgconfig \
 	--enable-udev_sync \
 	--enable-udev_rules \
@@ -350,7 +363,9 @@ unset CC
 	--with-snapshots=internal \
 	--with-mirrors=internal \
 	--with-thin=internal \
-	--with-thin-check="" \
+	--with-thin-check=%{_sbindir}/thin_check \
+	--with-thin-dump=%{_sbindir}/thin_dump \
+	--with-thin-repair=%{_sbindir}/thin_repair \
 	--with-interface=ioctl \
 	--with-udev-prefix=/ \
 	--with-systemd_dir=%{systemdunitdir} \
@@ -471,6 +486,8 @@ fi
 %{_mandir}/man8/vg*.8*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
+%attr(750,root,root) %dir %{_sysconfdir}/lvm/profile
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/default.profile
 %{_sysconfdir}/tmpfiles.d/lvm2.conf
 %{systemdunitdir}/lvm2-monitor.service
 %{systemdunitdir}/blk-availability.service
@@ -495,6 +512,11 @@ fi
 %{_mandir}/man8/cmirrord.8*
 %attr(754,root,root) /etc/rc.d/init.d/cmirrord
 %endif
+
+%files resource-agents
+%defattr(644,root,root,755)
+%dir %{_prefix}/lib/ocf/resource.d/lvm2
+%attr(755,root,root) %{_prefix}/lib/ocf/resource.d/lvm2/VolumeGroup
 
 %files -n device-mapper
 %defattr(644,root,root,755)

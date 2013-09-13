@@ -160,18 +160,6 @@ diff -dur LVM2.2.02.98.orig/scripts/lvm2_monitoring_init_red_hat.in LVM2.2.02.98
  	done
  	return $ret
  }
-diff -dur LVM2.2.02.98.orig/scripts/lvm2_monitoring_systemd_red_hat.service.in LVM2.2.02.98/scripts/lvm2_monitoring_systemd_red_hat.service.in
---- LVM2.2.02.98.orig/scripts/lvm2_monitoring_systemd_red_hat.service.in	2012-10-15 16:24:58.000000000 +0200
-+++ LVM2.2.02.98/scripts/lvm2_monitoring_systemd_red_hat.service.in	2012-10-25 11:57:52.000000000 +0200
-@@ -2,7 +2,7 @@
- Description=Monitoring of LVM2 mirrors, snapshots etc. using dmeventd or progress polling
- Documentation=man:dmeventd(8) man:lvcreate(8) man:lvchange(8) man:vgchange(8)
- Requires=dm-event.socket
--After=dm-event.socket fedora-storage-init.service fedora-storage-init-late.service lvm2-activation.service lvm2-lvmetad.service
-+After=dm-event.socket pld-storage-init.service pld-storage-init-late.service lvm2-activation.service lvm2-lvmetad.service
- Before=local-fs.target
- DefaultDependencies=no
- Conflicts=shutdown.target
 diff -dur LVM2.2.02.98.orig/scripts/blk_availability_systemd_red_hat.service.in LVM2.2.02.98/scripts/blk_availability_systemd_red_hat.service.in
 --- LVM2.2.02.98.orig/scripts/blk_availability_systemd_red_hat.service.in	2012-10-15 16:24:58.000000000 +0200
 +++ LVM2.2.02.98/scripts/blk_availability_systemd_red_hat.service.in	2012-10-29 15:38:31.000000000 +0100
