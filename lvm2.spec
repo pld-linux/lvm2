@@ -33,12 +33,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.100
+Version:	2.02.103
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	9629cf5728544d7e637cafde1f73d777
+# Source0-md5:	e427e3494aaf86da2d363f344deb3837
 Source1:	%{name}-tmpfiles.conf
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
@@ -488,6 +488,7 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
 %attr(750,root,root) %dir %{_sysconfdir}/lvm/profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/default.profile
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/thin-performance.profile
 %{_sysconfdir}/tmpfiles.d/lvm2.conf
 %{systemdunitdir}/lvm2-monitor.service
 %{systemdunitdir}/blk-availability.service
