@@ -8,7 +8,7 @@
 %bcond_with	dietlibc	# link initrd version with dietlibc
 %bcond_with	glibc		# link initrd version with static GLIBC
 %bcond_without  cluster		# disable all cluster support (clvmd&cmirrord)
-%bcond_with	lvmetad		# enable lvmetad
+%bcond_without	lvmetad		# disable lvmetad
 %bcond_without	selinux		# disable SELinux
 
 %ifarch sparc64 sparc
@@ -33,12 +33,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.103
+Version:	2.02.104
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	e427e3494aaf86da2d363f344deb3837
+# Source0-md5:	3d82cdb63259b4386c0cc308b4e1f221
 Source1:	%{name}-tmpfiles.conf
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
@@ -301,13 +301,12 @@ cp -f /usr/share/automake/config.sub autoconf
 	ac_cv_lib_dl_dlopen=no \
 	%{?with_uClibc:ac_cv_func_siginterrupt=no} \
 	%{?debug:--enable-debug} \
-	--with-optimisation="%{rpmcflags} -Os" \
+	--disable-nls \
+	--disable-readline \
+	--enable-selinux%{!?with_glibc:=no} \
 	--enable-static_link \
 	--with-lvm1=internal \
-	--disable-selinux \
-	--%{?with_glibc:en}%{!?with_glibc:dis}able-selinux \
-	--disable-readline \
-	--disable-nls
+	--with-optimisation="%{rpmcflags} -Os"
 # glibc version links with normal static libdevicemapper which has selinux enabled
 # and we need to keep these in sync between device-mapper and lvm2
 
@@ -339,37 +338,37 @@ unset CC
 %endif
 
 %configure \
-	--with-usrlibdir=%{_libdir} \
-	%{?debug:--enable-debug} \
-	--with-optimisation="%{rpmcflags}" \
-	--enable-readline \
-	--enable-fsadm \
 	--enable-applib \
 	--enable-cmdlib \
-	%{?with_lvmetad:--enable-lvmetad} \
+	%{?debug:--enable-debug} \
 	--enable-dmeventd \
-	--with-dmeventd-path=%{_sbindir}/dmeventd \
+	--enable-fsadm \
+	%{?with_lvmetad:--enable-lvmetad} \
 	--enable-ocf \
+	--enable-readline \
+	%{!?with_selinux:--disable-selinux} \
 	--enable-pkgconfig \
 	--enable-udev_sync \
 	--enable-udev_rules \
+	--with-cluster=internal \
 %if %{with cluster}
 	--with-clvmd=corosync \
 	--enable-cmirrord \
 %endif
+	--with-dmeventd-path=%{_sbindir}/dmeventd \
+	--with-interface=ioctl \
 	--with-lvm1=internal \
-	--with-pool=internal \
-	--with-cluster=internal \
-	--with-snapshots=internal \
 	--with-mirrors=internal \
+	--with-optimisation="%{rpmcflags}" \
+	--with-pool=internal \
+	--with-snapshots=internal \
+	--with-systemdsystemunitdir=%{systemdunitdir} \
 	--with-thin=internal \
 	--with-thin-check=%{_sbindir}/thin_check \
 	--with-thin-dump=%{_sbindir}/thin_dump \
 	--with-thin-repair=%{_sbindir}/thin_repair \
-	--with-interface=ioctl \
 	--with-udev-prefix=/ \
-	--with-systemd_dir=%{systemdunitdir} \
-	%{!?with_selinux:--disable-selinux}
+	--with-usrlibdir=%{_libdir}
 
 %{__make} -j1
 %{__make} -j1 -C libdm LIB_STATIC=libdevmapper.a
@@ -489,12 +488,23 @@ fi
 %attr(750,root,root) %dir %{_sysconfdir}/lvm/profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/default.profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/thin-performance.profile
+%if %{with lvmetad}
+/lib/udev/rules.d/69-dm-lvm-metad.rules
+%endif
 %{_sysconfdir}/tmpfiles.d/lvm2.conf
-%{systemdunitdir}/lvm2-monitor.service
 %{systemdunitdir}/blk-availability.service
+%if %{with lvmetad}
+%{systemdunitdir}/lvm2-lvmetad.service
+%{systemdunitdir}/lvm2-lvmetad.socket
+%endif
+%{systemdunitdir}/lvm2-monitor.service
+%{systemdunitdir}/lvm2-pvscan@.service
 %dir %{_sysconfdir}/lvm/cache
 %ghost %{_sysconfdir}/lvm/cache/.cache
 %attr(754,root,root) /etc/rc.d/init.d/blk-availability
+%if %{with lvmetad}
+%attr(754,root,root) /etc/rc.d/init.d/lvm2-lvmetad
+%endif
 %attr(754,root,root) /etc/rc.d/init.d/lvm2-monitor
 %dir %attr(700,root,root) /var/run/lvm
 

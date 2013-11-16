@@ -153,7 +153,7 @@
 -	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) \
 -	      -o $@ dmsetup.o -ldevmapper $(STATIC_LIBS) $(LIBS)
 +	$(CC) $(CFLAGS) -static -L$(interfacebuilddir) $(LDFLAGS) \
-+	      -o $@ dmsetup.o -ldevmapper $(STATIC_LIBS) $(LIBS) $(DIETLIBC_LIBS)
++	      -o $@ dmsetup.o -ldevmapper $(STATIC_LIBS) $(LIBS) $(PTHREAD_LIBS) $(DIETLIBC_LIBS)
  
  all: device-mapper
  
@@ -171,7 +171,7 @@
  lvm.static: $(OBJECTS) lvm-static.o $(top_builddir)/lib/liblvm-internal.a  $(interfacebuilddir)/libdevmapper.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) -o $@ \
 -	      $(OBJECTS) lvm-static.o $(LVMLIBS) $(STATIC_LIBS) $(LIBS)
-+	      $(OBJECTS) lvm-static.o $(LVMLIBS) $(STATIC_LIBS) $(LIBS) $(DIETLIBC_LIBS)
++	      $(OBJECTS) lvm-static.o $(LVMLIBS) $(STATIC_LIBS) $(LIBS) $(PTHREAD_LIBS) $(DIETLIBC_LIBS)
  
  liblvm2cmd.a: $(top_builddir)/lib/liblvm-internal.a $(OBJECTS) lvmcmdlib.o lvm2cmd.o
  	cat $(top_builddir)/lib/liblvm-internal.a > $@
