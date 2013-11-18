@@ -179,7 +179,7 @@ Agenci OCF do monitorowania procesów LVM2.
 Summary:	Userspace support for the device-mapper
 Summary(pl.UTF-8):	Wsparcie dla mapowania urządzeń w przestrzeni użytkownika
 Group:		Base
-Requires(post,preun,postun):	systemd-units >= 38
+Requires(post,postun):	/sbin/ldconfig
 Requires:	systemd-units >= 38
 
 %description -n device-mapper
