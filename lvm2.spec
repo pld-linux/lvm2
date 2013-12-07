@@ -3,7 +3,7 @@
 # - --with-replicators (=internal/shared/none, default is none)?
 #
 # Conditional build:
-%bcond_without	initrd		# don't build initrd version
+%bcond_with	initrd		# don't build initrd version
 %bcond_without	uClibc		# link initrd version with uClibc
 %bcond_with	dietlibc	# link initrd version with dietlibc
 %bcond_with	glibc		# link initrd version with static GLIBC
@@ -34,7 +34,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.104
-Release:	1
+Release:	2
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
