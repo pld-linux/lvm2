@@ -139,14 +139,14 @@
  /* FIXME Unused so far */
  #undef HAVE_SYS_STATVFS_H
 
---- LVM2.2.02.65/tools/Makefile.in~	2010-05-18 13:18:54.344217166 +0200
-+++ LVM2.2.02.65/tools/Makefile.in	2010-05-18 13:21:19.303172002 +0200
-@@ -122,18 +122,18 @@
- device-mapper: $(TARGETS_DM)
+--- LVM2.2.02.105/tools/Makefile.in.orig	2014-01-26 18:33:51.531497416 +0100
++++ LVM2.2.02.105/tools/Makefile.in	2014-01-26 19:14:42.264728615 +0100
+@@ -127,19 +127,19 @@
+ CFLAGS_dmsetup.o += $(EXTRA_EXEC_CFLAGS)
  
  dmsetup: dmsetup.o $(top_builddir)/libdm/libdevmapper.$(LIB_SUFFIX)
--	$(CC) $(CFLAGS) $(LDFLAGS) -L$(top_builddir)/libdm \
-+	$(CC) $(CFLAGS) -L$(interfacedir) -L$(top_builddir)/libdm $(LDFLAGS) \
+-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) -L$(top_builddir)/libdm \
++	$(CC) $(CFLAGS) -L$(interfacebuilddir) -L$(top_builddir)/libdm $(EXTRA_EXEC_LDFLAGS) $(LDFLAGS) \
  	      -o $@ dmsetup.o -ldevmapper $(LIBS)
  
  dmsetup.static: dmsetup.o $(interfacebuilddir)/libdevmapper.a
@@ -157,16 +157,15 @@
  
  all: device-mapper
  
+ CFLAGS_lvm.o += $(EXTRA_EXEC_CFLAGS)
+ 
  lvm: $(OBJECTS) lvm.o $(top_builddir)/lib/liblvm-internal.a
--	$(CC) $(CFLAGS) $(LDFLAGS) $(ELDFLAGS) -o $@ $(OBJECTS) lvm.o \
-+	$(CC) $(CFLAGS) -L$(interfacedir) $(LDFLAGS) $(ELDFLAGS) -o $@ $(OBJECTS) lvm.o \
+-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) $(ELDFLAGS) -o $@ $(OBJECTS) lvm.o \
++	$(CC) $(CFLAGS) -L$(interfacebuilddir) $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) $(ELDFLAGS) -o $@ $(OBJECTS) lvm.o \
  		$(LVMLIBS) $(READLINE_LIBS) $(LIBS) -rdynamic
  
- lvm.static: $(OBJECTS) lvm-static.o $(top_builddir)/lib/liblvm-internal.a  $(interfacebuilddir)/libdevmapper.a
-
---- LVM2.2.02.65/tools/Makefile.in~	2010-05-18 13:39:46.797633173 +0200
-+++ LVM2.2.02.65/tools/Makefile.in	2010-05-18 13:46:01.629690313 +0200
-@@ -137,7 +137,7 @@
+ ifeq ("@BUILD_LVMETAD@", "yes")
+@@ -148,7 +148,7 @@
  
  lvm.static: $(OBJECTS) lvm-static.o $(top_builddir)/lib/liblvm-internal.a  $(interfacebuilddir)/libdevmapper.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) -o $@ \
