@@ -34,7 +34,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.105
-Release:	1
+Release:	2
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -180,6 +180,7 @@ Summary:	Userspace support for the device-mapper
 Summary(pl.UTF-8):	Wsparcie dla mapowania urządzeń w przestrzeni użytkownika
 Group:		Base
 Requires(post,postun):	/sbin/ldconfig
+Requires(post,preun,postun):	systemd-units >= 38
 Requires:	systemd-units >= 38
 
 %description -n device-mapper
@@ -384,11 +385,11 @@ install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm,/etc/sysconfig}
 	GROUP=""
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d
-install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
+cp -p %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
 
 %if %{with cluster}
-install %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/clvmd.service
-install %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/clvmd
+cp -p %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/clvmd.service
+cp -p %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/clvmd
 %endif
 
 mv $RPM_BUILD_ROOT%{_libdir}/lib*.so.* $RPM_BUILD_ROOT/%{_lib}
