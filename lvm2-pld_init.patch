@@ -104,9 +104,8 @@ diff -dur LVM2.2.02.98.orig/scripts/clvmd_init_red_hat.in LVM2.2.02.98/scripts/c
  
  	# If that fails then do a normal stop & restart
  	if  [ $? != 0 ]; then
-diff -dur LVM2.2.02.98.orig/scripts/lvm2_monitoring_init_red_hat.in LVM2.2.02.98/scripts/lvm2_monitoring_init_red_hat.in
---- LVM2.2.02.98.orig/scripts/lvm2_monitoring_init_red_hat.in	2012-10-15 16:24:58.000000000 +0200
-+++ LVM2.2.02.98/scripts/lvm2_monitoring_init_red_hat.in	2012-10-25 11:57:52.000000000 +0200
+--- LVM2.2.02.106/scripts/lvm2_monitoring_init_red_hat.in.orig	2014-04-10 17:38:46.000000000 +0200
++++ LVM2.2.02.106/scripts/lvm2_monitoring_init_red_hat.in	2014-04-22 21:38:55.153260547 +0200
 @@ -1,4 +1,4 @@
 -#!/bin/bash
 +#!/bin/sh
@@ -120,18 +119,18 @@ diff -dur LVM2.2.02.98.orig/scripts/lvm2_monitoring_init_red_hat.in LVM2.2.02.98
 -	ret=0
 +	local ret=0
  	# TODO do we want to separate out already active groups only?
- 	VGSLIST=`$VGS --noheadings -o name --config 'log{command_names=0 prefix="  "}' 2> /dev/null`
+ 	VGSLIST=`$VGS --noheadings -o name --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' 2> /dev/null`
  	for vg in $VGSLIST
  	do
--	    action "Starting monitoring for VG $vg:" $VGCHANGE --monitor y --poll y --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
+-	    action "Starting monitoring for VG $vg:" $VGCHANGE --monitor y --poll y --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
 +	    msg_starting "Starting monitoring for VG $vg:"; busy
-+		$VGCHANGE --monitor y --poll y --config 'log{command_names=0 prefix="  "}' $vg
-+	   	ret=$?
-+		if [ $ret -ne 0 ]; then
-+			fail
-+			return $ret
-+		fi
-+		ok
++	    $VGCHANGE --monitor y --poll y --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' $vg
++	    ret=$?
++	    if [ $ret -ne 0 ]; then
++		fail
++		return $ret
++	    fi
++	    ok
  	done
  
  	return $ret
@@ -145,18 +144,18 @@ diff -dur LVM2.2.02.98.orig/scripts/lvm2_monitoring_init_red_hat.in LVM2.2.02.98
  	if test "$WARN" = "1"; then
  	   echo "Not stopping monitoring, this is a dangerous operation. Please use force-stop to override."
 @@ -69,7 +76,14 @@
- 	VGSLIST=`$VGS --noheadings -o name --config 'log{command_names=0 prefix="  "}' 2> /dev/null`
+ 	VGSLIST=`$VGS --noheadings -o name --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' 2> /dev/null`
  	for vg in $VGSLIST
  	do
--	    action "Stopping monitoring for VG $vg:" $VGCHANGE --monitor n --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
+-	    action "Stopping monitoring for VG $vg:" $VGCHANGE --monitor n --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
 +	    msg_stopping "Stopping monitoring for VG $vg:"; busy
-+		$VGCHANGE --monitor n --config 'log{command_names=0 prefix="  "}' $vg
-+	   	ret=$?
-+		if [ $ret -ne 0 ]; then
-+			fail
-+			return $ret
-+		fi
-+		ok
++	    $VGCHANGE --monitor n --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' $vg
++	    ret=$?
++	    if [ $ret -ne 0 ]; then
++		fail
++		return $ret
++	    fi
++	    ok
  	done
  	return $ret
  }

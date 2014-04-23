@@ -33,12 +33,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.105
-Release:	2
+Version:	2.02.106
+Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	b5b3540661fc70bf329b526c1cfbcf3a
+# Source0-md5:	77f84279fb649b3dc4edad1c6d1a1b0e
 Source1:	%{name}-tmpfiles.conf
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
@@ -479,6 +479,7 @@ fi
 %attr(755,root,root) %{_sbindir}/pv*
 %attr(755,root,root) %{_sbindir}/vg*
 %{_mandir}/man5/lvm.conf.5*
+%{_mandir}/man7/lvmthin.7*
 %{_mandir}/man8/blkdeactivate.8*
 %{_mandir}/man8/fsadm.8*
 %{_mandir}/man8/lv*.8*
@@ -515,14 +516,18 @@ fi
 %attr(755,root,root) %{_usrsbindir}/clvmd
 %attr(754,root,root) /etc/rc.d/init.d/clvmd
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/clvmd
+%attr(755,root,root) /lib/systemd/lvm2-cluster-activation
 %{systemdunitdir}/clvmd.service
+%{systemdunitdir}/lvm2-cluster-activation.service
+%{systemdunitdir}/lvm2-clvmd.service
 %{_mandir}/man8/clvmd.8*
 
 %files cmirrord
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_usrsbindir}/cmirrord
-%{_mandir}/man8/cmirrord.8*
 %attr(754,root,root) /etc/rc.d/init.d/cmirrord
+%{systemdunitdir}/lvm2-cmirrord.service
+%{_mandir}/man8/cmirrord.8*
 %endif
 
 %files resource-agents
