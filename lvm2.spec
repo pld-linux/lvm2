@@ -33,12 +33,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.106
+Version:	2.02.107
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	77f84279fb649b3dc4edad1c6d1a1b0e
+# Source0-md5:	efa5b0ff0245cbccf53aec1f3d8840ba
 Source1:	%{name}-tmpfiles.conf
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
@@ -47,7 +47,6 @@ Patch1:		%{name}-diet.patch
 Patch2:		device-mapper-dmsetup-export.patch
 Patch3:		%{name}-pld_init.patch
 Patch4:		dl-dlsym.patch
-Patch5:		%{name}-wrapper.patch
 Patch6:		%{name}-lvm_path.patch
 Patch7:		%{name}-sd_notify.patch
 Patch8:		%{name}-clvmd_cmd_timeout.patch
@@ -275,7 +274,6 @@ potrzeby initrd.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
@@ -488,7 +486,9 @@ fi
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
 %attr(750,root,root) %dir %{_sysconfdir}/lvm/profile
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/default.profile
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/command_profile_template.profile
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/metadata_profile_template.profile
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/thin-generic.profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/thin-performance.profile
 %if %{with lvmetad}
 /lib/udev/rules.d/69-dm-lvm-metad.rules

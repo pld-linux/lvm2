@@ -13,19 +13,6 @@
  #ifdef INTL_PACKAGE
  	bindtextdomain(INTL_PACKAGE, LOCALEDIR);
  #endif
---- LVM2.2.02.45/lib/locking/file_locking.c	2008-11-12 10:30:52.000000000 +0100
-+++ LVM2.2.02.45-diet/lib/locking/file_locking.c	2009-03-18 12:18:52.000000000 +0100
-@@ -30,6 +30,10 @@
- #include <fcntl.h>
- #include <signal.h>
- 
-+#ifdef __dietlibc__
-+typedef void (*sig_t) (int);
-+#endif
-+
- struct lock_list {
- 	struct dm_list list;
- 	int lf;
 --- LVM2.2.02.45/libdm/libdevmapper.h	2008-11-04 16:07:45.000000000 +0100
 +++ LVM2.2.02.45-diet/libdm/libdevmapper.h	2009-03-18 12:17:27.000000000 +0100
 @@ -160,6 +160,10 @@
