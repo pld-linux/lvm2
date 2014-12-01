@@ -362,6 +362,7 @@ unset CC
 	--with-pool=internal \
 	--with-snapshots=internal \
 	--with-systemdsystemunitdir=%{systemdunitdir} \
+	--with-cache=internal \
 	--with-thin=internal \
 	--with-thin-check=%{_sbindir}/thin_check \
 	--with-thin-dump=%{_sbindir}/thin_dump \
@@ -477,6 +478,7 @@ fi
 %attr(755,root,root) %{_sbindir}/pv*
 %attr(755,root,root) %{_sbindir}/vg*
 %{_mandir}/man5/lvm.conf.5*
+%{_mandir}/man7/lvmcache.7*
 %{_mandir}/man7/lvmthin.7*
 %{_mandir}/man8/blkdeactivate.8*
 %{_mandir}/man8/fsadm.8*
