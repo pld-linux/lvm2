@@ -10,7 +10,7 @@ Index: LVM2.2.02.98/man/dmsetup.8.in
 @@ -17,10 +17,13 @@ dmsetup \- low level logical volume mana
  .RB [{ \-\-addnodeoncreate | \-\-addnodeonresume }]
  .RB [ \-\-readahead
- .RI [ \+ ]< sectors >| auto | none ]
+ .RI [ + ]< sectors >| auto | none ]
  .RE
  .br
 +.B dmsetup export
