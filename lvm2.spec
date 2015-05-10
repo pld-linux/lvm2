@@ -150,7 +150,7 @@ węzeł w klastrze nie ma tego demona uruchomionego.
 
 %package cmirrord
 Summary:	Cluster mirror log daemon
-Summary(pl.UTF-*):	Demon śledzący log lustrzany w klastrze
+Summary(pl.UTF-8):	Demon śledzący log lustrzany w klastrze
 Group:		Applications/System
 Requires:	%{name} = %{version}-%{release}
 
