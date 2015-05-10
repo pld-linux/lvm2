@@ -10,6 +10,7 @@
 %bcond_without  cluster		# disable all cluster support (clvmd&cmirrord)
 %bcond_without	lvmetad		# disable lvmetad
 %bcond_without	selinux		# disable SELinux
+%bcond_without	python		# Python binding
 
 %ifarch sparc64 sparc
 %define		with_glibc 1
@@ -33,13 +34,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.114
-Release:	2
+Version:	2.02.119
+Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	de826e0736070aed70148ea5ec0ecff9
-Source1:	%{name}-tmpfiles.conf
+# Source0-md5:	93d15d76ab78fbcec4721c4b44284bbb
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
 Patch0:		%{name}-selinux.patch
@@ -51,16 +51,19 @@ Patch6:		%{name}-lvm_path.patch
 Patch7:		%{name}-sd_notify.patch
 Patch8:		%{name}-clvmd_cmd_timeout.patch
 Patch9:		device-mapper-dmsetup-deps-export.patch
-URL:		http://sources.redhat.com/lvm2/
+URL:		http://www.sourceware.org/lvm2/
 BuildRequires:	autoconf >= 2.61
 BuildRequires:	automake
+BuildRequires:	libblkid-devel >= 2.24
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
 %{?with_selinux:BuildRequires:	libsepol-devel}
 BuildRequires:	ncurses-devel
 BuildRequires:	pkgconfig
+%{?with_python:BuildRequires:	python-devel >= 2}
 BuildRequires:	readline-devel
 BuildRequires:	rpmbuild(macros) >= 1.647
-BuildRequires:	udev-devel >= 1:143
+BuildRequires:	systemd-devel >= 1:205
+BuildRequires:	udev-devel >= 1:176
 %if %{with initrd}
 %if %{with dietlibc}
 BuildRequires:	dietlibc-static >= 2:0.32-7
@@ -76,7 +79,6 @@ BuildConflicts:	device-mapper-dietlibc
 %if %{with cluster}
 BuildRequires:	corosync-devel
 BuildRequires:	dlm-devel >= 3.99.5
-BuildRequires:	systemd-devel
 %endif
 Requires(post,preun,postun):	systemd-units >= 38
 Requires(post,postun):	/sbin/chkconfig
@@ -148,6 +150,7 @@ węzeł w klastrze nie ma tego demona uruchomionego.
 
 %package cmirrord
 Summary:	Cluster mirror log daemon
+Summary(pl.UTF-*):	Demon śledzący log lustrzany w klastrze
 Group:		Applications/System
 Requires:	%{name} = %{version}-%{release}
 
@@ -160,6 +163,16 @@ without this daemon running.
 This daemon relies on the cluster infrastructure provided by the
 Cluster MANager (CMAN), which must be set up and running in order for
 cmirrord to function.
+
+%description cmirrord
+cmirrord to demon śledzący informacje logu lustrzanego w klastrze.
+Jest specyficzny dla klastrów lustrzanych opartych na device-mapperze
+(oraz, poprzez rozszerzenie, klastrów lustrzanych LVM). W klastrach
+lustrzanych ten demon jest niezbędny.
+
+Ten demon polega na infrastrukturze klastra dostarczanej przez CMAN
+(Cluster MANager), który musi być skonfigurowany i działający, aby
+działał cmirrord.
 
 %package resource-agents
 Summary:	OCF Resource Agents for LVM2 processes
@@ -174,12 +187,25 @@ OCF Resource Agents for LVM2 processes.
 %description resource-agents -l pl.UTF-8
 Agenci OCF do monitorowania procesów LVM2.
 
+%package -n python-lvm
+Summary:	Python interface to LVM2
+Summary(pl.UTF-8):	Interfejs Pythona do LVM2
+Group:		Libraries/Python
+Requires:	device-mapper-libs = %{version}-%{release}
+
+%description -n python-lvm
+Python interface to LVM2.
+
+%description -n python-lvm -l pl.UTF-8
+Interfejs Pythona do LVM2.
+
 %package -n device-mapper
 Summary:	Userspace support for the device-mapper
 Summary(pl.UTF-8):	Wsparcie dla mapowania urządzeń w przestrzeni użytkownika
 Group:		Base
 Requires(post,postun):	/sbin/ldconfig
 Requires(post,preun,postun):	systemd-units >= 38
+Requires:	device-mapper-libs = %{version}-%{release}
 Requires:	systemd-units >= 38
 
 %description -n device-mapper
@@ -197,21 +223,37 @@ definiowania partycji na dysku lub logicznych wolumenów. Ten lekki
 składnik jądra może wspierać działające w przestrzeni użytkownika
 narzędzia do zarządzania logicznymi wolumenami.
 
+%package -n device-mapper-libs
+Summary:	Device-mapper shared libraries
+Summary(pl.UTF-8):	Biblioteki współdzielone device-mappera
+Group:		Libraries
+Conflicts:	device-mapper < 2.02.119-1
+Requires:	libblkid >= 2.24
+Requires:	udev-libs >= 1:176
+
+%description -n device-mapper-libs
+Device-mapper shared libraries.
+
+%description -n device-mapper-libs -l pl.UTF-8
+Biblioteki współdzielone device-mappera.
+
 %package -n device-mapper-devel
-Summary:	Header files and development documentation for %{name}
-Summary(pl.UTF-8):	Pliki nagłówkowe i dokumentacja do %{name}
+Summary:	Header files for device-mapper libraries
+Summary(pl.UTF-8):	Pliki nagłówkowe bibliotek device-mappera
 Group:		Development/Libraries
-Requires:	device-mapper = %{version}-%{release}
+Requires:	device-mapper-libs = %{version}-%{release}
+Requires:	libblkid-devel >= 2.24
 %if %{with selinux}
 Requires:	libselinux-devel
 Requires:	libsepol-devel
 %endif
+Requires:	udev-devel >= 1:176
 
 %description -n device-mapper-devel
-Header files and development documentation for %{name}.
+Header files for device-mapper libraries.
 
 %description -n device-mapper-devel -l pl.UTF-8
-Pliki nagłówkowe i dokumentacja do %{name}.
+Pliki nagłówkowe bibliotek device-mappera.
 
 %package -n device-mapper-static
 Summary:	Static devmapper library
@@ -329,7 +371,6 @@ for tool in initrd-lvm initrd-dmsetup; do
 	fi
 done
 
-
 %{?with_dietlibc:mv -f libdm/ioctl/libdevmapper.a diet-libdevmapper.a}
 %{__make} clean
 
@@ -344,11 +385,13 @@ unset CC
 	--enable-fsadm \
 	%{?with_lvmetad:--enable-lvmetad} \
 	--enable-ocf \
+	%{?with_python:--enable-python_bindings} \
 	--enable-readline \
 	%{!?with_selinux:--disable-selinux} \
 	--enable-pkgconfig \
 	--enable-udev_sync \
 	--enable-udev_rules \
+	--with-cache=internal \
 	--with-cluster=internal \
 %if %{with cluster}
 	--with-clvmd=corosync \
@@ -362,7 +405,7 @@ unset CC
 	--with-pool=internal \
 	--with-snapshots=internal \
 	--with-systemdsystemunitdir=%{systemdunitdir} \
-	--with-cache=internal \
+	--with-tmpfilesdir=%{systemdtmpfilesdir} \
 	--with-thin=internal \
 	--with-thin-check=%{_sbindir}/thin_check \
 	--with-thin-dump=%{_sbindir}/thin_dump \
@@ -378,13 +421,13 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm,/etc/sysconfig}
 %{?with_dietlibc:install -d $RPM_BUILD_ROOT%{dietlibdir}}
 
-%{__make} install install_system_dirs install_systemd_units install_initscripts \
+%{__make} install install_system_dirs install_systemd_units install_initscripts install_tmpfiles_configuration \
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER="" \
 	GROUP=""
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d
-cp -p %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
+%{__make} -C scripts install_tmpfiles_configuration \
+	DESTDIR=$RPM_BUILD_ROOT \
 
 %if %{with cluster}
 cp -p %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/clvmd.service
@@ -438,18 +481,19 @@ fi
 %systemd_trigger lvm2-monitor.service
 
 %post -n device-mapper
-/sbin/ldconfig
 %systemd_post dm-event.socket
 
 %preun -n device-mapper
 %systemd_preun dm-event.socket dm-event.service
 
 %postun -n device-mapper
-/sbin/ldconfig
 %systemd_reload
 
 %triggerpostun -n device-mapper -- device-mapper < 2.02.94-1
 %systemd_trigger dm-event.socket
+
+%post	-n device-mapper-libs -p /sbin/ldconfig
+%postun	-n device-mapper-libs -p /sbin/ldconfig
 
 %post clvmd
 /sbin/chkconfig --add clvmd
@@ -479,6 +523,7 @@ fi
 %attr(755,root,root) %{_sbindir}/vg*
 %{_mandir}/man5/lvm.conf.5*
 %{_mandir}/man7/lvmcache.7*
+%{_mandir}/man7/lvmsystemid.7*
 %{_mandir}/man7/lvmthin.7*
 %{_mandir}/man8/blkdeactivate.8*
 %{_mandir}/man8/fsadm.8*
@@ -487,6 +532,7 @@ fi
 %{_mandir}/man8/vg*.8*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvmlocal.conf
 %attr(750,root,root) %dir %{_sysconfdir}/lvm/profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/command_profile_template.profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/metadata_profile_template.profile
@@ -495,7 +541,7 @@ fi
 %if %{with lvmetad}
 /lib/udev/rules.d/69-dm-lvm-metad.rules
 %endif
-%{_sysconfdir}/tmpfiles.d/lvm2.conf
+%{systemdtmpfilesdir}/lvm2.conf
 %{systemdunitdir}/blk-availability.service
 %if %{with lvmetad}
 %{systemdunitdir}/lvm2-lvmetad.service
@@ -537,6 +583,13 @@ fi
 %dir %{_prefix}/lib/ocf/resource.d/lvm2
 %attr(755,root,root) %{_prefix}/lib/ocf/resource.d/lvm2/VolumeGroup
 
+%if %{with python}
+%files -n python-lvm
+%defattr(644,root,root,755)
+%attr(755,root,root) %{py_sitedir}/lvm.so
+%{py_sitedir}/lvm-%{version}_*-py*.egg-info
+%endif
+
 %files -n device-mapper
 %defattr(644,root,root,755)
 %doc *_DM
@@ -548,14 +601,19 @@ fi
 /lib/udev/rules.d/95-dm-notify.rules
 %attr(755,root,root) %{_sbindir}/dmeventd
 %attr(755,root,root) %{_sbindir}/dmsetup
-%attr(755,root,root) /%{_lib}/libdevmapper*.so.*.*
-%attr(755,root,root) /%{_lib}/liblvm2app.so.*.*
-%attr(755,root,root) /%{_lib}/liblvm2cmd.so.*.*
 %dir %{_libdir}/device-mapper
 %attr(755,root,root) %{_libdir}/device-mapper/*.so
 %attr(755,root,root) %{_libdir}/libdevmapper-event-*.so
 %{_mandir}/man8/dmsetup.8*
 %{_mandir}/man8/dmeventd.8*
+
+%files -n device-mapper-libs
+%defattr(644,root,root,755)
+%attr(755,root,root) /%{_lib}/libdevmapper.so.*.*
+%attr(755,root,root) /%{_lib}/libdevmapper-event.so.*.*
+%attr(755,root,root) /%{_lib}/libdevmapper-event-lvm2.so.*.*
+%attr(755,root,root) /%{_lib}/liblvm2app.so.*.*
+%attr(755,root,root) /%{_lib}/liblvm2cmd.so.*.*
 
 %files -n device-mapper-devel
 %defattr(644,root,root,755)
@@ -563,15 +621,17 @@ fi
 %attr(755,root,root) %{_libdir}/libdevmapper-event.so
 %attr(755,root,root) %{_libdir}/liblvm2app.so
 %attr(755,root,root) %{_libdir}/liblvm2cmd.so
-%{_includedir}/libdevmapper*.h
+%{_includedir}/libdevmapper.h
+%{_includedir}/libdevmapper-event.h
 %{_includedir}/lvm2app.h
 %{_includedir}/lvm2cmd.h
-%{_pkgconfigdir}/devmapper*.pc
+%{_pkgconfigdir}/devmapper.pc
+%{_pkgconfigdir}/devmapper-event.pc
 %{_pkgconfigdir}/lvm2app.pc
 
 %files -n device-mapper-static
 %defattr(644,root,root,755)
-%{_libdir}/libdevmapper*.a
+%{_libdir}/libdevmapper.a
 
 %if %{with initrd}
 %if %{with dietlibc}

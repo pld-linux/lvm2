@@ -126,14 +126,14 @@
  /* FIXME Unused so far */
  #undef HAVE_SYS_STATVFS_H
 
---- LVM2.2.02.105/tools/Makefile.in.orig	2014-01-26 18:33:51.531497416 +0100
-+++ LVM2.2.02.105/tools/Makefile.in	2014-01-26 19:14:42.264728615 +0100
-@@ -127,19 +127,19 @@
- CFLAGS_dmsetup.o += $(EXTRA_EXEC_CFLAGS)
+--- LVM2.2.02.119/tools/Makefile.in.orig	2015-05-10 08:49:35.037661379 +0200
++++ LVM2.2.02.119/tools/Makefile.in	2015-05-10 08:52:03.170988495 +0200
+@@ -128,12 +128,12 @@
+ CFLAGS_dmsetup.o += $(UDEV_CFLAGS) $(EXTRA_EXEC_CFLAGS)
  
  dmsetup: dmsetup.o $(top_builddir)/libdm/libdevmapper.$(LIB_SUFFIX)
 -	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) -L$(top_builddir)/libdm \
-+	$(CC) $(CFLAGS) -L$(interfacebuilddir) -L$(top_builddir)/libdm $(EXTRA_EXEC_LDFLAGS) $(LDFLAGS) \
++	$(CC) $(CFLAGS) -L$(interfacebuilddir) -L$(top_builddir)/libdm $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) \
  	      -o $@ dmsetup.o -ldevmapper $(LIBS)
  
  dmsetup.static: dmsetup.o $(interfacebuilddir)/libdevmapper.a
@@ -144,7 +144,8 @@
  
  all: device-mapper
  
- CFLAGS_lvm.o += $(EXTRA_EXEC_CFLAGS)
+@@ -141,7 +141,7 @@
+ CFLAGS_lvmcmdline.o += $(VALGRIND_CFLAGS)
  
  lvm: $(OBJECTS) lvm.o $(top_builddir)/lib/liblvm-internal.a
 -	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) $(ELDFLAGS) -o $@ $(OBJECTS) lvm.o \
@@ -152,7 +153,7 @@
  		$(LVMLIBS) $(READLINE_LIBS) $(LIBS) -rdynamic
  
  ifeq ("@BUILD_LVMETAD@", "yes")
-@@ -148,7 +148,7 @@
+@@ -150,7 +150,7 @@
  
  lvm.static: $(OBJECTS) lvm-static.o $(top_builddir)/lib/liblvm-internal.a  $(interfacebuilddir)/libdevmapper.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) -o $@ \
