@@ -3,29 +3,40 @@
 # - --with-replicators (=internal/shared/none, default is none)?
 #
 # Conditional build:
-%bcond_with	initrd		# don't build initrd version
+# - initrf stuff
+%bcond_with	initrd		# build initrd version
 %bcond_without	uClibc		# link initrd version with uClibc
 %bcond_with	dietlibc	# link initrd version with dietlibc
 %bcond_with	glibc		# link initrd version with static GLIBC
+# - functionality
 %bcond_without  cluster		# disable all cluster support (clvmd&cmirrord)
-%bcond_without	lvmetad		# disable lvmetad
-%bcond_without	selinux		# disable SELinux
+%bcond_without	lvmetad		# disable lvmetad (and lvmlockd)
+%bcond_without	lvmpolld	# disable lvmpolld (and lvmlockd)
+%bcond_without	lvmlockd	# disable lvmlockd
+%bcond_with	sanlock		# sanlock support in lvmlockd
+%bcond_with	replicator	# internal replicator support
+# - additional features
+%bcond_without	selinux		# SELinux support
+# - bindings
 %bcond_without	python		# Python binding
 
-%ifarch sparc64 sparc
-%define		with_glibc 1
+# lvmlockd requires lvmetad and lvmpolld
+%if %{without lvmetad} || %{without lvmpolld}
+%undefine	with_lvmpolld
 %endif
 
+# only glibc possible on SPARC
+%ifarch sparc sparcv9 sparc64
+%define		with_glibc 1
+%endif
 # if one of the *libc is enabled disable default dietlibc
 %if %{with dietlibc} && %{with uClibc}
 %undefine	with_dietlibc
 %endif
-
 # with glibc disables default dietlibc
 %if %{with glibc} && %{with dietlibc}
 %undefine	with_dietlibc
 %endif
-
 # fallback is glibc if neither alternatives are enabled
 %if %{without dietlibc} && %{without uClibc}
 %define		with_glibc	1
@@ -34,12 +45,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.119
+Version:	2.02.130
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	93d15d76ab78fbcec4721c4b44284bbb
+# Source0-md5:	e7ae07e413120713549cc6dd2a558c75
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
 Patch0:		%{name}-selinux.patch
@@ -54,6 +65,8 @@ Patch9:		device-mapper-dmsetup-deps-export.patch
 URL:		http://www.sourceware.org/lvm2/
 BuildRequires:	autoconf >= 2.61
 BuildRequires:	automake
+# for /run detection
+BuildRequires:	filesystem >= 3.0-43
 BuildRequires:	libblkid-devel >= 2.24
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
 %{?with_selinux:BuildRequires:	libsepol-devel}
@@ -62,6 +75,7 @@ BuildRequires:	pkgconfig
 %{?with_python:BuildRequires:	python-devel >= 2}
 BuildRequires:	readline-devel
 BuildRequires:	rpmbuild(macros) >= 1.647
+%{?with_sanlock:BuildRequires:	sanlock-devel >= 3.2.4}
 BuildRequires:	systemd-devel >= 1:205
 BuildRequires:	udev-devel >= 1:176
 %if %{with initrd}
@@ -87,6 +101,7 @@ Requires:	device-mapper >= %{version}-%{release}
 Requires:	systemd-units >= 38
 # doesn't work with 2.4 kernels
 Requires:	uname(release) >= 2.6
+Suggests:	thin-provisioning-tools >= 0.5.4
 Obsoletes:	lvm
 Obsoletes:	lvm2-systemd
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -383,6 +398,10 @@ unset CC
 	%{?debug:--enable-debug} \
 	--enable-dmeventd \
 	--enable-fsadm \
+%if %{with lvmlockd}
+	%{?with_cluster:--enable-lockd-dlm} \
+	%{?with_sanlock:--enable-lockd-sanlock} \
+%endif
 	%{?with_lvmetad:--enable-lvmetad} \
 	--enable-ocf \
 	%{?with_python:--enable-python_bindings} \
@@ -392,6 +411,10 @@ unset CC
 	--enable-udev_sync \
 	--enable-udev_rules \
 	--with-cache=internal \
+	--with-cache-check=/usr/sbin/cache_check \
+	--with-cache-dump=/usr/sbin/cache_dump \
+	--with-cache-repair=/usr/sbin/cache_repair \
+	--with-cache-restore=/usr/sbin/cache_restore \
 	--with-cluster=internal \
 %if %{with cluster}
 	--with-clvmd=corosync \
@@ -403,13 +426,15 @@ unset CC
 	--with-mirrors=internal \
 	--with-optimisation="%{rpmcflags}" \
 	--with-pool=internal \
+	%{?with_replicator:--with-replicators=internal} \
 	--with-snapshots=internal \
 	--with-systemdsystemunitdir=%{systemdunitdir} \
 	--with-tmpfilesdir=%{systemdtmpfilesdir} \
 	--with-thin=internal \
-	--with-thin-check=%{_sbindir}/thin_check \
-	--with-thin-dump=%{_sbindir}/thin_dump \
-	--with-thin-repair=%{_sbindir}/thin_repair \
+	--with-thin-check=/usr/sbin/thin_check \
+	--with-thin-dump=/usr/sbin/thin_dump \
+	--with-thin-repair=/usr/sbin/thin_repair \
+	--with-thin-restore=/usr/sbin/thin_restore \
 	--with-udev-prefix=/ \
 	--with-usrlibdir=%{_libdir}
 
@@ -534,6 +559,8 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvmlocal.conf
 %attr(750,root,root) %dir %{_sysconfdir}/lvm/profile
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/cache-mq.profile
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/cache-smq.profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/command_profile_template.profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/metadata_profile_template.profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/thin-generic.profile
@@ -547,6 +574,14 @@ fi
 %{systemdunitdir}/lvm2-lvmetad.service
 %{systemdunitdir}/lvm2-lvmetad.socket
 %endif
+%if %{with lvmlockd}
+%{systemdunitdir}/lvm2-lvmlockd.service
+%{systemdunitdir}/lvm2-lvmlocking.service
+%endif
+%if %{with lvmpolld}
+%{systemdunitdir}/lvm2-lvmpolld.service
+%{systemdunitdir}/lvm2-lvmpolld.socket
+%endif
 %{systemdunitdir}/lvm2-monitor.service
 %{systemdunitdir}/lvm2-pvscan@.service
 %dir %{_sysconfdir}/lvm/cache
@@ -555,8 +590,12 @@ fi
 %if %{with lvmetad}
 %attr(754,root,root) /etc/rc.d/init.d/lvm2-lvmetad
 %endif
+%if %{with lvmpolld}
+%attr(754,root,root) /etc/rc.d/init.d/lvm2-lvmpolld
+%endif
 %attr(754,root,root) /etc/rc.d/init.d/lvm2-monitor
-%dir %attr(700,root,root) /var/run/lvm
+%attr(700,root,root) %dir /run/lvm
+%attr(700,root,root) %dir /var/lock/lvm
 
 %if %{with cluster}
 %files clvmd
@@ -601,10 +640,12 @@ fi
 /lib/udev/rules.d/95-dm-notify.rules
 %attr(755,root,root) %{_sbindir}/dmeventd
 %attr(755,root,root) %{_sbindir}/dmsetup
+%attr(755,root,root) %{_sbindir}/dmstats
 %dir %{_libdir}/device-mapper
 %attr(755,root,root) %{_libdir}/device-mapper/*.so
 %attr(755,root,root) %{_libdir}/libdevmapper-event-*.so
 %{_mandir}/man8/dmsetup.8*
+%{_mandir}/man8/dmstats.8*
 %{_mandir}/man8/dmeventd.8*
 
 %files -n device-mapper-libs

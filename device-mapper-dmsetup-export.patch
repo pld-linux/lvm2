@@ -36,13 +36,9 @@ Index: LVM2.2.02.98/man/dmsetup.8.in
  .B deps
  .RB [ \-o
  .IR options ]
-Index: LVM2.2.02.98/tools/dmsetup.c
-===================================================================
---- LVM2.2.02.98.orig/tools/dmsetup.c
-+++ LVM2.2.02.98/tools/dmsetup.c
-@@ -1706,10 +1706,97 @@ static int _status(CMD_ARGS)
-       out:
- 	dm_task_destroy(dmt);
+--- LVM2.2.02.130/tools/dmsetup.c.orig	2015-09-09 18:44:39.471523160 +0200
++++ LVM2.2.02.130/tools/dmsetup.c	2015-09-09 18:48:33.918179988 +0200
+@@ -2189,6 +2189,93 @@
  	return r;
  }
  
@@ -136,17 +132,11 @@ Index: LVM2.2.02.98/tools/dmsetup.c
  /* Show target names and their version numbers */
  static int _targets(CMD_ARGS)
  {
- 	int r = 0;
- 	struct dm_task *dmt;
-@@ -3056,10 +3143,11 @@ static struct command _commands[] = {
- 	{"message", "<device> <sector> <message>", 2, -1, 0, _message},
- 	{"ls", "[--target <target_type>] [--exec <command>] [-o options] [--tree]", 0, 0, 0, _ls},
- 	{"info", "[<device>]", 0, -1, 1, _info},
- 	{"deps", "[-o options] [<device>]", 0, -1, 1, _deps},
- 	{"status", "[<device>] [--noflush] [--target <target_type>]", 0, -1, 1, _status},
-+	{"export", "[<device>]", 0, 1, 1, _export},
- 	{"table", "[<device>] [--target <target_type>] [--showkeys]", 0, -1, 1, _status},
- 	{"wait", "<device> [<event_nr>] [--noflush]", 0, 2, 0, _wait},
- 	{"mknodes", "[<device>]", 0, -1, 1, _mknodes},
- 	{"mangle", "[<device>]", 0, -1, 1, _mangle},
- 	{"udevcreatecookie", "", 0, 0, 0, _udevcreatecookie},
+@@ -5139,6 +5226,7 @@
+ 	{"stats", "<command> [<options>] [<devices>]", 1, -1, 1, 1, _stats},
+ 	{"status", "[<device>] [--noflush] [--target <target_type>]", 0, -1, 1, 0, _status},
+ 	{"table", "[<device>] [--target <target_type>] [--showkeys]", 0, -1, 1, 0, _status},
++	{"export", "[<device>]", 0, 1, 1, 0, _export},
+ 	{"wait", "<device> [<event_nr>] [--noflush]", 0, 2, 0, 0, _wait},
+ 	{"mknodes", "[<device>]", 0, -1, 1, 0, _mknodes},
+ 	{"mangle", "[<device>]", 0, -1, 1, 0, _mangle},
