@@ -3,39 +3,30 @@
  tools/dmsetup.c  |   88 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
  2 files changed, 95 insertions(+)
 
-Index: LVM2.2.02.98/man/dmsetup.8.in
-===================================================================
---- LVM2.2.02.98.orig/man/dmsetup.8.in
-+++ LVM2.2.02.98/man/dmsetup.8.in
-@@ -17,10 +17,13 @@ dmsetup \- low level logical volume mana
- .RB [{ \-\-addnodeoncreate | \-\-addnodeonresume }]
- .RB [ \-\-readahead
- .RI [ + ]< sectors >| auto | none ]
- .RE
- .br
-+.B dmsetup export
-+.I [ device_name ]
-+.br
- .B dmsetup deps
- .RB [ \-o
+--- LVM2.2.02.132/man/dmsetup.8.in.orig	2015-10-25 08:37:19.863432358 +0100
++++ LVM2.2.02.132/man/dmsetup.8.in	2015-10-25 08:51:30.263414633 +0100
+@@ -23,6 +23,9 @@
  .IR options ]
  .RI [ device_name ]
- .br
-@@ -283,10 +286,14 @@ Otherwise a table is read from standard
- The optional uuid can be used in place of
- device_name in subsequent dmsetup commands.
- If successful a device will appear as
- /dev/mapper/<device-name>.
- See below for information on the table format.
-+.IP \fBexport
-+.I [ device_name ]
+ .HP
++.B dmsetup export
++.RI [ device_name ]
++.HP
+ .B dmsetup help
+ .RB [ \-c | \-C | \-\-columns ]
+ .HP
+@@ -354,6 +357,11 @@
+ \fBblkdevname\fP (block device name),
+ \fBdevname\fP (map name for device-mapper devices, equal to blkdevname otherwise).
+ .HP
++.B export
++.RI [ device_name ]
 +.br
 +Outputs information in key/value format to be imported by other programs.
++.HP
+ .B help
+ .RB [ \-c | \-C | \-\-columns ]
  .br
- .TP
- .B deps
- .RB [ \-o
- .IR options ]
 --- LVM2.2.02.130/tools/dmsetup.c.orig	2015-09-09 18:44:39.471523160 +0200
 +++ LVM2.2.02.130/tools/dmsetup.c	2015-09-09 18:48:33.918179988 +0200
 @@ -2189,6 +2189,93 @@
