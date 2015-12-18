@@ -1,6 +1,9 @@
 # TODO
 # - vgscan --ignorelocking failure creates /var/lock/lvm (even if /var is not yet mounted)
 # - --with-replicators (=internal/shared/none, default is none)?
+# - fix initscripts:
+#   # service lvm2-lvmetad start
+#   /etc/rc.d/init.d/lvm2-lvmetad: line 55: action: command not found
 #
 # Conditional build:
 # - initrf stuff
