@@ -126,8 +126,8 @@
  /* FIXME Unused so far */
  #undef HAVE_SYS_STATVFS_H
 
---- LVM2.2.02.119/tools/Makefile.in.orig	2015-05-10 08:49:35.037661379 +0200
-+++ LVM2.2.02.119/tools/Makefile.in	2015-05-10 08:52:03.170988495 +0200
+--- LVM2.2.02.149/tools/Makefile.in.orig	2016-04-05 22:05:48.151965546 +0200
++++ LVM2.2.02.149/tools/Makefile.in	2016-04-05 22:16:22.108605605 +0200
 @@ -128,12 +128,12 @@
  CFLAGS_dmsetup.o += $(UDEV_CFLAGS) $(EXTRA_EXEC_CFLAGS)
  
@@ -138,9 +138,9 @@
  
  dmsetup.static: dmsetup.o $(interfacebuilddir)/libdevmapper.a
 -	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) \
--	      -o $@ dmsetup.o -ldevmapper $(STATIC_LIBS) $(LIBS)
+-	      -o $@ dmsetup.o -ldevmapper $(M_LIBS) $(PTHREAD_LIBS) $(STATIC_LIBS) $(LIBS)
 +	$(CC) $(CFLAGS) -static -L$(interfacebuilddir) $(LDFLAGS) \
-+	      -o $@ dmsetup.o -ldevmapper $(STATIC_LIBS) $(LIBS) $(PTHREAD_LIBS) $(DIETLIBC_LIBS)
++	      -o $@ dmsetup.o -ldevmapper $(M_LIBS) $(PTHREAD_LIBS) $(STATIC_LIBS) $(LIBS) $(DIETLIBC_LIBS)
  
  all: device-mapper
  

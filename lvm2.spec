@@ -1,27 +1,32 @@
 # TODO
 # - vgscan --ignorelocking failure creates /var/lock/lvm (even if /var is not yet mounted)
-# - --with-replicators (=internal/shared/none, default is none)?
+# - spec default value for --with-replicators (=internal/shared/none, configure default is none)?
+#   (also internal vs shared for lvm1,pool,cluster,snapshots,mirrors,raid,replicators,thin,cache;
+#    note: dmeventd requires mirrors=internal)
 # - fix initscripts:
 #   # service lvm2-lvmetad start
 #   /etc/rc.d/init.d/lvm2-lvmetad: line 55: action: command not found
 #
 # Conditional build:
-# - initrf stuff
+# - initrd stuff
 %bcond_with	initrd		# build initrd version
 %bcond_without	uClibc		# link initrd version with uClibc
 %bcond_with	dietlibc	# link initrd version with dietlibc
 %bcond_with	glibc		# link initrd version with static GLIBC
 # - functionality
 %bcond_without  cluster		# disable all cluster support (clvmd&cmirrord)
-%bcond_without	lvmetad		# disable lvmetad (and lvmlockd)
-%bcond_without	lvmpolld	# disable lvmpolld (and lvmlockd)
-%bcond_without	lvmlockd	# disable lvmlockd
+%bcond_without	lvmetad		# lvmetad (and lvmlockd)
+%bcond_without	lvmdbusd	# lvmdbusd
+%bcond_without	lvmpolld	# lvmpolld (and lvmlockd)
+%bcond_without	lvmlockd	# lvmlockd
 %bcond_with	sanlock		# sanlock support in lvmlockd
 %bcond_with	replicator	# internal replicator support
 # - additional features
 %bcond_without	selinux		# SELinux support
 # - bindings
-%bcond_without	python		# Python binding
+%bcond_without	python		# Python bindings
+%bcond_without	python2		# Python 2 binding
+%bcond_without	python3		# Python 3 binding and lvmdbusd
 
 # lvmlockd requires lvmetad and lvmpolld
 %if %{without lvmetad} || %{without lvmpolld}
@@ -44,16 +49,24 @@
 %if %{without dietlibc} && %{without uClibc}
 %define		with_glibc	1
 %endif
+# for convenience
+%if %{without python}
+%undefine	with_python2
+%undefine	with_python3
+%endif
+%if %{without python3}
+%undefine	with_lvmdbusd
+%endif
 
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.132
-Release:	3
+Version:	2.02.149
+Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	80af5af726949bbbb2aceb15b24b7d20
+# Source0-md5:	39f766faa1cf95fcdf80868839350147
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
 Patch0:		%{name}-selinux.patch
@@ -65,8 +78,10 @@ Patch6:		%{name}-lvm_path.patch
 Patch7:		%{name}-sd_notify.patch
 Patch8:		%{name}-clvmd_cmd_timeout.patch
 Patch9:		device-mapper-dmsetup-deps-export.patch
+Patch10:	%{name}-replicator.patch
+Patch11:	%{name}-thin.patch
 URL:		http://www.sourceware.org/lvm2/
-BuildRequires:	autoconf >= 2.61
+BuildRequires:	autoconf >= 2.69
 BuildRequires:	automake
 # for /run detection
 BuildRequires:	filesystem >= 3.0-43
@@ -75,10 +90,15 @@ BuildRequires:	libblkid-devel >= 2.24
 %{?with_selinux:BuildRequires:	libsepol-devel}
 BuildRequires:	ncurses-devel
 BuildRequires:	pkgconfig
-%{?with_python:BuildRequires:	python-devel >= 2}
+%{?with_python2:BuildRequires:	python-devel >= 2}
+%{?with_python3:BuildRequires:	python3-devel >= 1:3.2}
+%if %{with lvmdbusd}
+BuildRequires:	python3-dbus
+#BuildRequires:	python3-pyudev
+%endif
 BuildRequires:	readline-devel
 BuildRequires:	rpmbuild(macros) >= 1.647
-%{?with_sanlock:BuildRequires:	sanlock-devel >= 3.2.4}
+%{?with_sanlock:BuildRequires:	sanlock-devel >= 3.3.0}
 BuildRequires:	systemd-devel >= 1:205
 BuildRequires:	udev-devel >= 1:176
 %if %{with initrd}
@@ -192,6 +212,39 @@ Ten demon polega na infrastrukturze klastra dostarczanej przez CMAN
 (Cluster MANager), który musi być skonfigurowany i działający, aby
 działał cmirrord.
 
+%package dbusd
+Summary:	LVM2 D-Bus daemon
+Summary(pl.UTF-8):	Demon LVM2 D-Bus
+Group:		Daemons
+Requires(post,preun,postun):	systemd-units >= 38
+Requires:	%{name} = %{version}-%{release}
+Requires:	python3-dbus
+Requires:	python3-pyudev
+Requires:	python3-pygobject3 >= 3
+
+%description dbusd
+Daemon for access to LVM2 functionality through a D-Bus interface.
+
+%description dbusd -l pl.UTF-8
+Demon umożliwiający dostęp do funkcjonalności LVM2 poprzez interfejs
+D-Bus.
+
+%package lockd
+Summary:	LVM2 locking daemon
+Summary(pl.UTF-8):	Demon blokad LVM2
+Group:		Daemons
+Requires(post,preun,postun):	systemd-units >= 38
+Requires:	%{name} = %{version}-%{release}
+%{?with_sanlock:Requires:	sanlock-libs >= 3.3.0}
+%{?with_cluster:Requires:	dlm-libs >= 3.99.5}
+
+%description lockd
+LVM commands use lvmlockd to coordinate access to shared storage.
+
+%description lockd -l pl.UTF-8
+Polecenia LVM wykorzystują lvmlockd do koordynowania dostępu do
+współdzielonej pamięci masowej.
+
 %package resource-agents
 Summary:	OCF Resource Agents for LVM2 processes
 Summary(pl.UTF-8):	Agenci OCF do monitorowania procesów LVM2
@@ -206,16 +259,28 @@ OCF Resource Agents for LVM2 processes.
 Agenci OCF do monitorowania procesów LVM2.
 
 %package -n python-lvm
-Summary:	Python interface to LVM2
-Summary(pl.UTF-8):	Interfejs Pythona do LVM2
+Summary:	Python 2 interface to LVM2
+Summary(pl.UTF-8):	Interfejs Pythona 2 do LVM2
 Group:		Libraries/Python
 Requires:	device-mapper-libs = %{version}-%{release}
 
 %description -n python-lvm
-Python interface to LVM2.
+Python 2 interface to LVM2.
 
 %description -n python-lvm -l pl.UTF-8
-Interfejs Pythona do LVM2.
+Interfejs Pythona 2 do LVM2.
+
+%package -n python3-lvm
+Summary:	Python 3 interface to LVM2
+Summary(pl.UTF-8):	Interfejs Pythona 3 do LVM2
+Group:		Libraries/Python
+Requires:	device-mapper-libs = %{version}-%{release}
+
+%description -n python3-lvm
+Python 3 interface to LVM2.
+
+%description -n python3-lvm -l pl.UTF-8
+Interfejs Pythona 3 do LVM2.
 
 %package -n device-mapper
 Summary:	Userspace support for the device-mapper
@@ -338,6 +403,8 @@ potrzeby initrd.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
+%patch11 -p1
 
 # do not force --export-symbol linker option for e.g. statically linked executables
 # -rdynamic compiler option drives linker in the right way.
@@ -377,8 +444,8 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__make} -j1 -C libdm LIB_SHARED= VERSIONED_SHLIB=
 %{__make} -j1 -C libdaemon/client LIB_SHARED= VERSIONED_SHLIB=
 %{__make} -j1 -C tools dmsetup.static lvm.static %{?with_dietlibc:DIETLIBC_LIBS="-lcompat"}
-mv -f tools/lvm.static initrd-lvm
-mv -f tools/dmsetup.static initrd-dmsetup
+%{__mv} tools/lvm.static initrd-lvm
+%{__mv} tools/dmsetup.static initrd-dmsetup
 
 # check if tools works
 for tool in initrd-lvm initrd-dmsetup; do
@@ -389,7 +456,7 @@ for tool in initrd-lvm initrd-dmsetup; do
 	fi
 done
 
-%{?with_dietlibc:mv -f libdm/ioctl/libdevmapper.a diet-libdevmapper.a}
+%{?with_dietlibc:%{__mv} libdm/ioctl/libdevmapper.a diet-libdevmapper.a}
 %{__make} clean
 
 unset CC
@@ -397,7 +464,9 @@ unset CC
 
 %configure \
 	--enable-applib \
+	--enable-cache_check_needs_check \
 	--enable-cmdlib \
+	%{?with_lvmdbusd:--enable-dbus-service} \
 	%{?debug:--enable-debug} \
 	--enable-dmeventd \
 	--enable-fsadm \
@@ -407,10 +476,12 @@ unset CC
 %endif
 	%{?with_lvmetad:--enable-lvmetad} \
 	--enable-ocf \
-	%{?with_python:--enable-python_bindings} \
+	%{?with_python2:--enable-python2_bindings} \
+	%{?with_python3:--enable-python3_bindings} \
 	--enable-readline \
 	%{!?with_selinux:--disable-selinux} \
 	--enable-pkgconfig \
+	--enable-thin_check_needs_check \
 	--enable-udev_sync \
 	--enable-udev_rules \
 	--with-cache=internal \
@@ -491,10 +562,22 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/chkconfig --add blk-availability
 # no service blk-availability restart
 %systemd_post blk-availability.service
+%if %{with lvmetad}
+%systemd_post lvm2-lvmetad.socket
+%endif
+%if %{with lvmpolld}
+%systemd_post lvm2-lvmpolld.socket
+%endif
 
 %preun
 %systemd_preun lvm2-monitor.service
 %systemd_preun blk-availability.service
+%if %{with lvmetad}
+%systemd_preun lvm2-lvmetad.socket
+%endif
+%if %{with lvmpolld}
+%systemd_preun lvm2-lvmpolld.socket
+%endif
 
 %postun
 if [ "$1" = "0" ]; then
@@ -533,12 +616,30 @@ export NORESTART=1
 
 %preun clvmd
 %systemd_preun clvmd.service
-
-%postun clvmd
 if [ "$1" = "0" ]; then
 	%service clvmd stop
 	/sbin/chkconfig --del clvmd
 fi
+
+%postun clvmd
+%systemd_reload
+
+%post dbusd
+%systemd_post lvm2-lvmdbusd.service
+
+%preun dbusd
+%systemd_preun lvm2-lvmdbusd.service
+
+%postun dbusd
+%systemd_reload
+
+%post lockd
+%systemd_post lvm2-lvmlockd.service lvm2-lvmlocking.service
+
+%preun lockd
+%systemd_preun lvm2-lvmlockd.service lvm2-lvmlocking.service
+
+%postun lockd
 %systemd_reload
 
 %files
@@ -546,18 +647,109 @@ fi
 %doc README WHATS_NEW doc/*
 %attr(755,root,root) %{_sbindir}/blkdeactivate
 %attr(755,root,root) %{_sbindir}/fsadm
-%attr(755,root,root) %{_sbindir}/lv*
-%attr(755,root,root) %{_sbindir}/pv*
-%attr(755,root,root) %{_sbindir}/vg*
+%attr(755,root,root) %{_sbindir}/lvchange
+%attr(755,root,root) %{_sbindir}/lvconvert
+%attr(755,root,root) %{_sbindir}/lvcreate
+%attr(755,root,root) %{_sbindir}/lvdisplay
+%attr(755,root,root) %{_sbindir}/lvextend
+%attr(755,root,root) %{_sbindir}/lvm
+%attr(755,root,root) %{_sbindir}/lvmchange
+%attr(755,root,root) %{_sbindir}/lvmconf
+%attr(755,root,root) %{_sbindir}/lvmconfig
+%attr(755,root,root) %{_sbindir}/lvmdiskscan
+%attr(755,root,root) %{_sbindir}/lvmdump
+%attr(755,root,root) %{_sbindir}/lvmsadc
+%attr(755,root,root) %{_sbindir}/lvmsar
+%attr(755,root,root) %{_sbindir}/lvreduce
+%attr(755,root,root) %{_sbindir}/lvremove
+%attr(755,root,root) %{_sbindir}/lvrename
+%attr(755,root,root) %{_sbindir}/lvresize
+%attr(755,root,root) %{_sbindir}/lvs
+%attr(755,root,root) %{_sbindir}/lvscan
+%attr(755,root,root) %{_sbindir}/pvchange
+%attr(755,root,root) %{_sbindir}/pvck
+%attr(755,root,root) %{_sbindir}/pvcreate
+%attr(755,root,root) %{_sbindir}/pvdisplay
+%attr(755,root,root) %{_sbindir}/pvmove
+%attr(755,root,root) %{_sbindir}/pvremove
+%attr(755,root,root) %{_sbindir}/pvresize
+%attr(755,root,root) %{_sbindir}/pvs
+%attr(755,root,root) %{_sbindir}/pvscan
+%attr(755,root,root) %{_sbindir}/vgcfgbackup
+%attr(755,root,root) %{_sbindir}/vgcfgrestore
+%attr(755,root,root) %{_sbindir}/vgchange
+%attr(755,root,root) %{_sbindir}/vgck
+%attr(755,root,root) %{_sbindir}/vgconvert
+%attr(755,root,root) %{_sbindir}/vgcreate
+%attr(755,root,root) %{_sbindir}/vgdisplay
+%attr(755,root,root) %{_sbindir}/vgexport
+%attr(755,root,root) %{_sbindir}/vgextend
+%attr(755,root,root) %{_sbindir}/vgimport
+%attr(755,root,root) %{_sbindir}/vgimportclone
+%attr(755,root,root) %{_sbindir}/vgmerge
+%attr(755,root,root) %{_sbindir}/vgmknodes
+%attr(755,root,root) %{_sbindir}/vgreduce
+%attr(755,root,root) %{_sbindir}/vgremove
+%attr(755,root,root) %{_sbindir}/vgrename
+%attr(755,root,root) %{_sbindir}/vgs
+%attr(755,root,root) %{_sbindir}/vgscan
+%attr(755,root,root) %{_sbindir}/vgsplit
 %{_mandir}/man5/lvm.conf.5*
 %{_mandir}/man7/lvmcache.7*
 %{_mandir}/man7/lvmsystemid.7*
 %{_mandir}/man7/lvmthin.7*
 %{_mandir}/man8/blkdeactivate.8*
 %{_mandir}/man8/fsadm.8*
-%{_mandir}/man8/lv*.8*
-%{_mandir}/man8/pv*.8*
-%{_mandir}/man8/vg*.8*
+%{_mandir}/man8/lvchange.8*
+%{_mandir}/man8/lvconvert.8*
+%{_mandir}/man8/lvcreate.8*
+%{_mandir}/man8/lvdisplay.8*
+%{_mandir}/man8/lvextend.8*
+%{_mandir}/man8/lvm-config.8
+%{_mandir}/man8/lvm-dumpconfig.8
+%{_mandir}/man8/lvm-lvpoll.8*
+%{_mandir}/man8/lvm.8*
+%{_mandir}/man8/lvmchange.8*
+%{_mandir}/man8/lvmconf.8*
+%{_mandir}/man8/lvmconfig.8*
+%{_mandir}/man8/lvmdiskscan.8*
+%{_mandir}/man8/lvmdump.8*
+%{_mandir}/man8/lvmsadc.8*
+%{_mandir}/man8/lvmsar.8*
+%{_mandir}/man8/lvreduce.8*
+%{_mandir}/man8/lvremove.8*
+%{_mandir}/man8/lvrename.8*
+%{_mandir}/man8/lvresize.8*
+%{_mandir}/man8/lvs.8*
+%{_mandir}/man8/lvscan.8*
+%{_mandir}/man8/pvchange.8*
+%{_mandir}/man8/pvck.8*
+%{_mandir}/man8/pvcreate.8*
+%{_mandir}/man8/pvdisplay.8*
+%{_mandir}/man8/pvmove.8*
+%{_mandir}/man8/pvremove.8*
+%{_mandir}/man8/pvresize.8*
+%{_mandir}/man8/pvs.8*
+%{_mandir}/man8/pvscan.8*
+%{_mandir}/man8/vgcfgbackup.8*
+%{_mandir}/man8/vgcfgrestore.8*
+%{_mandir}/man8/vgchange.8*
+%{_mandir}/man8/vgck.8*
+%{_mandir}/man8/vgconvert.8*
+%{_mandir}/man8/vgcreate.8*
+%{_mandir}/man8/vgdisplay.8*
+%{_mandir}/man8/vgexport.8*
+%{_mandir}/man8/vgextend.8*
+%{_mandir}/man8/vgimport.8*
+%{_mandir}/man8/vgimportclone.8*
+%{_mandir}/man8/vgmerge.8*
+%{_mandir}/man8/vgmknodes.8*
+%{_mandir}/man8/vgreduce.8*
+%{_mandir}/man8/vgremove.8*
+%{_mandir}/man8/vgrename.8*
+%{_mandir}/man8/vgs.8*
+%{_mandir}/man8/vgscan.8*
+%{_mandir}/man8/vgsplit.8*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvmlocal.conf
@@ -568,37 +760,39 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/metadata_profile_template.profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/thin-generic.profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/thin-performance.profile
-%if %{with lvmetad}
-/lib/udev/rules.d/69-dm-lvm-metad.rules
-%endif
 %{systemdtmpfilesdir}/lvm2.conf
 %{systemdunitdir}/blk-availability.service
-%if %{with lvmetad}
-%{systemdunitdir}/lvm2-lvmetad.service
-%{systemdunitdir}/lvm2-lvmetad.socket
-%endif
-%if %{with lvmlockd}
-%{systemdunitdir}/lvm2-lvmlockd.service
-%{systemdunitdir}/lvm2-lvmlocking.service
-%endif
-%if %{with lvmpolld}
-%{systemdunitdir}/lvm2-lvmpolld.service
-%{systemdunitdir}/lvm2-lvmpolld.socket
-%endif
 %{systemdunitdir}/lvm2-monitor.service
 %{systemdunitdir}/lvm2-pvscan@.service
 %dir %{_sysconfdir}/lvm/cache
 %ghost %{_sysconfdir}/lvm/cache/.cache
 %attr(754,root,root) /etc/rc.d/init.d/blk-availability
-%if %{with lvmetad}
-%attr(754,root,root) /etc/rc.d/init.d/lvm2-lvmetad
-%endif
-%if %{with lvmpolld}
-%attr(754,root,root) /etc/rc.d/init.d/lvm2-lvmpolld
-%endif
 %attr(754,root,root) /etc/rc.d/init.d/lvm2-monitor
 %attr(700,root,root) %dir /run/lvm
 %attr(700,root,root) %dir /var/lock/lvm
+%if %{with lvmetad}
+%attr(755,root,root) %{_sbindir}/lvmetad
+/lib/udev/rules.d/69-dm-lvm-metad.rules
+%attr(754,root,root) /etc/rc.d/init.d/lvm2-lvmetad
+%{systemdunitdir}/lvm2-lvmetad.service
+%{systemdunitdir}/lvm2-lvmetad.socket
+%{_mandir}/man8/lvmetad.8*
+%endif
+%if %{with lvmlockd}
+%attr(755,root,root) %{_sbindir}/lvmlockctl
+%attr(755,root,root) %{_sbindir}/lvmlockd
+%{systemdunitdir}/lvm2-lvmlockd.service
+%{systemdunitdir}/lvm2-lvmlocking.service
+%{_mandir}/man8/lvmlockctl.8*
+%{_mandir}/man8/lvmlockd.8*
+%endif
+%if %{with lvmpolld}
+%attr(755,root,root) %{_sbindir}/lvmpolld
+%attr(754,root,root) /etc/rc.d/init.d/lvm2-lvmpolld
+%{systemdunitdir}/lvm2-lvmpolld.service
+%{systemdunitdir}/lvm2-lvmpolld.socket
+%{_mandir}/man8/lvmpolld.8*
+%endif
 
 %if %{with cluster}
 %files clvmd
@@ -620,16 +814,34 @@ fi
 %{_mandir}/man8/cmirrord.8*
 %endif
 
+%if %{with lvmdbusd}
+%files dbusd
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_sbindir}/lvmdbusd
+%{py3_sitedir}/lvmdbusd
+%config(noreplace) %verify(not md5 mtime size) /etc/dbus-1/system.d/com.redhat.lvmdbus1.conf
+%{_datadir}/dbus-1/system-services/com.redhat.lvmdbus1.service
+%{systemdunitdir}/lvm2-lvmdbusd.service
+%{_mandir}/man8/lvmdbusd.8*
+%endif
+
 %files resource-agents
 %defattr(644,root,root,755)
 %dir %{_prefix}/lib/ocf/resource.d/lvm2
 %attr(755,root,root) %{_prefix}/lib/ocf/resource.d/lvm2/VolumeGroup
 
-%if %{with python}
+%if %{with python2}
 %files -n python-lvm
 %defattr(644,root,root,755)
 %attr(755,root,root) %{py_sitedir}/lvm.so
 %{py_sitedir}/lvm-%{version}_*-py*.egg-info
+%endif
+
+%if %{with python3}
+%files -n python3-lvm
+%defattr(644,root,root,755)
+%attr(755,root,root) %{py3_sitedir}/lvm.cpython-*.so
+%{py3_sitedir}/lvm-%{version}_*-py*.egg-info
 %endif
 
 %files -n device-mapper
@@ -644,9 +856,15 @@ fi
 %attr(755,root,root) %{_sbindir}/dmeventd
 %attr(755,root,root) %{_sbindir}/dmsetup
 %attr(755,root,root) %{_sbindir}/dmstats
+%attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2mirror.so
+%attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2raid.so
+%attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2snapshot.so
+%attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2thin.so
 %dir %{_libdir}/device-mapper
-%attr(755,root,root) %{_libdir}/device-mapper/*.so
-%attr(755,root,root) %{_libdir}/libdevmapper-event-*.so
+%attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2mirror.so
+%attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2raid.so
+%attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2snapshot.so
+%attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2thin.so
 %{_mandir}/man8/dmsetup.8*
 %{_mandir}/man8/dmstats.8*
 %{_mandir}/man8/dmeventd.8*
@@ -663,6 +881,7 @@ fi
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libdevmapper.so
 %attr(755,root,root) %{_libdir}/libdevmapper-event.so
+%attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2.so
 %attr(755,root,root) %{_libdir}/liblvm2app.so
 %attr(755,root,root) %{_libdir}/liblvm2cmd.so
 %{_includedir}/libdevmapper.h
