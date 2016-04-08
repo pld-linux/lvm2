@@ -91,7 +91,7 @@ BuildRequires:	pkgconfig
 %{?with_python3:BuildRequires:	python3-devel >= 1:3.2}
 %if %{with lvmdbusd}
 BuildRequires:	python3-dbus
-#BuildRequires:	python3-pyudev
+BuildRequires:	python3-pyudev
 %endif
 BuildRequires:	readline-devel
 BuildRequires:	rpmbuild(macros) >= 1.647
