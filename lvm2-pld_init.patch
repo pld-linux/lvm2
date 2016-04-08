@@ -171,3 +171,51 @@ diff -dur LVM2.2.02.98.orig/scripts/blk_availability_systemd_red_hat.service.in 
  ExecStop=@sbindir@/blkdeactivate -u -l wholevg
  RemainAfterExit=yes
  
+--- LVM2.2.02.149/scripts/lvm2_lvmetad_init_red_hat.in.orig	2016-04-01 21:32:17.000000000 +0200
++++ LVM2.2.02.149/scripts/lvm2_lvmetad_init_red_hat.in	2016-04-08 15:34:29.481897884 +0200
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ #
+ # Copyright (C) 2012 Red Hat, Inc. All rights reserved.
+ #
+@@ -52,7 +52,7 @@
+ start()
+ {
+ 	ret=0
+-	action "Starting LVM metadata daemon:" $DAEMON || ret=$?
++	run_cmd "Starting LVM metadata daemon:" $DAEMON || ret=$?
+ 	return $ret
+ }
+ 
+@@ -60,7 +60,8 @@
+ stop()
+ {
+ 	ret=0
+-	action "Signaling LVM metadata daemon to exit:" killproc -p $PID_FILE $DAEMON -TERM || ret=$?
++	msg_stopping "LVM metadata daemon"
++	killproc -p $PID_FILE $DAEMON -TERM || ret=$?
+ 	return $ret
+ }
+ 
+@@ -80,9 +81,10 @@
+ 	stop
+ 	rtrn=$?
+ 	[ $rtrn = 0 ] && rm -f $LOCK_FILE
++	exit 0
+ 	;;
+ 
+-  restart)
++  restart|force-reload)
+ 	if stop
+ 	then
+ 		start
+@@ -105,7 +107,7 @@
+ 	;;
+ 
+   *)
+-	echo $"Usage: $0 {start|stop|force-stop|restart|condrestart|try-restart|status}"
++	echo "Usage: $0 {start|stop|force-stop|restart|force-reload|condrestart|try-restart|status}"
+ 	;;
+ esac
+ 

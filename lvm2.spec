@@ -3,9 +3,6 @@
 # - spec default value for --with-replicators (=internal/shared/none, configure default is none)?
 #   (also internal vs shared for lvm1,pool,cluster,snapshots,mirrors,raid,replicators,thin,cache;
 #    note: dmeventd requires mirrors=internal)
-# - fix initscripts:
-#   # service lvm2-lvmetad start
-#   /etc/rc.d/init.d/lvm2-lvmetad: line 55: action: command not found
 #
 # Conditional build:
 # - initrd stuff
