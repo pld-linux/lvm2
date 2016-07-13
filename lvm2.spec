@@ -59,7 +59,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.158
-Release:	1
+Release:	2
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -467,6 +467,7 @@ unset CC
 	%{?debug:--enable-debug} \
 	--enable-dmeventd \
 	--enable-fsadm \
+	--with-default-locking-dir=/var/lock/lvm \
 %if %{with lvmlockd}
 	%{?with_cluster:--enable-lockd-dlm} \
 	%{?with_sanlock:--enable-lockd-sanlock} \
@@ -815,7 +816,7 @@ fi
 %files dbusd
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sbindir}/lvmdbusd
-%{py3_sitedir}/lvmdbusd
+%{py3_sitescriptdir}/lvmdbusd
 %config(noreplace) %verify(not md5 mtime size) /etc/dbus-1/system.d/com.redhat.lvmdbus1.conf
 %{_datadir}/dbus-1/system-services/com.redhat.lvmdbus1.service
 %{systemdunitdir}/lvm2-lvmdbusd.service
