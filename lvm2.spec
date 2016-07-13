@@ -58,12 +58,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.158
-Release:	2
+Version:	2.02.160
+Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	ceff6a6b141c50210e502dbc17f418c7
+# Source0-md5:	22c66914e1c18410375ab0bf21c95f69
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
 Patch0:		%{name}-selinux.patch
@@ -521,7 +521,8 @@ install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm,/etc/sysconfig}
 %{__make} install install_system_dirs install_systemd_units install_initscripts install_tmpfiles_configuration \
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER="" \
-	GROUP=""
+	GROUP="" \
+	python3dir=%{py3_sitescriptdir}
 
 %{__make} -C scripts install_tmpfiles_configuration \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -531,7 +532,7 @@ cp -p %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/clvmd.service
 cp -p %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/clvmd
 %endif
 
-mv $RPM_BUILD_ROOT%{_libdir}/lib*.so.* $RPM_BUILD_ROOT/%{_lib}
+%{__mv} $RPM_BUILD_ROOT%{_libdir}/lib*.so.* $RPM_BUILD_ROOT/%{_lib}
 for lib in $RPM_BUILD_ROOT/%{_lib}/lib*.so.*; do
 	lib=$(echo $lib | sed -e "s#$RPM_BUILD_ROOT##g")
 	slib=$(basename $lib | sed -e 's#\.so\..*#.so#g')
