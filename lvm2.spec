@@ -58,12 +58,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.161
-Release:	2
+Version:	2.02.166
+Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	afe884e7fd6c9b0608226a76b0f139d4
+# Source0-md5:	c5a54ee0b86703daaad6e856439e115a
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
 Patch0:		%{name}-selinux.patch
@@ -695,6 +695,8 @@ fi
 %attr(755,root,root) %{_sbindir}/vgsplit
 %{_mandir}/man5/lvm.conf.5*
 %{_mandir}/man7/lvmcache.7*
+%{_mandir}/man7/lvmraid.7*
+%{_mandir}/man7/lvmreport.7*
 %{_mandir}/man7/lvmsystemid.7*
 %{_mandir}/man7/lvmthin.7*
 %{_mandir}/man8/blkdeactivate.8*
@@ -704,8 +706,9 @@ fi
 %{_mandir}/man8/lvcreate.8*
 %{_mandir}/man8/lvdisplay.8*
 %{_mandir}/man8/lvextend.8*
-%{_mandir}/man8/lvm-config.8
-%{_mandir}/man8/lvm-dumpconfig.8
+%{_mandir}/man8/lvm-config.8*
+%{_mandir}/man8/lvm-dumpconfig.8*
+%{_mandir}/man8/lvm-fullreport.8*
 %{_mandir}/man8/lvm-lvpoll.8*
 %{_mandir}/man8/lvm.8*
 %{_mandir}/man8/lvmchange.8*
@@ -818,6 +821,7 @@ fi
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sbindir}/lvmdbusd
 %{py3_sitescriptdir}/lvmdbusd
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/lvmdbusd.profile
 %config(noreplace) %verify(not md5 mtime size) /etc/dbus-1/system.d/com.redhat.lvmdbus1.conf
 %{_datadir}/dbus-1/system-services/com.redhat.lvmdbus1.service
 %{systemdunitdir}/lvm2-lvmdbusd.service
