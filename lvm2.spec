@@ -58,12 +58,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.166
-Release:	2
+Version:	2.02.170
+Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	c5a54ee0b86703daaad6e856439e115a
+# Source0-md5:	135c2c86e0c63c8c32bdc4cd0335b54f
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
 Patch0:		%{name}-selinux.patch
@@ -96,7 +96,7 @@ BuildRequires:	python3-pyudev
 BuildRequires:	readline-devel
 BuildRequires:	rpmbuild(macros) >= 1.647
 %{?with_sanlock:BuildRequires:	sanlock-devel >= 3.3.0}
-BuildRequires:	systemd-devel >= 1:205
+BuildRequires:	systemd-devel >= 1:221
 BuildRequires:	udev-devel >= 1:176
 %if %{with initrd}
 %if %{with dietlibc}
@@ -510,8 +510,11 @@ unset CC
 	--with-udev-prefix=/ \
 	--with-usrlibdir=%{_libdir}
 
-%{__make} -j1
-%{__make} -j1 -C libdm LIB_STATIC=libdevmapper.a
+# use bash because of "set -o pipefail"
+%{__make} -j1 \
+	SHELL=/bin/bash
+%{__make} -j1 -C libdm \
+	LIB_STATIC=libdevmapper.a
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -652,7 +655,6 @@ fi
 %attr(755,root,root) %{_sbindir}/lvdisplay
 %attr(755,root,root) %{_sbindir}/lvextend
 %attr(755,root,root) %{_sbindir}/lvm
-%attr(755,root,root) %{_sbindir}/lvmchange
 %attr(755,root,root) %{_sbindir}/lvmconf
 %attr(755,root,root) %{_sbindir}/lvmconfig
 %attr(755,root,root) %{_sbindir}/lvmdiskscan
@@ -711,7 +713,6 @@ fi
 %{_mandir}/man8/lvm-fullreport.8*
 %{_mandir}/man8/lvm-lvpoll.8*
 %{_mandir}/man8/lvm.8*
-%{_mandir}/man8/lvmchange.8*
 %{_mandir}/man8/lvmconf.8*
 %{_mandir}/man8/lvmconfig.8*
 %{_mandir}/man8/lvmdiskscan.8*

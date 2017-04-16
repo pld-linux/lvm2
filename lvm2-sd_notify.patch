@@ -5,7 +5,7 @@ diff -dur LVM2.2.02.98.orig/daemons/clvmd/Makefile.in LVM2.2.02.98/daemons/clvmd
  DEFS += -D_REENTRANT
  CFLAGS += -fno-strict-aliasing
  
-+LIBS += `pkg-config --libs libsystemd-daemon`
++LIBS += `pkg-config --libs libsystemd`
 +
  INSTALL_TARGETS = \
  	install_clvmd

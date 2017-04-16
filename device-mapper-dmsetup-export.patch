@@ -3,8 +3,8 @@
  tools/dmsetup.c  |   88 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
  2 files changed, 95 insertions(+)
 
---- LVM2.2.02.149/man/dmsetup.8.in.orig	2016-04-05 22:16:49.848604442 +0200
-+++ LVM2.2.02.149/man/dmsetup.8.in	2016-04-06 15:59:35.582595117 +0200
+--- LVM2.2.02.149/man/dmsetup.8_main.orig	2016-04-05 22:16:49.848604442 +0200
++++ LVM2.2.02.149/man/dmsetup.8_main	2016-04-06 15:59:35.582595117 +0200
 @@ -48,6 +48,14 @@
  .
  .HP
@@ -30,9 +30,9 @@
  .CMD_HELP
  .br
  Outputs a summary of the commands available, optionally including
---- LVM2.2.02.130/tools/dmsetup.c.orig	2015-09-09 18:44:39.471523160 +0200
-+++ LVM2.2.02.130/tools/dmsetup.c	2015-09-09 18:48:33.918179988 +0200
-@@ -2189,6 +2189,93 @@
+--- LVM2.2.02.170/tools/dmsetup.c.orig	2017-04-16 11:01:12.135929163 +0200
++++ LVM2.2.02.170/tools/dmsetup.c	2017-04-16 11:13:43.259253920 +0200
+@@ -2248,6 +2248,93 @@
  	return r;
  }
  
@@ -126,11 +126,11 @@
  /* Show target names and their version numbers */
  static int _targets(CMD_ARGS)
  {
-@@ -5139,6 +5226,7 @@
- 	{"stats", "<command> [<options>] [<devices>]", 1, -1, 1, 1, _stats},
- 	{"status", "[<device>] [--noflush] [--target <target_type>]", 0, -1, 1, 0, _status},
- 	{"table", "[<device>] [--target <target_type>] [--showkeys]", 0, -1, 1, 0, _status},
+@@ -5921,6 +6008,7 @@
+ 	{"stats", "<command> [<options>] [<device>...]", 1, -1, 1, 1, _stats},
+ 	{"status", "[<device>...] [--noflush] [--target <target_type>]", 0, -1, 1, 0, _status},
+ 	{"table", "[<device>...] [--target <target_type>] [--showkeys]", 0, -1, 1, 0, _status},
 +	{"export", "[<device>]", 0, 1, 1, 0, _export},
  	{"wait", "<device> [<event_nr>] [--noflush]", 0, 2, 0, 0, _wait},
- 	{"mknodes", "[<device>]", 0, -1, 1, 0, _mknodes},
- 	{"mangle", "[<device>]", 0, -1, 1, 0, _mangle},
+ 	{"mknodes", "[<device>...]", 0, -1, 1, 0, _mknodes},
+ 	{"mangle", "[<device>...]", 0, -1, 1, 0, _mangle},
