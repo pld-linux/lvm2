@@ -58,12 +58,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.170
+Version:	2.02.173
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	135c2c86e0c63c8c32bdc4cd0335b54f
+# Source0-md5:	61cba056ac552f2d362600d494b1b8d9
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
 Patch0:		%{name}-selinux.patch
@@ -469,10 +469,11 @@ unset CC
 	--enable-fsadm \
 	--with-default-locking-dir=/var/lock/lvm \
 %if %{with lvmlockd}
-	%{?with_cluster:--enable-lockd-dlm} \
-	%{?with_sanlock:--enable-lockd-sanlock} \
+	%{?with_cluster:--enable-lvmlockd-dlm} \
+	%{?with_sanlock:--enable-lvmlockd-sanlock} \
 %endif
 	%{?with_lvmetad:--enable-lvmetad} \
+	--enable-lvmpolld \
 	--enable-ocf \
 	%{?with_python2:--enable-python2_bindings} \
 	%{?with_python3:--enable-python3_bindings} \
