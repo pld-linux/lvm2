@@ -1,0 +1,11 @@
+--- LVM2.2.02.173/configure.in~	2017-09-19 22:06:06.000000000 +0300
++++ LVM2.2.02.173/configure.in	2017-09-19 22:09:52.779696341 +0300
+@@ -1899,7 +1899,7 @@
+ AC_DEFINE_UNQUOTED(CLVMD_PATH, ["$CLVMD_PATH"], [Path to clvmd binary.])
+ 
+ 
+-FSADM_PATH="$lvm_exec_prefix/sbin/fsadm"
++FSADM_PATH="$sbindir/fsadm"
+ AC_DEFINE_UNQUOTED(FSADM_PATH, ["$FSADM_PATH"], [Path to fsadm binary.])
+ 
+ ################################################################################

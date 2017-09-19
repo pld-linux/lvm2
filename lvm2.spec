@@ -59,7 +59,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.173
-Release:	1
+Release:	2
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -71,6 +71,7 @@ Patch1:		%{name}-diet.patch
 Patch2:		device-mapper-dmsetup-export.patch
 Patch3:		%{name}-pld_init.patch
 Patch4:		dl-dlsym.patch
+Patch5:		fsadm-path.patch
 Patch6:		%{name}-lvm_path.patch
 Patch7:		%{name}-sd_notify.patch
 Patch8:		%{name}-clvmd_cmd_timeout.patch
@@ -216,8 +217,8 @@ Group:		Daemons
 Requires(post,preun,postun):	systemd-units >= 38
 Requires:	%{name} = %{version}-%{release}
 Requires:	python3-dbus
-Requires:	python3-pyudev
 Requires:	python3-pygobject3 >= 3
+Requires:	python3-pyudev
 
 %description dbusd
 Daemon for access to LVM2 functionality through a D-Bus interface.
@@ -232,8 +233,8 @@ Summary(pl.UTF-8):	Demon blokad LVM2
 Group:		Daemons
 Requires(post,preun,postun):	systemd-units >= 38
 Requires:	%{name} = %{version}-%{release}
-%{?with_sanlock:Requires:	sanlock-libs >= 3.3.0}
 %{?with_cluster:Requires:	dlm-libs >= 3.99.5}
+%{?with_sanlock:Requires:	sanlock-libs >= 3.3.0}
 
 %description lockd
 LVM commands use lvmlockd to coordinate access to shared storage.
@@ -307,9 +308,9 @@ narzędzia do zarządzania logicznymi wolumenami.
 Summary:	Device-mapper shared libraries
 Summary(pl.UTF-8):	Biblioteki współdzielone device-mappera
 Group:		Libraries
-Conflicts:	device-mapper < 2.02.119-1
 Requires:	libblkid >= 2.24
 Requires:	udev-libs >= 1:176
+Conflicts:	device-mapper < 2.02.119-1
 
 %description -n device-mapper-libs
 Device-mapper shared libraries.
@@ -396,6 +397,7 @@ potrzeby initrd.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
