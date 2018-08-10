@@ -59,7 +59,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.173
-Release:	3
+Release:	4
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -110,6 +110,8 @@ BuildConflicts:	device-mapper-dietlibc
 %endif
 %{?with_glibc:BuildRequires:	glibc-static}
 %{?with_uClibc:BuildRequires:	uClibc-static >= 2:0.9.29}
+%else
+Obsoletes:	lvm2-initrd
 %endif
 %if %{with cluster}
 BuildRequires:	corosync-devel
