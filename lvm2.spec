@@ -1,8 +1,7 @@
 # TODO
 # - vgscan --ignorelocking failure creates /var/lock/lvm (even if /var is not yet mounted)
-# - spec default value for --with-replicators (=internal/shared/none, configure default is none)?
-#   (also internal vs shared for lvm1,pool,cluster,snapshots,mirrors,raid,replicators,thin,cache;
-#    note: dmeventd requires mirrors=internal)
+# - internal vs shared for cluster,snapshots,mirrors,thin,cache ?
+#   note: dmeventd requires mirrors=internal)
 #
 # Conditional build:
 # - initrd stuff
@@ -17,7 +16,6 @@
 %bcond_without	lvmpolld	# lvmpolld (and lvmlockd)
 %bcond_without	lvmlockd	# lvmlockd
 %bcond_with	sanlock		# sanlock support in lvmlockd
-%bcond_with	replicator	# internal replicator support
 # - additional features
 %bcond_without	selinux		# SELinux support
 # - bindings
@@ -58,31 +56,28 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.173
-Release:	4
+Version:	2.02.181
+Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	61cba056ac552f2d362600d494b1b8d9
+# Source0-md5:	7d6380d9a34981fd7b605eaa371295b3
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
-Patch0:		%{name}-selinux.patch
 Patch1:		%{name}-diet.patch
 Patch2:		device-mapper-dmsetup-export.patch
 Patch3:		%{name}-pld_init.patch
 Patch4:		dl-dlsym.patch
-Patch5:		fsadm-path.patch
-Patch6:		%{name}-lvm_path.patch
 Patch7:		%{name}-sd_notify.patch
 Patch8:		%{name}-clvmd_cmd_timeout.patch
 Patch9:		device-mapper-dmsetup-deps-export.patch
-Patch10:	%{name}-replicator.patch
 Patch11:	%{name}-thin.patch
 URL:		http://www.sourceware.org/lvm2/
 BuildRequires:	autoconf >= 2.69
 BuildRequires:	automake
 # for /run detection
 BuildRequires:	filesystem >= 3.0-43
+BuildRequires:	libaio-devel
 BuildRequires:	libblkid-devel >= 2.24
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
 %{?with_selinux:BuildRequires:	libsepol-devel}
@@ -394,22 +389,18 @@ potrzeby initrd.
 
 %prep
 %setup -q -n LVM2.%{version}
-%{?with_selinux:%patch0 -p1}
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
-%patch6 -p1
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
-%patch10 -p1
 %patch11 -p1
 
 # do not force --export-symbol linker option for e.g. statically linked executables
 # -rdynamic compiler option drives linker in the right way.
-%{__sed} -i -e 's#-Wl,--export-dynamic#-rdynamic#g' configure.in
+%{__sed} -i -e 's#-Wl,--export-dynamic#-rdynamic#g' configure.ac
 
 %build
 %if %{with initrd}
@@ -440,11 +431,11 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__sed} -i -e 's#rpl_malloc#malloc#g' lib/misc/configure.h
 %{__sed} -i -e 's#rpl_realloc#realloc#g' lib/misc/configure.h
 
-%{__make} -j1 -C include
-%{__make} -j1 -C lib LIB_SHARED= VERSIONED_SHLIB=
-%{__make} -j1 -C libdm LIB_SHARED= VERSIONED_SHLIB=
-%{__make} -j1 -C libdaemon/client LIB_SHARED= VERSIONED_SHLIB=
-%{__make} -j1 -C tools dmsetup.static lvm.static %{?with_dietlibc:DIETLIBC_LIBS="-lcompat"}
+%{__make} -j1 -C include V=1
+%{__make} -j1 -C lib LIB_SHARED= VERSIONED_SHLIB= V=1
+%{__make} -j1 -C libdm LIB_SHARED= VERSIONED_SHLIB= V=1
+%{__make} -j1 -C libdaemon/client LIB_SHARED= VERSIONED_SHLIB= V=1
+%{__make} -j1 -C tools dmsetup.static lvm.static %{?with_dietlibc:DIETLIBC_LIBS="-lcompat"} V=1
 %{__mv} tools/lvm.static initrd-lvm
 %{__mv} tools/dmsetup.static initrd-dmsetup
 
@@ -503,7 +494,6 @@ unset CC
 	--with-mirrors=internal \
 	--with-optimisation="%{rpmcflags}" \
 	--with-pool=internal \
-	%{?with_replicator:--with-replicators=internal} \
 	--with-snapshots=internal \
 	--with-systemdsystemunitdir=%{systemdunitdir} \
 	--with-tmpfilesdir=%{systemdtmpfilesdir} \
@@ -517,9 +507,11 @@ unset CC
 
 # use bash because of "set -o pipefail"
 %{__make} -j1 \
-	SHELL=/bin/bash
+	SHELL=/bin/bash \
+	V=1
 %{__make} -j1 -C libdm \
-	LIB_STATIC=libdevmapper.a
+	LIB_STATIC=libdevmapper.a \
+	V=1
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -530,10 +522,12 @@ install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm,/etc/sysconfig}
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER="" \
 	GROUP="" \
+	V=1 \
 	python3dir=%{py3_sitescriptdir}
 
 %{__make} -C scripts install_tmpfiles_configuration \
 	DESTDIR=$RPM_BUILD_ROOT \
+	V=1
 
 %if %{with cluster}
 cp -p %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/clvmd.service
@@ -869,11 +863,13 @@ fi
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2raid.so
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2snapshot.so
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2thin.so
+%attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2vdo.so
 %dir %{_libdir}/device-mapper
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2mirror.so
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2raid.so
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2snapshot.so
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2thin.so
+%attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2vdo.so
 %{_mandir}/man8/dmsetup.8*
 %{_mandir}/man8/dmstats.8*
 %{_mandir}/man8/dmeventd.8*

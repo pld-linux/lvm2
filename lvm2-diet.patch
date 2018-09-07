@@ -126,42 +126,43 @@
  /* FIXME Unused so far */
  #undef HAVE_SYS_STATVFS_H
 
---- LVM2.2.02.149/tools/Makefile.in.orig	2016-04-05 22:05:48.151965546 +0200
-+++ LVM2.2.02.149/tools/Makefile.in	2016-04-05 22:16:22.108605605 +0200
-@@ -128,12 +128,12 @@
- CFLAGS_dmsetup.o += $(UDEV_CFLAGS) $(EXTRA_EXEC_CFLAGS)
+--- LVM2.2.02.181/tools/Makefile.in.orig	2018-08-02 08:18:51.000000000 +0200
++++ LVM2.2.02.181/tools/Makefile.in	2018-09-07 20:22:21.481633286 +0200
+@@ -124,13 +124,13 @@
  
  dmsetup: dmsetup.o $(top_builddir)/libdm/libdevmapper.$(LIB_SUFFIX)
--	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) -L$(top_builddir)/libdm \
-+	$(CC) $(CFLAGS) -L$(interfacebuilddir) -L$(top_builddir)/libdm $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) \
+ 	@echo "    [CC] $@"
+-	$(Q) $(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) $(ELDFLAGS) \
++	$(Q) $(CC) $(CFLAGS) -L$(interfacebuilddir) -L$(top_builddir)/libdm $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) $(ELDFLAGS) \
  	      -o $@ dmsetup.o -ldevmapper $(LIBS)
  
  dmsetup.static: dmsetup.o $(interfacebuilddir)/libdevmapper.a
--	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) \
+ 	@echo "    [CC] $@"
+-	$(Q) $(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) \
 -	      -o $@ dmsetup.o -ldevmapper $(M_LIBS) $(PTHREAD_LIBS) $(STATIC_LIBS) $(LIBS)
-+	$(CC) $(CFLAGS) -static -L$(interfacebuilddir) $(LDFLAGS) \
++	$(Q) $(CC) $(CFLAGS) -static -L$(interfacebuilddir) $(LDFLAGS) \
 +	      -o $@ dmsetup.o -ldevmapper $(M_LIBS) $(PTHREAD_LIBS) $(STATIC_LIBS) $(LIBS) $(DIETLIBC_LIBS)
  
  all: device-mapper
  
-@@ -141,7 +141,7 @@
- CFLAGS_lvmcmdline.o += $(VALGRIND_CFLAGS)
+@@ -140,7 +140,7 @@
  
  lvm: $(OBJECTS) lvm.o $(top_builddir)/lib/liblvm-internal.a
--	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) $(ELDFLAGS) -o $@ $(OBJECTS) lvm.o \
-+	$(CC) $(CFLAGS) -L$(interfacebuilddir) $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) $(ELDFLAGS) -o $@ $(OBJECTS) lvm.o \
- 		$(LVMLIBS) $(READLINE_LIBS) $(LIBS) -rdynamic
+ 	@echo "    [CC] $@"
+-	$(Q) $(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) $(ELDFLAGS) -o $@ $(OBJECTS) lvm.o \
++	$(Q) $(CC) $(CFLAGS) -L$(interfacebuilddir) $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) $(ELDFLAGS) -o $@ $(OBJECTS) lvm.o \
+ 		$(LVMLIBS) $(READLINE_LIBS) $(LIBS)
  
- ifeq ("@BUILD_LVMETAD@", "yes")
-@@ -150,7 +150,7 @@
- 
+ DEFS_man-generator.o += -DMAN_PAGE_GENERATOR
+@@ -160,7 +160,7 @@
  lvm.static: $(OBJECTS) lvm-static.o $(top_builddir)/lib/liblvm-internal.a  $(interfacebuilddir)/libdevmapper.a
- 	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) -o $@ \
+ 	@echo "    [CC] $@"
+ 	$(Q) $(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) -o $@ \
 -	      $(OBJECTS) lvm-static.o $(LVMLIBS) $(STATIC_LIBS) $(LIBS)
 +	      $(OBJECTS) lvm-static.o $(LVMLIBS) $(STATIC_LIBS) $(LIBS) $(PTHREAD_LIBS) $(DIETLIBC_LIBS)
  
  liblvm2cmd.a: $(top_builddir)/lib/liblvm-internal.a $(OBJECTS) lvmcmdlib.o lvm2cmd.o
- 	cat $(top_builddir)/lib/liblvm-internal.a > $@
+ 	@echo "    [AR] $@"
 --- LVM2.2.02.75/lib/metadata/pv.c.orig	2010-09-30 22:47:18.000000000 +0200
 +++ LVM2.2.02.75/lib/metadata/pv.c	2010-11-06 12:05:40.672884033 +0100
 @@ -17,6 +17,12 @@

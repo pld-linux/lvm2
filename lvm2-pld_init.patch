@@ -1,23 +1,31 @@
-diff -dur LVM2.2.02.98.orig/scripts/blk_availability_init_red_hat.in LVM2.2.02.98/scripts/blk_availability_init_red_hat.in
---- LVM2.2.02.98.orig/scripts/blk_availability_init_red_hat.in	2012-10-15 16:24:58.000000000 +0200
-+++ LVM2.2.02.98/scripts/blk_availability_init_red_hat.in	2012-10-25 12:01:33.000000000 +0200
+--- LVM2.2.02.181/scripts/blk_availability_init_red_hat.in.orig	2018-08-02 08:18:51.000000000 +0200
++++ LVM2.2.02.181/scripts/blk_availability_init_red_hat.in	2018-09-07 20:43:11.884952342 +0200
 @@ -1,4 +1,4 @@
 -#!/bin/bash
 +#!/bin/sh
  #
- # Copyright (C) 2012 Red Hat, Inc. All rights reserved.
+ # Copyright (C) 2012-2017 Red Hat, Inc. All rights reserved.
  #
-@@ -43,16 +43,20 @@
+@@ -29,7 +29,7 @@
+ # Short-Description: Availability of block devices
+ ### END INIT INFO
+ 
+-. /etc/init.d/functions
++. /etc/rc.d/init.d/functions
+ 
+ script=blkdeactivate
+ 
+@@ -41,16 +41,20 @@
  case "$1" in
    start)
- 	touch $LOCK_FILE
+ 	touch "$LOCK_FILE"
 +	exit 0
  	;;
  
    stop)
--	action "Stopping block device availability:" $sbindir/$script $options
-+	run_cmd "Stopping block device availability:" $sbindir/$script $options
- 	rm -f $LOCK_FILE
+-	action "Stopping block device availability:" "$sbindir/$script" $options
++	run_cmd "Stopping block device availability:" "$sbindir/$script" $options
+ 	rm -f "$LOCK_FILE"
 +	exit 0
  	;;
  
@@ -30,39 +38,44 @@ diff -dur LVM2.2.02.98.orig/scripts/blk_availability_init_red_hat.in LVM2.2.02.9
 +	exit 3
  	;;
  esac
-diff -dur LVM2.2.02.98.orig/scripts/clvmd_init_red_hat.in LVM2.2.02.98/scripts/clvmd_init_red_hat.in
---- LVM2.2.02.98.orig/scripts/clvmd_init_red_hat.in	2012-10-15 16:24:58.000000000 +0200
-+++ LVM2.2.02.98/scripts/clvmd_init_red_hat.in	2012-10-25 11:57:52.000000000 +0200
-@@ -65,9 +65,8 @@
+--- LVM2.2.02.181/scripts/clvmd_init_red_hat.in.orig	2018-09-07 20:29:42.941628244 +0200
++++ LVM2.2.02.181/scripts/clvmd_init_red_hat.in	2018-09-07 20:42:59.688285818 +0200
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ #
+ # clvmd - Clustered LVM Daemon init script
+ #
+@@ -61,9 +61,8 @@
  start()
  {
  	if ! rh_status_q; then
 -		echo -n "Starting $DAEMON: "
 +		msg_starting "$DAEMON"
- 		$DAEMON $CLVMDOPTS || return $?
+ 		"$usrsbindir/$DAEMON" $CLVMDOPTS || return $?
 -		echo
  	fi
  
  	# Refresh local cache.
-@@ -87,7 +86,7 @@
+@@ -83,7 +82,7 @@
  
- 	${lvm_vgscan} > /dev/null 2>&1
+ 	"$lvm_vgscan" > /dev/null 2>&1
  
--	action "Activating VG(s):" ${lvm_vgchange} -aay $LVM_VGS || return $?
-+	run_cmd "Activating VG(s):" ${lvm_vgchange} -aay $LVM_VGS || return $?
+-	action "Activating VG(s):" "$lvm_vgchange" -aay $LVM_VGS || return $?
++	run_cmd "Activating VG(s):" "$lvm_vgchange" -aay $LVM_VGS || return $?
  
- 	touch $LOCK_FILE
+ 	touch "$LOCK_FILE"
  
-@@ -112,27 +111,23 @@
+@@ -108,27 +107,23 @@
  
  	[ -z "$LVM_VGS" ] && LVM_VGS="$(clustered_vgs)"
  	if [ -n "$LVM_VGS" ]; then
--		action "Deactivating clustered VG(s):" ${lvm_vgchange} -anl $LVM_VGS || return $?
-+		run_cmd "Deactivating clustered VG(s):" ${lvm_vgchange} -anl $LVM_VGS || return $?
+-		action "Deactivating clustered VG(s):" "$lvm_vgchange" -anl $LVM_VGS || return $?
++		run_cmd "Deactivating clustered VG(s):" "$lvm_vgchange" -anl $LVM_VGS || return $?
  	fi
  
--	action "Signaling $DAEMON to exit" kill -TERM $(pidofproc $DAEMON) || return $?
-+	run_cmd "Signaling $DAEMON to exit" kill -TERM $(pidofproc $DAEMON) || return $?
+-	action "Signaling $DAEMON to exit" kill -TERM "$(pidofproc "$DAEMON")" || return $?
++	run_cmd "Signaling $DAEMON to exit" kill -TERM "$(pidofproc "$DAEMON")" || return $?
  
  	# wait half second before we start the waiting loop or we will show
  	# the loop more time than really necessary
@@ -85,46 +98,49 @@ diff -dur LVM2.2.02.98.orig/scripts/clvmd_init_red_hat.in LVM2.2.02.98/scripts/c
 +		ok
  	fi
  
- 	rm -f $LOCK_FILE
-@@ -142,7 +137,7 @@
+ 	rm -f "$LOCK_FILE"
+@@ -138,7 +133,7 @@
  
  reload() {
  	rh_status_q || exit 7
--	action "Reloading $DAEMON configuration: " $DAEMON -R || return $?
-+	run_cmd "Reloading $DAEMON configuration: " $DAEMON -R || return $?
+-	action "Reloading $DAEMON configuration: " "$usrsbindir/$DAEMON" -R || return $?
++	run_cmd "Reloading $DAEMON configuration: " "$usrsbindir/$DAEMON" -R || return $?
  }
  
  restart() {
-@@ -153,7 +148,7 @@
+@@ -149,7 +144,7 @@
  
  	# Try to get clvmd to restart itself. This will preserve 
  	# exclusive LV locks
--	action "Restarting $DAEMON: " $DAEMON -S
-+	run_cmd "Restarting $DAEMON: " $DAEMON -S
+-	action "Restarting $DAEMON: " "$usrsbindir/$DAEMON" -S
++	run_cmd "Restarting $DAEMON: " "$usrsbindir/$DAEMON" -S
  
  	# If that fails then do a normal stop & restart
  	if  [ $? != 0 ]; then
---- LVM2.2.02.106/scripts/lvm2_monitoring_init_red_hat.in.orig	2014-04-10 17:38:46.000000000 +0200
-+++ LVM2.2.02.106/scripts/lvm2_monitoring_init_red_hat.in	2014-04-22 21:38:55.153260547 +0200
+@@ -206,7 +201,7 @@
+ 	;;
+ 
+   *)
+-	echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload}"
++	msg_usage "$0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload}"
+ 	rtrn=2
+ 	;;
+ esac
+--- LVM2.2.02.181/scripts/lvm2_monitoring_init_red_hat.in.orig	2018-08-02 08:18:51.000000000 +0200
++++ LVM2.2.02.181/scripts/lvm2_monitoring_init_red_hat.in	2018-09-07 21:12:38.944932161 +0200
 @@ -1,4 +1,4 @@
 -#!/bin/bash
 +#!/bin/sh
  #
  # Copyright (C) 2007-2009 Red Hat, Inc. All rights reserved.
  #
-@@ -46,12 +46,19 @@
- 
- start()
- {
--	ret=0
-+	local ret=0
- 	# TODO do we want to separate out already active groups only?
+@@ -60,7 +60,14 @@
  	VGSLIST=`$VGS --noheadings -o name --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' 2> /dev/null`
  	for vg in $VGSLIST
  	do
--	    action "Starting monitoring for VG $vg:" $VGCHANGE --monitor y --poll y --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
-+	    msg_starting "Starting monitoring for VG $vg:"; busy
-+	    $VGCHANGE --monitor y --poll y --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' $vg
+-	    action "Starting monitoring for VG $vg:" "$VGCHANGE" --monitor y --poll y --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
++	    msg_starting "monitoring for VG $vg:"; busy
++	    "$VGCHANGE" --monitor y --poll y --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' $vg
 +	    ret=$?
 +	    if [ $ret -ne 0 ]; then
 +		fail
@@ -134,22 +150,13 @@ diff -dur LVM2.2.02.98.orig/scripts/clvmd_init_red_hat.in LVM2.2.02.98/scripts/c
  	done
  
  	return $ret
-@@ -60,7 +67,7 @@
- 
- stop()
- {
--	ret=0
-+	local ret=0
- 	# TODO do we want to separate out already active groups only?
- 	if test "$WARN" = "1"; then
- 	   echo "Not stopping monitoring, this is a dangerous operation. Please use force-stop to override."
-@@ -69,7 +76,14 @@
+@@ -78,7 +85,14 @@
  	VGSLIST=`$VGS --noheadings -o name --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' 2> /dev/null`
  	for vg in $VGSLIST
  	do
--	    action "Stopping monitoring for VG $vg:" $VGCHANGE --monitor n --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
-+	    msg_stopping "Stopping monitoring for VG $vg:"; busy
-+	    $VGCHANGE --monitor n --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' $vg
+-	    action "Stopping monitoring for VG $vg:" "$VGCHANGE" --monitor n --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' $vg || ret=$?
++	    msg_stopping "monitoring for VG $vg:"; busy
++	    "$VGCHANGE" --monitor n --ignoreskippedcluster --config 'log{command_names=0 prefix="  "}' $vg
 +	    ret=$?
 +	    if [ $ret -ne 0 ]; then
 +		fail
@@ -159,49 +166,65 @@ diff -dur LVM2.2.02.98.orig/scripts/clvmd_init_red_hat.in LVM2.2.02.98/scripts/c
  	done
  	return $ret
  }
-diff -dur LVM2.2.02.98.orig/scripts/blk_availability_systemd_red_hat.service.in LVM2.2.02.98/scripts/blk_availability_systemd_red_hat.service.in
---- LVM2.2.02.98.orig/scripts/blk_availability_systemd_red_hat.service.in	2012-10-15 16:24:58.000000000 +0200
-+++ LVM2.2.02.98/scripts/blk_availability_systemd_red_hat.service.in	2012-10-29 15:38:31.000000000 +0100
+@@ -127,7 +141,7 @@
+ 	;;
+ 
+   *)
+-	echo $"Usage: $0 {start|stop|restart|status|force-stop}"
++	msg_usage "$0 {start|stop|restart|status|force-stop}"
+ 	;;
+ esac
+ 
+--- LVM2.2.02.181/scripts/blk_availability_systemd_red_hat.service.in.orig	2018-09-07 20:29:42.941628244 +0200
++++ LVM2.2.02.181/scripts/blk_availability_systemd_red_hat.service.in	2018-09-07 21:28:09.498254872 +0200
 @@ -6,7 +6,7 @@
  
  [Service]
  Type=oneshot
 -ExecStart=/usr/bin/true
 +ExecStart=/bin/true
- ExecStop=@sbindir@/blkdeactivate -u -l wholevg -m disablequeueing
+ ExecStop=@SBINDIR@/blkdeactivate -u -l wholevg -m disablequeueing -r wait
  RemainAfterExit=yes
  
---- LVM2.2.02.149/scripts/lvm2_lvmetad_init_red_hat.in.orig	2016-04-01 21:32:17.000000000 +0200
-+++ LVM2.2.02.149/scripts/lvm2_lvmetad_init_red_hat.in	2016-04-08 15:34:29.481897884 +0200
+--- LVM2.2.02.181/scripts/lvm2_lvmetad_init_red_hat.in.orig	2018-08-02 08:18:51.000000000 +0200
++++ LVM2.2.02.181/scripts/lvm2_lvmetad_init_red_hat.in	2018-09-07 21:30:09.964920166 +0200
 @@ -1,4 +1,4 @@
 -#!/bin/bash
 +#!/bin/sh
  #
- # Copyright (C) 2012 Red Hat, Inc. All rights reserved.
+ # Copyright (C) 2012-2017 Red Hat, Inc. All rights reserved.
  #
-@@ -52,7 +52,7 @@
+@@ -31,7 +31,7 @@
+ #                    subsequent LVM commands or while using lvm2app library.
+ ### END INIT INFO
+ 
+-. /etc/init.d/functions
++. /etc/rc.d/init.d/functions
+ 
+ DAEMON=lvmetad
+ 
+@@ -51,14 +51,15 @@
  start()
  {
  	ret=0
--	action "Starting LVM metadata daemon:" $DAEMON || ret=$?
-+	run_cmd "Starting LVM metadata daemon:" $DAEMON || ret=$?
+-	action "Starting LVM metadata daemon:" "$sbindir/$DAEMON" || ret=$?
++	run_cmd "Starting LVM metadata daemon:" "$sbindir/$DAEMON" || ret=$?
  	return $ret
  }
  
-@@ -60,7 +60,8 @@
  stop()
  {
  	ret=0
--	action "Signaling LVM metadata daemon to exit:" killproc -p $PID_FILE $DAEMON -TERM || ret=$?
+-	action "Signaling LVM metadata daemon to exit:" killproc -p "$PID_FILE" "$DAEMON" -TERM || ret=$?
 +	msg_stopping "LVM metadata daemon"
-+	killproc -p $PID_FILE $DAEMON -TERM || ret=$?
++	killproc -p "$PID_FILE" "$DAEMON" -TERM || ret=$?
  	return $ret
  }
  
-@@ -80,9 +81,10 @@
+@@ -78,9 +79,10 @@
  	stop
  	rtrn=$?
- 	[ $rtrn = 0 ] && rm -f $LOCK_FILE
+ 	[ "$rtrn" = 0 ] && rm -f "$LOCK_FILE"
 +	exit 0
  	;;
  
@@ -210,12 +233,12 @@ diff -dur LVM2.2.02.98.orig/scripts/blk_availability_systemd_red_hat.service.in 
  	if stop
  	then
  		start
-@@ -105,7 +107,7 @@
+@@ -103,7 +105,7 @@
  	;;
  
    *)
 -	echo $"Usage: $0 {start|stop|force-stop|restart|condrestart|try-restart|status}"
-+	echo "Usage: $0 {start|stop|force-stop|restart|force-reload|condrestart|try-restart|status}"
++	msg_usage "$0 {start|stop|force-stop|restart|force-reload|condrestart|try-restart|status}"
  	;;
  esac
  
