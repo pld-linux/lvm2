@@ -56,12 +56,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.181
+Version:	2.02.182
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	7d6380d9a34981fd7b605eaa371295b3
+# Source0-md5:	66df72b32e1b8798dd165302e1bdd5dc
 Source2:	clvmd.service
 Source3:	clvmd.sysconfig
 Patch1:		%{name}-diet.patch
@@ -423,7 +423,6 @@ cp -f /usr/share/automake/config.sub autoconf
 	--disable-readline \
 	--enable-selinux%{!?with_glibc:=no} \
 	--enable-static_link \
-	--with-lvm1=internal \
 	--with-optimisation="%{rpmcflags} -Os"
 # glibc version links with normal static libdevicemapper which has selinux enabled
 # and we need to keep these in sync between device-mapper and lvm2
@@ -493,7 +492,6 @@ unset CC
 	--with-lvm1=internal \
 	--with-mirrors=internal \
 	--with-optimisation="%{rpmcflags}" \
-	--with-pool=internal \
 	--with-snapshots=internal \
 	--with-systemdsystemunitdir=%{systemdunitdir} \
 	--with-tmpfilesdir=%{systemdtmpfilesdir} \
