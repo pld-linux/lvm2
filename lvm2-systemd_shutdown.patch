@@ -1,0 +1,11 @@
+diff -urN LVM2.2.02.183.orig/scripts/lvm2_lvmetad_systemd_red_hat.service.in LVM2.2.02.183/scripts/lvm2_lvmetad_systemd_red_hat.service.in
+--- LVM2.2.02.183.orig/scripts/lvm2_lvmetad_systemd_red_hat.service.in	2019-04-01 11:51:35.674457454 +0200
++++ LVM2.2.02.183/scripts/lvm2_lvmetad_systemd_red_hat.service.in	2019-04-01 11:52:14.364195746 +0200
+@@ -5,6 +5,7 @@
+ After=lvm2-lvmetad.socket
+ DefaultDependencies=no
+ Conflicts=shutdown.target
++Before=shutdown.target
+ 
+ [Service]
+ Type=simple
