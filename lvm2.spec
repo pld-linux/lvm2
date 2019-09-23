@@ -513,7 +513,7 @@ unset CC
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm,/etc/sysconfig}
+install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm,/etc/sysconfig,/var/lock/lvm/subsys}
 %{?with_dietlibc:install -d $RPM_BUILD_ROOT%{dietlibdir}}
 
 %{__make} install install_system_dirs install_systemd_units install_initscripts install_tmpfiles_configuration \
@@ -770,6 +770,7 @@ fi
 %attr(754,root,root) /etc/rc.d/init.d/lvm2-monitor
 %attr(700,root,root) %dir /run/lvm
 %attr(700,root,root) %dir /var/lock/lvm
+%attr(700,root,root) %dir /var/lock/lvm/subsys
 %if %{with lvmetad}
 %attr(755,root,root) %{_sbindir}/lvmetad
 /lib/udev/rules.d/69-dm-lvm-metad.rules
