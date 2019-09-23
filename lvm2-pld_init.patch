@@ -242,3 +242,58 @@
  	;;
  esac
  
+--- LVM2.2.02.186/scripts/lvm2_lvmpolld_init_red_hat.in.orig	2019-09-23 21:36:48.727591492 +0200
++++ LVM2.2.02.186/scripts/lvm2_lvmpolld_init_red_hat.in	2019-09-23 21:39:51.961644240 +0200
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ #
+ # Copyright (C) 2015 Red Hat, Inc. All rights reserved.
+ #
+@@ -33,7 +33,7 @@
+ #                    Also avoids unsolicited termination due to external factors.
+ ### END INIT INFO
+ 
+-. /etc/init.d/functions
++. /etc/rc.d/init.d/functions
+ 
+ DAEMON=lvmpolld
+ 
+@@ -53,14 +53,15 @@
+ start()
+ {
+ 	ret=0
+-	action "Starting LVM poll daemon:" "$sbindir/$DAEMON" || ret=$?
++	run_cmd "Starting LVM poll daemon:" "$sbindir/$DAEMON" || ret=$?
+ 	return $ret
+ }
+ 
+ stop()
+ {
+ 	ret=0
+-	action "Signaling LVM poll daemon to exit:" killproc -p "$PID_FILE" "$DAEMON" -TERM || ret=$?
++	msg_stopping "LVM poll daemon"
++	killproc -p "$PID_FILE" "$DAEMON" -TERM || ret=$?
+ 	return "$ret"
+ }
+ 
+@@ -80,9 +81,9 @@
+ 	stop
+ 	rtrn=$?
+ 	[ $rtrn = 0 ] && rm -f "$LOCK_FILE"
+ 	;;
+ 
+-  restart)
++  restart|force-reload)
+ 	if stop
+ 	then
+ 		start
+@@ -105,7 +107,7 @@
+ 	;;
+ 
+   *)
+-	echo $"Usage: $0 {start|stop|force-stop|restart|condrestart|try-restart|status}"
++	msg_usage "$0 {start|stop|force-stop|restart|force-reload|condrestart|try-restart|status}"
+ 	;;
+ esac
+ 
