@@ -57,7 +57,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.02.186
-Release:	2
+Release:	3
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
