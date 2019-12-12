@@ -1,3 +1,0 @@
-# CLVMDOPTS -- set command line options for clvmd
-# See clvmd man page for list of options.
-CLVMDOPTS="-T30"

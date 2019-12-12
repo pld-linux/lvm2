@@ -6,12 +6,8 @@
 # Conditional build:
 # - initrd stuff
 %bcond_with	initrd		# build initrd version
-%bcond_without	uClibc		# link initrd version with uClibc
-%bcond_with	dietlibc	# link initrd version with dietlibc
-%bcond_with	glibc		# link initrd version with static GLIBC
 # - functionality
-%bcond_without  cluster		# disable all cluster support (clvmd&cmirrord)
-%bcond_without	lvmetad		# lvmetad (and lvmlockd)
+%bcond_without  cluster		# disable all cluster support (cmirrord)
 %bcond_without	lvmdbusd	# lvmdbusd
 %bcond_without	lvmpolld	# lvmpolld (and lvmlockd)
 %bcond_without	lvmlockd	# lvmlockd
@@ -23,27 +19,11 @@
 %bcond_without	python2		# Python 2 binding
 %bcond_without	python3		# Python 3 binding and lvmdbusd
 
-# lvmlockd requires lvmetad and lvmpolld
-%if %{without lvmetad} || %{without lvmpolld}
+# lvmlockd requires lvmpolld
+%if %{without lvmpolld}
 %undefine	with_lvmpolld
 %endif
 
-# only glibc possible on SPARC
-%ifarch sparc sparcv9 sparc64
-%define		with_glibc 1
-%endif
-# if one of the *libc is enabled disable default dietlibc
-%if %{with dietlibc} && %{with uClibc}
-%undefine	with_dietlibc
-%endif
-# with glibc disables default dietlibc
-%if %{with glibc} && %{with dietlibc}
-%undefine	with_dietlibc
-%endif
-# fallback is glibc if neither alternatives are enabled
-%if %{without dietlibc} && %{without uClibc}
-%define		with_glibc	1
-%endif
 # for convenience
 %if %{without python}
 %undefine	with_python2
@@ -56,22 +36,17 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.02.186
-Release:	5
+Version:	2.03.05
+Release:	0.1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	73e24436171f3022c5e80452295ac792
-Source2:	clvmd.service
-Source3:	clvmd.sysconfig
-Patch1:		%{name}-diet.patch
-Patch2:		device-mapper-dmsetup-export.patch
-Patch3:		%{name}-pld_init.patch
-Patch4:		dl-dlsym.patch
-Patch7:		%{name}-sd_notify.patch
-Patch8:		%{name}-clvmd_cmd_timeout.patch
-Patch9:		device-mapper-dmsetup-deps-export.patch
-Patch11:	%{name}-thin.patch
+# Source0-md5:	22e4a9e66b94bbfcf81444472ed32a2d
+Patch0:		%{name}-build.patch
+Patch1:		device-mapper-dmsetup-export.patch
+Patch2:		%{name}-pld_init.patch
+Patch3:		device-mapper-dmsetup-deps-export.patch
+Patch4:		%{name}-thin.patch
 URL:		http://www.sourceware.org/lvm2/
 BuildRequires:	autoconf >= 2.69
 BuildRequires:	automake
@@ -95,16 +70,9 @@ BuildRequires:	rpmbuild(macros) >= 1.647
 BuildRequires:	systemd-devel >= 1:221
 BuildRequires:	udev-devel >= 1:176
 %if %{with initrd}
-%if %{with dietlibc}
-BuildRequires:	dietlibc-static >= 2:0.32-7
-BuildConflicts:	device-mapper-dietlibc
-%endif
-%if %{with glibc}
 %{?with_selinux:BuildRequires:	libselinux-static}
 %{?with_selinux:BuildRequires:	libsepol-static}
-%endif
-%{?with_glibc:BuildRequires:	glibc-static}
-%{?with_uClibc:BuildRequires:	uClibc-static >= 2:0.9.29}
+BuildRequires:	glibc-static
 %else
 Obsoletes:	lvm2-initrd
 %endif
@@ -136,11 +104,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 # causes: undefined reference to `__stack_chk_fail_local'
 %define		filterout_c	-fstack-protector
 
-# for some reason known only to rpm there must be "\\|" not "\|" here
-%define		dietarch	%(echo %{_target_cpu} | sed -e 's/i.86\\|pentium.\\|athlon/i386/;s/amd64/x86_64/;s/armv.*/arm/')
-%define		dietlibdir	%{_prefix}/lib/dietlibc/lib-%{dietarch}
-
-%define		skip_post_check_so	'.*libdevmapper-event-lvm2.so.*'
+%define		skip_post_check_so	'.*libdevmapper-event-lvm2.so.*' 'liblvm2cmd.so.*'
 
 %description
 This package includes a number of utilities for creating, checking,
@@ -164,22 +128,6 @@ and repairing logical volumes - staticaly linked for initrd.
 Pakiet ten zawiera narzędzia do tworzenia, sprawdzania i naprawiania
 logicznych wolumenów dyskowych (LVM2) - statycznie skonsolidowane na
 potrzeby initrd.
-
-%package clvmd
-Summary:	Cluster LVM daemon
-Summary(pl.UTF-8):	Demon clustra LVM
-Group:		Applications/System
-Requires:	%{name} = %{version}-%{release}
-
-%description clvmd
-clvmd is the daemon that distributes LVM metadata updates around a
-cluster. It must be running on all nodes in the cluster and will give
-an error if a node in the cluster does not have this daemon running.
-
-%description clvmd -l pl.UTF-8
-clvmd to demon który rozprowadza zmiany meta-danych LVM po klastrze.
-Mysi działać na wszystkich węzłach klastra i zgłosi błąd gdy jakiś
-węzeł w klastrze nie ma tego demona uruchomionego.
 
 %package cmirrord
 Summary:	Cluster mirror log daemon
@@ -346,19 +294,6 @@ Static devmapper library.
 %description -n device-mapper-static -l pl.UTF-8
 Statyczna biblioteka devmapper.
 
-%package -n device-mapper-dietlibc
-Summary:	Static devmapper library built with dietlibc
-Summary(pl.UTF-8):	Statyczna biblioteka devmapper zbudowana z dietlibc
-License:	LGPL v2.1
-Group:		Development/Libraries
-Requires:	device-mapper-devel = %{version}-%{release}
-
-%description -n device-mapper-dietlibc
-Static devmapper library built with dietlibc.
-
-%description -n device-mapper-dietlibc -l pl.UTF-8
-Statyczna biblioteka devmapper zbudowana z dietlibc.
-
 %package -n device-mapper-initrd
 Summary:	Userspace support for the device-mapper - initrd version
 Summary(pl.UTF-8):	Wsparcie dla mapowania urządzeń w przestrzeni użytkownika - wersja dla initrd
@@ -389,43 +324,29 @@ potrzeby initrd.
 
 %prep
 %setup -q -n LVM2.%{version}
+%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch11 -p1
 
 # do not force --export-symbol linker option for e.g. statically linked executables
 # -rdynamic compiler option drives linker in the right way.
-%{__sed} -i -e 's#-Wl,--export-dynamic#-rdynamic#g' configure.ac
+#%{__sed} -i -e 's#-Wl,--export-dynamic#-rdynamic#g' configure.ac
 
 %build
-%if %{with initrd}
-echo Using %{?with_glibc:GLIBC} %{?with_uClibc:uClibc} %{?with_dietlibc:diet} for initrd
-%endif
 cp -f /usr/share/automake/config.sub autoconf
 %{__aclocal}
 %{__autoconf}
 
 %if %{with initrd}
-%{?with_glibc:export CC="%{__cc}"}
-%{?with_uClibc:export CC="%{_target_cpu}-uclibc-gcc"}
-%{?with_dietlibc:cc="%{__cc}"; export CC="diet ${cc#ccache }"}
 
 %configure \
-	ac_cv_lib_dl_dlopen=no \
-	%{?with_uClibc:ac_cv_func_siginterrupt=no} \
 	%{?debug:--enable-debug} \
 	--disable-nls \
 	--disable-readline \
-	--enable-selinux%{!?with_glibc:=no} \
+	--enable-selinux \
 	--enable-static_link \
 	--with-optimisation="%{rpmcflags} -Os"
-# glibc version links with normal static libdevicemapper which has selinux enabled
-# and we need to keep these in sync between device-mapper and lvm2
 
 %{__sed} -i -e 's#rpl_malloc#malloc#g' lib/misc/configure.h
 %{__sed} -i -e 's#rpl_realloc#realloc#g' lib/misc/configure.h
@@ -434,7 +355,7 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__make} -j1 -C lib LIB_SHARED= VERSIONED_SHLIB= V=1
 %{__make} -j1 -C libdm LIB_SHARED= VERSIONED_SHLIB= V=1
 %{__make} -j1 -C libdaemon/client LIB_SHARED= VERSIONED_SHLIB= V=1
-%{__make} -j1 -C tools dmsetup.static lvm.static %{?with_dietlibc:DIETLIBC_LIBS="-lcompat"} V=1
+%{__make} -j1 -C tools dmsetup.static lvm.static V=1
 %{__mv} tools/lvm.static initrd-lvm
 %{__mv} tools/dmsetup.static initrd-dmsetup
 
@@ -447,7 +368,6 @@ for tool in initrd-lvm initrd-dmsetup; do
 	fi
 done
 
-%{?with_dietlibc:%{__mv} libdm/ioctl/libdevmapper.a diet-libdevmapper.a}
 %{__make} clean
 
 unset CC
@@ -466,7 +386,6 @@ unset CC
 	%{?with_cluster:--enable-lvmlockd-dlm} \
 	%{?with_sanlock:--enable-lvmlockd-sanlock} \
 %endif
-	%{?with_lvmetad:--enable-lvmetad} \
 	--enable-lvmpolld \
 	--enable-ocf \
 	%{?with_python2:--enable-python2_bindings} \
@@ -484,7 +403,6 @@ unset CC
 	--with-cache-restore=/usr/sbin/cache_restore \
 	--with-cluster=internal \
 %if %{with cluster}
-	--with-clvmd=corosync \
 	--enable-cmirrord \
 %endif
 	--with-dmeventd-path=%{_sbindir}/dmeventd \
@@ -514,7 +432,6 @@ unset CC
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm,/etc/sysconfig,/var/lock/lvm/subsys}
-%{?with_dietlibc:install -d $RPM_BUILD_ROOT%{dietlibdir}}
 
 %{__make} install install_system_dirs install_systemd_units install_initscripts install_tmpfiles_configuration \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -526,11 +443,6 @@ install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm,/etc/sysconfig,/var/lock/
 %{__make} -C scripts install_tmpfiles_configuration \
 	DESTDIR=$RPM_BUILD_ROOT \
 	V=1
-
-%if %{with cluster}
-cp -p %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/clvmd.service
-cp -p %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/clvmd
-%endif
 
 %{__mv} $RPM_BUILD_ROOT%{_libdir}/lib*.so.* $RPM_BUILD_ROOT/%{_lib}
 for lib in $RPM_BUILD_ROOT/%{_lib}/lib*.so.*; do
@@ -545,8 +457,6 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 install -d $RPM_BUILD_ROOT%{_libdir}/initrd
 install -p initrd-lvm $RPM_BUILD_ROOT%{_libdir}/initrd/lvm
 install -p initrd-dmsetup $RPM_BUILD_ROOT%{_libdir}/initrd/dmsetup
-
-%{?with_dietlibc:cp -a diet-libdevmapper.a $RPM_BUILD_ROOT%{dietlibdir}/libdevmapper.a}
 %endif
 
 cp -a libdm/libdevmapper.a $RPM_BUILD_ROOT%{_libdir}
@@ -561,9 +471,6 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/chkconfig --add blk-availability
 # no service blk-availability restart
 %systemd_post blk-availability.service
-%if %{with lvmetad}
-%systemd_post lvm2-lvmetad.socket
-%endif
 %if %{with lvmpolld}
 %systemd_post lvm2-lvmpolld.socket
 %endif
@@ -571,9 +478,6 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 %systemd_preun lvm2-monitor.service
 %systemd_preun blk-availability.service
-%if %{with lvmetad}
-%systemd_preun lvm2-lvmetad.socket
-%endif
 %if %{with lvmpolld}
 %systemd_preun lvm2-lvmpolld.socket
 %endif
@@ -605,24 +509,6 @@ fi
 %post	-n device-mapper-libs -p /sbin/ldconfig
 %postun	-n device-mapper-libs -p /sbin/ldconfig
 
-%post clvmd
-/sbin/chkconfig --add clvmd
-# no service restart - it breaks current locks!
-export NORESTART=1
-%systemd_post clvmd.service
-# re-exec instead
-/usr/sbin/clvmd -S 2>/dev/null || :
-
-%preun clvmd
-%systemd_preun clvmd.service
-if [ "$1" = "0" ]; then
-	%service clvmd stop
-	/sbin/chkconfig --del clvmd
-fi
-
-%postun clvmd
-%systemd_reload
-
 %post dbusd
 %systemd_post lvm2-lvmdbusd.service
 
@@ -652,7 +538,7 @@ fi
 %attr(755,root,root) %{_sbindir}/lvdisplay
 %attr(755,root,root) %{_sbindir}/lvextend
 %attr(755,root,root) %{_sbindir}/lvm
-%attr(755,root,root) %{_sbindir}/lvmconf
+#%attr(755,root,root) %{_sbindir}/lvmconf
 %attr(755,root,root) %{_sbindir}/lvmconfig
 %attr(755,root,root) %{_sbindir}/lvmdiskscan
 %attr(755,root,root) %{_sbindir}/lvmdump
@@ -710,7 +596,7 @@ fi
 %{_mandir}/man8/lvm-fullreport.8*
 %{_mandir}/man8/lvm-lvpoll.8*
 %{_mandir}/man8/lvm.8*
-%{_mandir}/man8/lvmconf.8*
+#%{_mandir}/man8/lvmconf.8*
 %{_mandir}/man8/lvmconfig.8*
 %{_mandir}/man8/lvmdiskscan.8*
 %{_mandir}/man8/lvmdump.8*
@@ -760,6 +646,7 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/metadata_profile_template.profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/thin-generic.profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/thin-performance.profile
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/vdo-small.profile
 %{systemdtmpfilesdir}/lvm2.conf
 %{systemdunitdir}/blk-availability.service
 %{systemdunitdir}/lvm2-monitor.service
@@ -771,19 +658,11 @@ fi
 %attr(700,root,root) %dir /run/lvm
 %attr(700,root,root) %dir /var/lock/lvm
 %attr(700,root,root) %dir /var/lock/lvm/subsys
-%if %{with lvmetad}
-%attr(755,root,root) %{_sbindir}/lvmetad
-/lib/udev/rules.d/69-dm-lvm-metad.rules
-%attr(754,root,root) /etc/rc.d/init.d/lvm2-lvmetad
-%{systemdunitdir}/lvm2-lvmetad.service
-%{systemdunitdir}/lvm2-lvmetad.socket
-%{_mandir}/man8/lvmetad.8*
-%endif
 %if %{with lvmlockd}
 %attr(755,root,root) %{_sbindir}/lvmlockctl
 %attr(755,root,root) %{_sbindir}/lvmlockd
-%{systemdunitdir}/lvm2-lvmlockd.service
-%{systemdunitdir}/lvm2-lvmlocking.service
+%{systemdunitdir}/lvmlockd.service
+%{systemdunitdir}/lvmlocks.service
 %{_mandir}/man8/lvmlockctl.8*
 %{_mandir}/man8/lvmlockd.8*
 %endif
@@ -796,17 +675,6 @@ fi
 %endif
 
 %if %{with cluster}
-%files clvmd
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_usrsbindir}/clvmd
-%attr(754,root,root) /etc/rc.d/init.d/clvmd
-%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/clvmd
-%attr(755,root,root) /lib/systemd/lvm2-cluster-activation
-%{systemdunitdir}/clvmd.service
-%{systemdunitdir}/lvm2-cluster-activation.service
-%{systemdunitdir}/lvm2-clvmd.service
-%{_mandir}/man8/clvmd.8*
-
 %files cmirrord
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_usrsbindir}/cmirrord
@@ -835,15 +703,15 @@ fi
 %if %{with python2}
 %files -n python-lvm
 %defattr(644,root,root,755)
-%attr(755,root,root) %{py_sitedir}/lvm.so
-%{py_sitedir}/lvm-%{version}_*-py*.egg-info
+#%attr(755,root,root) %{py_sitedir}/lvm.so
+#%{py_sitedir}/lvm-%{version}_*-py*.egg-info
 %endif
 
 %if %{with python3}
 %files -n python3-lvm
 %defattr(644,root,root,755)
-%attr(755,root,root) %{py3_sitedir}/lvm.cpython-*.so
-%{py3_sitedir}/lvm-%{version}_*-py*.egg-info
+#%attr(755,root,root) %{py3_sitedir}/lvm.cpython-*.so
+#%{py3_sitedir}/lvm-%{version}_*-py*.egg-info
 %endif
 
 %files -n device-mapper
@@ -855,6 +723,7 @@ fi
 /lib/udev/rules.d/11-dm-lvm.rules
 /lib/udev/rules.d/13-dm-disk.rules
 /lib/udev/rules.d/95-dm-notify.rules
+/lib/udev/rules.d/69-dm-lvm-metad.rules
 %attr(755,root,root) %{_sbindir}/dmeventd
 %attr(755,root,root) %{_sbindir}/dmsetup
 %attr(755,root,root) %{_sbindir}/dmstats
@@ -869,6 +738,7 @@ fi
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2snapshot.so
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2thin.so
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2vdo.so
+%{_mandir}/man7/lvmvdo.7*
 %{_mandir}/man8/dmsetup.8*
 %{_mandir}/man8/dmstats.8*
 %{_mandir}/man8/dmeventd.8*
@@ -878,7 +748,6 @@ fi
 %attr(755,root,root) /%{_lib}/libdevmapper.so.*.*
 %attr(755,root,root) /%{_lib}/libdevmapper-event.so.*.*
 %attr(755,root,root) /%{_lib}/libdevmapper-event-lvm2.so.*.*
-%attr(755,root,root) /%{_lib}/liblvm2app.so.*.*
 %attr(755,root,root) /%{_lib}/liblvm2cmd.so.*.*
 
 %files -n device-mapper-devel
@@ -886,27 +755,18 @@ fi
 %attr(755,root,root) %{_libdir}/libdevmapper.so
 %attr(755,root,root) %{_libdir}/libdevmapper-event.so
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2.so
-%attr(755,root,root) %{_libdir}/liblvm2app.so
 %attr(755,root,root) %{_libdir}/liblvm2cmd.so
 %{_includedir}/libdevmapper.h
 %{_includedir}/libdevmapper-event.h
-%{_includedir}/lvm2app.h
 %{_includedir}/lvm2cmd.h
 %{_pkgconfigdir}/devmapper.pc
 %{_pkgconfigdir}/devmapper-event.pc
-%{_pkgconfigdir}/lvm2app.pc
 
 %files -n device-mapper-static
 %defattr(644,root,root,755)
 %{_libdir}/libdevmapper.a
 
 %if %{with initrd}
-%if %{with dietlibc}
-%files -n device-mapper-dietlibc
-%defattr(644,root,root,755)
-%{dietlibdir}/libdevmapper.a
-%endif
-
 %files -n device-mapper-initrd
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/initrd/dmsetup

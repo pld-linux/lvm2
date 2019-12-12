@@ -1,6 +1,6 @@
 ---
  man/dmsetup.8.in |    7 ++++
- tools/dmsetup.c  |   88 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ libdm/dm-tools/dmsetup.c  |   88 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
  2 files changed, 95 insertions(+)
 
 --- LVM2.2.02.149/man/dmsetup.8_main.orig	2016-04-05 22:16:49.848604442 +0200
@@ -30,8 +30,8 @@
  .CMD_HELP
  .br
  Outputs a summary of the commands available, optionally including
---- LVM2.2.02.181/tools/dmsetup.c.orig	2018-09-07 20:22:51.648299609 +0200
-+++ LVM2.2.02.181/tools/dmsetup.c	2018-09-07 20:26:20.021630562 +0200
+--- LVM2.2.02.181/libdm/dm-tools/dmsetup.c.orig	2018-09-07 20:22:51.648299609 +0200
++++ LVM2.2.02.181/libdm/dm-tools/dmsetup.c	2018-09-07 20:26:20.021630562 +0200
 @@ -2570,6 +2570,93 @@
  	return r;
  }
