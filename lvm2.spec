@@ -36,17 +36,16 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.03.05
+Version:	2.03.07
 Release:	0.1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	22e4a9e66b94bbfcf81444472ed32a2d
-Patch0:		%{name}-build.patch
-Patch1:		device-mapper-dmsetup-export.patch
-Patch2:		%{name}-pld_init.patch
-Patch3:		device-mapper-dmsetup-deps-export.patch
-Patch4:		%{name}-thin.patch
+# Source0-md5:	5c06a01e1adacb96761188d6a8a17a2e
+Patch0:		device-mapper-dmsetup-export.patch
+Patch1:		%{name}-pld_init.patch
+Patch2:		device-mapper-dmsetup-deps-export.patch
+Patch3:		%{name}-thin.patch
 URL:		http://www.sourceware.org/lvm2/
 BuildRequires:	autoconf >= 2.69
 BuildRequires:	automake
