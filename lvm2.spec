@@ -37,7 +37,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.03.07
-Release:	0.1
+Release:	0.2
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
@@ -418,6 +418,7 @@ unset CC
 	--with-thin-repair=/usr/sbin/thin_repair \
 	--with-thin-restore=/usr/sbin/thin_restore \
 	--with-udev-prefix=/ \
+	--with-writecache=internal \
 	--with-usrlibdir=%{_libdir}
 
 # use bash because of "set -o pipefail"
