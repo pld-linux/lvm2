@@ -46,6 +46,7 @@ Patch0:		device-mapper-dmsetup-export.patch
 Patch1:		%{name}-pld_init.patch
 Patch2:		device-mapper-dmsetup-deps-export.patch
 Patch3:		%{name}-thin.patch
+Patch4:		paths.patch
 URL:		http://www.sourceware.org/lvm2/
 BuildRequires:	autoconf >= 2.69
 BuildRequires:	automake
@@ -328,10 +329,7 @@ potrzeby initrd.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-
-# do not force --export-symbol linker option for e.g. statically linked executables
-# -rdynamic compiler option drives linker in the right way.
-#%{__sed} -i -e 's#-Wl,--export-dynamic#-rdynamic#g' configure.ac
+%patch4 -p1
 
 %build
 cp -f /usr/share/automake/config.sub autoconf
