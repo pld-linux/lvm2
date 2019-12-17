@@ -37,7 +37,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.03.07
-Release:	0.2
+Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
@@ -88,6 +88,7 @@ Requires:	systemd-units >= 38
 Requires:	uname(release) >= 2.6
 Suggests:	thin-provisioning-tools >= 0.5.4
 Obsoletes:	lvm
+Obsoletes:	lvm2-clvmd
 Obsoletes:	lvm2-systemd
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -376,9 +377,10 @@ unset CC
 	--enable-applib \
 	--enable-cache_check_needs_check \
 	--enable-cmdlib \
-	%{?with_lvmdbusd:--enable-dbus-service} \
+	%{?with_lvmdbusd:--enable-dbus-service --enable-notify-dbus} \
 	%{?debug:--enable-debug} \
 	--enable-dmeventd \
+	--enable-dmfilemapd \
 	--enable-fsadm \
 	--with-default-locking-dir=/var/lock/lvm \
 %if %{with lvmlockd}
@@ -418,6 +420,7 @@ unset CC
 	--with-thin-repair=/usr/sbin/thin_repair \
 	--with-thin-restore=/usr/sbin/thin_restore \
 	--with-udev-prefix=/ \
+	--with-vdo=internal --with-vdo-format=%{_bindir}/vdoformat \
 	--with-writecache=internal \
 	--with-usrlibdir=%{_libdir}
 
@@ -433,7 +436,7 @@ unset CC
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm,/etc/sysconfig,/var/lock/lvm/subsys}
 
-%{__make} install install_system_dirs install_systemd_units install_initscripts install_tmpfiles_configuration \
+%{__make} install install_system_dirs install_systemd_units install_systemd_generators install_initscripts install_tmpfiles_configuration \
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER="" \
 	GROUP="" \
@@ -591,6 +594,7 @@ fi
 %{_mandir}/man8/lvcreate.8*
 %{_mandir}/man8/lvdisplay.8*
 %{_mandir}/man8/lvextend.8*
+%{_mandir}/man8/lvm2-activation-generator.8*
 %{_mandir}/man8/lvm-config.8*
 %{_mandir}/man8/lvm-dumpconfig.8*
 %{_mandir}/man8/lvm-fullreport.8*
@@ -651,6 +655,7 @@ fi
 %{systemdunitdir}/blk-availability.service
 %{systemdunitdir}/lvm2-monitor.service
 %{systemdunitdir}/lvm2-pvscan@.service
+%attr(755,root,root) /lib/systemd/system-generators/lvm2-activation-generator
 %dir %{_sysconfdir}/lvm/cache
 %ghost %{_sysconfdir}/lvm/cache/.cache
 %attr(754,root,root) /etc/rc.d/init.d/blk-availability
@@ -725,6 +730,7 @@ fi
 /lib/udev/rules.d/95-dm-notify.rules
 /lib/udev/rules.d/69-dm-lvm-metad.rules
 %attr(755,root,root) %{_sbindir}/dmeventd
+%attr(755,root,root) %{_sbindir}/dmfilemapd
 %attr(755,root,root) %{_sbindir}/dmsetup
 %attr(755,root,root) %{_sbindir}/dmstats
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2mirror.so
@@ -739,6 +745,7 @@ fi
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2thin.so
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2vdo.so
 %{_mandir}/man7/lvmvdo.7*
+%{_mandir}/man8/dmfilemapd.8*
 %{_mandir}/man8/dmsetup.8*
 %{_mandir}/man8/dmstats.8*
 %{_mandir}/man8/dmeventd.8*
