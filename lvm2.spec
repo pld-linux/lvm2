@@ -33,6 +33,10 @@
 %undefine	with_lvmdbusd
 %endif
 
+%if %{without cluster} && %{without sanlock}
+%undefine	with_lvmlockd
+%endif
+
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
