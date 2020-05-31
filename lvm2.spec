@@ -1,36 +1,23 @@
 # TODO
 # - vgscan --ignorelocking failure creates /var/lock/lvm (even if /var is not yet mounted)
-# - internal vs shared for cluster,snapshots,mirrors,thin,cache ?
+# - internal vs shared for snapshots,mirrors,thin,cache ?
 #   note: dmeventd requires mirrors=internal)
 #
 # Conditional build:
 # - initrd stuff
 %bcond_with	initrd		# build initrd version
 # - functionality
-%bcond_without  cluster		# disable all cluster support (cmirrord)
+%bcond_without	cluster		# disable all cluster support (cmirrord, dlm support in lvmlockd)
 %bcond_without	lvmdbusd	# lvmdbusd
 %bcond_without	lvmpolld	# lvmpolld (and lvmlockd)
 %bcond_without	lvmlockd	# lvmlockd
 %bcond_with	sanlock		# sanlock support in lvmlockd
 # - additional features
 %bcond_without	selinux		# SELinux support
-# - bindings
-%bcond_without	python		# Python bindings
-%bcond_without	python2		# Python 2 binding
-%bcond_without	python3		# Python 3 binding and lvmdbusd
 
 # lvmlockd requires lvmpolld
 %if %{without lvmpolld}
 %undefine	with_lvmpolld
-%endif
-
-# for convenience
-%if %{without python}
-%undefine	with_python2
-%undefine	with_python3
-%endif
-%if %{without python3}
-%undefine	with_lvmdbusd
 %endif
 
 %if %{without cluster} && %{without sanlock}
@@ -40,12 +27,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.03.08
+Version:	2.03.09
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	92691c782db85150a05f2452ab10825c
+# Source0-md5:	e49bd19ce684ef018c771c6a99f3ed58
 Patch0:		device-mapper-dmsetup-export.patch
 Patch1:		%{name}-pld_init.patch
 Patch2:		device-mapper-dmsetup-deps-export.patch
@@ -62,10 +49,9 @@ BuildRequires:	libblkid-devel >= 2.24
 %{?with_selinux:BuildRequires:	libsepol-devel}
 BuildRequires:	ncurses-devel
 BuildRequires:	pkgconfig
-%{?with_python2:BuildRequires:	python-devel >= 2}
-%{?with_python3:BuildRequires:	python3-devel >= 1:3.2}
 %if %{with lvmdbusd}
 BuildRequires:	python3-dbus
+BuildRequires:	python3-devel >= 1:3.2
 BuildRequires:	python3-pyudev
 %endif
 BuildRequires:	readline-devel
@@ -77,11 +63,15 @@ BuildRequires:	udev-devel >= 1:176
 %{?with_selinux:BuildRequires:	libselinux-static}
 %{?with_selinux:BuildRequires:	libsepol-static}
 BuildRequires:	glibc-static
+BuildRequires:	libaio-static
+%{?with_selinux:BuildRequires:	pcre-static}
 %else
 Obsoletes:	lvm2-initrd
 %endif
 %if %{with cluster}
+# for cmirrord
 BuildRequires:	corosync-devel
+# for dlm support in lvmlockd
 BuildRequires:	dlm-devel >= 3.99.5
 %endif
 Requires(post,preun,postun):	systemd-units >= 38
@@ -91,9 +81,9 @@ Requires:	device-mapper >= %{version}-%{release}
 Requires:	systemd-units >= 38
 # doesn't work with 2.4 kernels
 Requires:	uname(release) >= 2.6
-Suggests:	thin-provisioning-tools >= 0.5.4
+Suggests:	thin-provisioning-tools >= 0.7.0
 Obsoletes:	lvm
-Obsoletes:	lvm2-clvmd
+Obsoletes:	lvm2-clvmd < 2.03
 Obsoletes:	lvm2-systemd
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -102,9 +92,6 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # changing CFLAGS in the middle confuses confcache
 %undefine	configure_cache
-
-# borken on AC
-%define		filterout_ld	-Wl,--as-needed
 
 # causes: undefined reference to `__stack_chk_fail_local'
 %define		filterout_c	-fstack-protector
@@ -206,30 +193,6 @@ OCF Resource Agents for LVM2 processes.
 %description resource-agents -l pl.UTF-8
 Agenci OCF do monitorowania procesów LVM2.
 
-%package -n python-lvm
-Summary:	Python 2 interface to LVM2
-Summary(pl.UTF-8):	Interfejs Pythona 2 do LVM2
-Group:		Libraries/Python
-Requires:	device-mapper-libs = %{version}-%{release}
-
-%description -n python-lvm
-Python 2 interface to LVM2.
-
-%description -n python-lvm -l pl.UTF-8
-Interfejs Pythona 2 do LVM2.
-
-%package -n python3-lvm
-Summary:	Python 3 interface to LVM2
-Summary(pl.UTF-8):	Interfejs Pythona 3 do LVM2
-Group:		Libraries/Python
-Requires:	device-mapper-libs = %{version}-%{release}
-
-%description -n python3-lvm
-Python 3 interface to LVM2.
-
-%description -n python3-lvm -l pl.UTF-8
-Interfejs Pythona 3 do LVM2.
-
 %package -n device-mapper
 Summary:	Userspace support for the device-mapper
 Summary(pl.UTF-8):	Wsparcie dla mapowania urządzeń w przestrzeni użytkownika
@@ -260,6 +223,8 @@ Summary(pl.UTF-8):	Biblioteki współdzielone device-mappera
 Group:		Libraries
 Requires:	libblkid >= 2.24
 Requires:	udev-libs >= 1:176
+Obsoletes:	python-lvm < 2.03
+Obsoletes:	python3-lvm < 2.03
 Conflicts:	device-mapper < 2.02.119-1
 
 %description -n device-mapper-libs
@@ -279,6 +244,7 @@ Requires:	libselinux-devel
 Requires:	libsepol-devel
 %endif
 Requires:	udev-devel >= 1:176
+Obsoletes:	device-mapper-dietlibc < 2.03
 
 %description -n device-mapper-devel
 Header files for device-mapper libraries.
@@ -341,25 +307,37 @@ cp -f /usr/share/automake/config.sub autoconf
 %{__autoconf}
 
 %if %{with initrd}
-
 %configure \
 	%{?debug:--enable-debug} \
+	--disable-blkid_wiping \
 	--disable-nls \
 	--disable-readline \
-	--enable-selinux \
+	%{!?with_selinux:--disable-selinux} \
+	--disable-silent-rules \
 	--enable-static_link \
 	--with-optimisation="%{rpmcflags} -Os"
 
-%{__sed} -i -e 's#rpl_malloc#malloc#g' lib/misc/configure.h
-%{__sed} -i -e 's#rpl_realloc#realloc#g' lib/misc/configure.h
+echo 'STATIC_LIBS += %{?with_selinux:-lpcre} -lpthread -lm' >> libdm/make.tmpl
 
-%{__make} -j1 -C include V=1
-%{__make} -j1 -C lib LIB_SHARED= VERSIONED_SHLIB= V=1
-%{__make} -j1 -C libdm LIB_SHARED= VERSIONED_SHLIB= V=1
-%{__make} -j1 -C libdaemon/client LIB_SHARED= VERSIONED_SHLIB= V=1
-%{__make} -j1 -C tools dmsetup.static lvm.static V=1
+%{__make} -j1 -C lib liblvm-internal.a
+
+%{__make} -j1 -C libdm ioctl/libdevmapper.a \
+	V=1
+
+%{__make} -j1 -C libdaemon/client libdaemonclient.a
+
+%{__make} -j1 -C libdm/dm-tools dmsetup.static \
+	V=1
+
+%{__make} -j1 base/libbase.a device_mapper/libdevice-mapper.a
+
+%{__make} -j1 -C tools lvm.static \
+	LIBS="%{?with_selinux:-lpcre} -lpthread -lm" \
+	SHELL=/bin/bash \
+	interfacebuilddir=../libdm/ioctl
+
 %{__mv} tools/lvm.static initrd-lvm
-%{__mv} tools/dmsetup.static initrd-dmsetup
+%{__mv} libdm/dm-tools/dmsetup.static initrd-dmsetup
 
 # check if tools works
 for tool in initrd-lvm initrd-dmsetup; do
@@ -376,7 +354,6 @@ unset CC
 %endif
 
 %configure \
-	--enable-applib \
 	--enable-cache_check_needs_check \
 	--enable-cmdlib \
 	%{?with_lvmdbusd:--enable-dbus-service --enable-notify-dbus} \
@@ -384,18 +361,16 @@ unset CC
 	--enable-dmeventd \
 	--enable-dmfilemapd \
 	--enable-fsadm \
-	--with-default-locking-dir=/var/lock/lvm \
 %if %{with lvmlockd}
 	%{?with_cluster:--enable-lvmlockd-dlm} \
 	%{?with_sanlock:--enable-lvmlockd-sanlock} \
 %endif
 	--enable-lvmpolld \
 	--enable-ocf \
-	%{?with_python2:--enable-python2_bindings} \
-	%{?with_python3:--enable-python3_bindings} \
+	--enable-pkgconfig \
 	--enable-readline \
 	%{!?with_selinux:--disable-selinux} \
-	--enable-pkgconfig \
+	--disable-silent-rules \
 	--enable-thin_check_needs_check \
 	--enable-udev_sync \
 	--enable-udev_rules \
@@ -404,13 +379,12 @@ unset CC
 	--with-cache-dump=/usr/sbin/cache_dump \
 	--with-cache-repair=/usr/sbin/cache_repair \
 	--with-cache-restore=/usr/sbin/cache_restore \
-	--with-cluster=internal \
 %if %{with cluster}
 	--enable-cmirrord \
 %endif
+	--with-default-locking-dir=/var/lock/lvm \
 	--with-dmeventd-path=%{_sbindir}/dmeventd \
 	--with-interface=ioctl \
-	--with-lvm1=internal \
 	--with-mirrors=internal \
 	--with-optimisation="%{rpmcflags}" \
 	--with-snapshots=internal \
@@ -426,7 +400,10 @@ unset CC
 	--with-writecache=internal \
 	--with-usrlibdir=%{_libdir}
 
+# no --enable-nls: no translations exist, broken
+
 # use bash because of "set -o pipefail"
+# V=1 still used because of missing --disable-silent-rules support in libdm (as of 2.03.09)
 %{__make} -j1 \
 	SHELL=/bin/bash \
 	V=1
@@ -441,13 +418,10 @@ install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm,/etc/sysconfig,/var/lock/
 %{__make} install install_system_dirs install_systemd_units install_systemd_generators install_initscripts install_tmpfiles_configuration \
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER="" \
-	GROUP="" \
-	V=1 \
-	python3dir=%{py3_sitescriptdir}
+	GROUP=""
 
 %{__make} -C scripts install_tmpfiles_configuration \
-	DESTDIR=$RPM_BUILD_ROOT \
-	V=1
+	DESTDIR=$RPM_BUILD_ROOT
 
 %{__mv} $RPM_BUILD_ROOT%{_libdir}/lib*.so.* $RPM_BUILD_ROOT/%{_lib}
 for lib in $RPM_BUILD_ROOT/%{_lib}/lib*.so.*; do
@@ -543,7 +517,6 @@ fi
 %attr(755,root,root) %{_sbindir}/lvdisplay
 %attr(755,root,root) %{_sbindir}/lvextend
 %attr(755,root,root) %{_sbindir}/lvm
-#%attr(755,root,root) %{_sbindir}/lvmconf
 %attr(755,root,root) %{_sbindir}/lvmconfig
 %attr(755,root,root) %{_sbindir}/lvmdiskscan
 %attr(755,root,root) %{_sbindir}/lvmdump
@@ -602,7 +575,6 @@ fi
 %{_mandir}/man8/lvm-fullreport.8*
 %{_mandir}/man8/lvm-lvpoll.8*
 %{_mandir}/man8/lvm.8*
-#%{_mandir}/man8/lvmconf.8*
 %{_mandir}/man8/lvmconfig.8*
 %{_mandir}/man8/lvmdiskscan.8*
 %{_mandir}/man8/lvmdump.8*
