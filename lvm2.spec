@@ -302,7 +302,6 @@ potrzeby initrd.
 %patch4 -p1
 
 %build
-cp -f /usr/share/automake/config.sub autoconf
 %{__aclocal}
 %{__autoconf}
 
