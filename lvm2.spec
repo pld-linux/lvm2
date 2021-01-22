@@ -447,15 +447,12 @@ rm -rf $RPM_BUILD_ROOT
 %service lvm2-monitor restart
 %systemd_post lvm2-monitor.service
 /sbin/chkconfig --add blk-availability
-# no service blk-availability restart
-%systemd_post blk-availability.service
 %if %{with lvmpolld}
 %systemd_post lvm2-lvmpolld.socket
 %endif
 
 %preun
 %systemd_preun lvm2-monitor.service
-%systemd_preun blk-availability.service
 %if %{with lvmpolld}
 %systemd_preun lvm2-lvmpolld.socket
 %endif
