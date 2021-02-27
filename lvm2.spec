@@ -675,20 +675,6 @@ fi
 %dir %{_prefix}/lib/ocf/resource.d/lvm2
 %attr(755,root,root) %{_prefix}/lib/ocf/resource.d/lvm2/VolumeGroup
 
-%if %{with python2}
-%files -n python-lvm
-%defattr(644,root,root,755)
-#%attr(755,root,root) %{py_sitedir}/lvm.so
-#%{py_sitedir}/lvm-%{version}_*-py*.egg-info
-%endif
-
-%if %{with python3}
-%files -n python3-lvm
-%defattr(644,root,root,755)
-#%attr(755,root,root) %{py3_sitedir}/lvm.cpython-*.so
-#%{py3_sitedir}/lvm-%{version}_*-py*.egg-info
-%endif
-
 %files -n device-mapper
 %defattr(644,root,root,755)
 %doc *_DM
