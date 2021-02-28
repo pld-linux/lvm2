@@ -19,7 +19,7 @@
 +.B dmsetup
  .de CMD_HELP
  .  BR help
- .  RB [ \-c | \-C | \-\-columns ]
+ .  RB [ -c | -C | --columns ]
 @@ -629,6 +637,9 @@
  \fBdevname\fP (map name for device-mapper devices, equal to blkdevname otherwise).
  .

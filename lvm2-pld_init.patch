@@ -133,9 +133,7 @@
  	return "$ret"
  }
  
-@@ -80,9 +81,9 @@
- 	stop
- 	rtrn=$?
+@@ -80,7 +80,7 @@
  	[ $rtrn = 0 ] && rm -f "$LOCK_FILE"
  	;;
  
