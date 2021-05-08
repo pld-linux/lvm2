@@ -27,12 +27,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.03.11
-Release:	2
+Version:	2.03.12
+Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	81b7a8b59d3f7ecf9dc00f978f41d725
+# Source0-md5:	ae295a6ecfeaf67a1dd795723fd227f6
 Patch0:		device-mapper-dmsetup-export.patch
 Patch1:		%{name}-pld_init.patch
 Patch2:		device-mapper-dmsetup-deps-export.patch
@@ -514,6 +514,7 @@ fi
 %attr(755,root,root) %{_sbindir}/lvextend
 %attr(755,root,root) %{_sbindir}/lvm
 %attr(755,root,root) %{_sbindir}/lvmconfig
+%attr(755,root,root) %{_sbindir}/lvmdevices
 %attr(755,root,root) %{_sbindir}/lvmdiskscan
 %attr(755,root,root) %{_sbindir}/lvmdump
 %attr(755,root,root) %{_sbindir}/lvmsadc
@@ -544,6 +545,7 @@ fi
 %attr(755,root,root) %{_sbindir}/vgextend
 %attr(755,root,root) %{_sbindir}/vgimport
 %attr(755,root,root) %{_sbindir}/vgimportclone
+%attr(755,root,root) %{_sbindir}/vgimportdevices
 %attr(755,root,root) %{_sbindir}/vgmerge
 %attr(755,root,root) %{_sbindir}/vgmknodes
 %attr(755,root,root) %{_sbindir}/vgreduce
@@ -572,6 +574,7 @@ fi
 %{_mandir}/man8/lvm-lvpoll.8*
 %{_mandir}/man8/lvm.8*
 %{_mandir}/man8/lvmconfig.8*
+%{_mandir}/man8/lvmdevices.8*
 %{_mandir}/man8/lvmdiskscan.8*
 %{_mandir}/man8/lvmdump.8*
 %{_mandir}/man8/lvmsadc.8*
@@ -602,6 +605,7 @@ fi
 %{_mandir}/man8/vgextend.8*
 %{_mandir}/man8/vgimport.8*
 %{_mandir}/man8/vgimportclone.8*
+%{_mandir}/man8/vgimportdevices.8*
 %{_mandir}/man8/vgmerge.8*
 %{_mandir}/man8/vgmknodes.8*
 %{_mandir}/man8/vgreduce.8*
