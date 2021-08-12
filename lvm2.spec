@@ -27,12 +27,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.03.12
+Version:	2.03.13
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	ae295a6ecfeaf67a1dd795723fd227f6
+# Source0-md5:	c4be18fcb94c84c26f71ff4235917c28
 Patch0:		device-mapper-dmsetup-export.patch
 Patch1:		%{name}-pld_init.patch
 Patch2:		device-mapper-dmsetup-deps-export.patch
@@ -693,6 +693,7 @@ fi
 %attr(755,root,root) %{_sbindir}/dmfilemapd
 %attr(755,root,root) %{_sbindir}/dmsetup
 %attr(755,root,root) %{_sbindir}/dmstats
+%attr(755,root,root) %{_sbindir}/vdoimport
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2mirror.so
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2raid.so
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2snapshot.so
@@ -709,6 +710,7 @@ fi
 %{_mandir}/man8/dmsetup.8*
 %{_mandir}/man8/dmstats.8*
 %{_mandir}/man8/dmeventd.8*
+%{_mandir}/man8/vdoimport.8*
 
 %files -n device-mapper-libs
 %defattr(644,root,root,755)
