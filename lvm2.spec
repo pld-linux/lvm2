@@ -27,17 +27,16 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.03.13
+Version:	2.03.15
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	c4be18fcb94c84c26f71ff4235917c28
+# Source0-md5:	0dbe745e945461419b56c7a21d7e47e2
 Patch0:		device-mapper-dmsetup-export.patch
 Patch1:		%{name}-pld_init.patch
 Patch2:		device-mapper-dmsetup-deps-export.patch
 Patch3:		%{name}-thin.patch
-Patch4:		paths.patch
 URL:		http://www.sourceware.org/lvm2/
 BuildRequires:	autoconf >= 2.69
 BuildRequires:	automake
@@ -299,7 +298,6 @@ potrzeby initrd.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
 
 %build
 %{__aclocal}
@@ -416,6 +414,7 @@ install -d $RPM_BUILD_ROOT{/%{_lib},%{_sysconfdir}/lvm,/etc/sysconfig,/var/lock/
 
 %{__make} install install_system_dirs install_systemd_units install_systemd_generators install_initscripts install_tmpfiles_configuration \
 	DESTDIR=$RPM_BUILD_ROOT \
+	PYTHON_PREFIX=%{_prefix} \
 	OWNER="" \
 	GROUP=""
 
@@ -513,6 +512,7 @@ fi
 %attr(755,root,root) %{_sbindir}/lvdisplay
 %attr(755,root,root) %{_sbindir}/lvextend
 %attr(755,root,root) %{_sbindir}/lvm
+%attr(755,root,root) %{_sbindir}/lvm_import_vdo
 %attr(755,root,root) %{_sbindir}/lvmconfig
 %attr(755,root,root) %{_sbindir}/lvmdevices
 %attr(755,root,root) %{_sbindir}/lvmdiskscan
@@ -555,11 +555,13 @@ fi
 %attr(755,root,root) %{_sbindir}/vgscan
 %attr(755,root,root) %{_sbindir}/vgsplit
 %{_mandir}/man5/lvm.conf.5*
+%{_mandir}/man7/lvmautoactivation.7*
 %{_mandir}/man7/lvmcache.7*
 %{_mandir}/man7/lvmraid.7*
 %{_mandir}/man7/lvmreport.7*
 %{_mandir}/man7/lvmsystemid.7*
 %{_mandir}/man7/lvmthin.7*
+%{_mandir}/man7/lvmvdo.7*
 %{_mandir}/man8/blkdeactivate.8*
 %{_mandir}/man8/fsadm.8*
 %{_mandir}/man8/lvchange.8*
@@ -567,12 +569,12 @@ fi
 %{_mandir}/man8/lvcreate.8*
 %{_mandir}/man8/lvdisplay.8*
 %{_mandir}/man8/lvextend.8*
-%{_mandir}/man8/lvm2-activation-generator.8*
 %{_mandir}/man8/lvm-config.8*
 %{_mandir}/man8/lvm-dumpconfig.8*
 %{_mandir}/man8/lvm-fullreport.8*
 %{_mandir}/man8/lvm-lvpoll.8*
 %{_mandir}/man8/lvm.8*
+%{_mandir}/man8/lvm_import_vdo.8*
 %{_mandir}/man8/lvmconfig.8*
 %{_mandir}/man8/lvmdevices.8*
 %{_mandir}/man8/lvmdiskscan.8*
@@ -628,8 +630,6 @@ fi
 %{systemdtmpfilesdir}/lvm2.conf
 %{systemdunitdir}/blk-availability.service
 %{systemdunitdir}/lvm2-monitor.service
-%{systemdunitdir}/lvm2-pvscan@.service
-%attr(755,root,root) /lib/systemd/system-generators/lvm2-activation-generator
 %dir %{_sysconfdir}/lvm/cache
 %ghost %{_sysconfdir}/lvm/cache/.cache
 %attr(754,root,root) /etc/rc.d/init.d/blk-availability
@@ -687,13 +687,12 @@ fi
 /lib/udev/rules.d/10-dm.rules
 /lib/udev/rules.d/11-dm-lvm.rules
 /lib/udev/rules.d/13-dm-disk.rules
+/lib/udev/rules.d/69-dm-lvm.rules
 /lib/udev/rules.d/95-dm-notify.rules
-/lib/udev/rules.d/69-dm-lvm-metad.rules
 %attr(755,root,root) %{_sbindir}/dmeventd
 %attr(755,root,root) %{_sbindir}/dmfilemapd
 %attr(755,root,root) %{_sbindir}/dmsetup
 %attr(755,root,root) %{_sbindir}/dmstats
-%attr(755,root,root) %{_sbindir}/vdoimport
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2mirror.so
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2raid.so
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2snapshot.so
@@ -705,12 +704,10 @@ fi
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2snapshot.so
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2thin.so
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2vdo.so
-%{_mandir}/man7/lvmvdo.7*
 %{_mandir}/man8/dmfilemapd.8*
 %{_mandir}/man8/dmsetup.8*
 %{_mandir}/man8/dmstats.8*
 %{_mandir}/man8/dmeventd.8*
-%{_mandir}/man8/vdoimport.8*
 
 %files -n device-mapper-libs
 %defattr(644,root,root,755)
