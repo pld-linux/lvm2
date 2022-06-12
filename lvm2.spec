@@ -65,7 +65,7 @@ BuildRequires:	glibc-static
 BuildRequires:	libaio-static
 %{?with_selinux:BuildRequires:	pcre-static}
 %else
-Obsoletes:	lvm2-initrd
+Obsoletes:	lvm2-initrd < %{version}-%{release}
 %endif
 %if %{with cluster}
 # for cmirrord
@@ -81,9 +81,9 @@ Requires:	systemd-units >= 38
 # doesn't work with 2.4 kernels
 Requires:	uname(release) >= 2.6
 Suggests:	thin-provisioning-tools >= 0.7.0
-Obsoletes:	lvm
+Obsoletes:	lvm < 2
 Obsoletes:	lvm2-clvmd < 2.03
-Obsoletes:	lvm2-systemd
+Obsoletes:	lvm2-systemd < 2.02.94
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sbindir	/sbin
@@ -268,7 +268,7 @@ Statyczna biblioteka devmapper.
 Summary:	Userspace support for the device-mapper - initrd version
 Summary(pl.UTF-8):	Wsparcie dla mapowania urządzeń w przestrzeni użytkownika - wersja dla initrd
 Group:		Base
-Obsoletes:	device-mapper-initrd-devel
+Obsoletes:	device-mapper-initrd-devel < 2
 Conflicts:	geninitrd < 10000.10
 
 %description -n device-mapper-initrd
