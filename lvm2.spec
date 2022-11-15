@@ -354,6 +354,9 @@ unset CC
 %configure \
 	--enable-cache_check_needs_check \
 	--enable-cmdlib \
+%if %{with cluster}
+	--enable-cmirrord \
+%endif
 	%{?with_lvmdbusd:--enable-dbus-service --enable-notify-dbus} \
 	%{?debug:--enable-debug} \
 	--enable-dmeventd \
@@ -377,12 +380,10 @@ unset CC
 	--with-cache-dump=/usr/sbin/cache_dump \
 	--with-cache-repair=/usr/sbin/cache_repair \
 	--with-cache-restore=/usr/sbin/cache_restore \
-%if %{with cluster}
-	--enable-cmirrord \
-%endif
 	--with-default-locking-dir=/var/lock/lvm \
 	--with-dmeventd-path=%{_sbindir}/dmeventd \
 	--with-interface=ioctl \
+	--with-libexecdir=%{_libexecdir} \
 	--with-mirrors=internal \
 	--with-optimisation="%{rpmcflags}" \
 	--with-snapshots=internal \
@@ -394,9 +395,9 @@ unset CC
 	--with-thin-repair=/usr/sbin/thin_repair \
 	--with-thin-restore=/usr/sbin/thin_restore \
 	--with-udev-prefix=/ \
+	--with-usrlibdir=%{_libdir} \
 	--with-vdo=internal --with-vdo-format=%{_bindir}/vdoformat \
-	--with-writecache=internal \
-	--with-usrlibdir=%{_libdir}
+	--with-writecache=internal
 
 # no --enable-nls: no translations exist, broken
 
