@@ -137,7 +137,7 @@ This daemon relies on the cluster infrastructure provided by the
 Cluster MANager (CMAN), which must be set up and running in order for
 cmirrord to function.
 
-%description cmirrord
+%description cmirrord -l pl.UTF-8
 cmirrord to demon śledzący informacje logu lustrzanego w klastrze.
 Jest specyficzny dla klastrów lustrzanych opartych na device-mapperze
 (oraz, poprzez rozszerzenie, klastrów lustrzanych LVM). W klastrach
