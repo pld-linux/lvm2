@@ -1,47 +1,47 @@
---- LVM2.2.03.15/configure.ac.orig	2022-02-07 18:07:31.000000000 +0100
-+++ LVM2.2.03.15/configure.ac	2022-02-07 21:44:31.076301251 +0100
-@@ -411,7 +411,7 @@ dnl -- thin_check needs-check flag
+--- LVM2.2.03.19/configure.ac.orig	2023-02-21 15:37:53.000000000 +0100
++++ LVM2.2.03.19/configure.ac	2023-02-22 10:52:41.267893915 +0100
+@@ -393,7 +393,7 @@
  AC_ARG_ENABLE(thin_check_needs_check,
  	      AS_HELP_STRING([--disable-thin_check_needs_check],
  			     [required if thin_check version is < 0.3.0]),
--	      THIN_CHECK_NEEDS_CHECK=$enableval, THIN_CHECK_NEEDS_CHECK=yes)
-+	      THIN_CHECK_NEEDS_CHECK=$enableval, THIN_CHECK_NEEDS_CHECK=autodetect)
+-	      THIN_CHECK_NEEDS_CHECK=$enableval, THIN_CHECK_NEEDS_CHECK="yes")
++	      THIN_CHECK_NEEDS_CHECK=$enableval, THIN_CHECK_NEEDS_CHECK="autodetect")
  
  # Test if necessary thin tools are available
  # if not - use plain defaults and warn user
-@@ -426,7 +426,7 @@ case "$THIN" in
- 			THIN_CONFIGURE_WARN=y
- 		fi
- 	fi
--	if test "$THIN_CHECK_NEEDS_CHECK" = yes && test "$THIN_CONFIGURE_WARN" != y ; then
-+	if test "$THIN_CHECK_NEEDS_CHECK" = autodetect && test "$THIN_CONFIGURE_WARN" != y ; then
- 		THIN_CHECK_VSN=`"$THIN_CHECK_CMD" -V 2>/dev/null`
- 		THIN_CHECK_VSN_MAJOR=`echo "$THIN_CHECK_VSN" | $AWK -F '.' '{print $1}'`
- 		THIN_CHECK_VSN_MINOR=`echo "$THIN_CHECK_VSN" | $AWK -F '.' '{print $2}'`
-@@ -439,6 +439,8 @@ case "$THIN" in
+@@ -421,7 +421,7 @@
  			AC_MSG_WARN([$THIN_CHECK_CMD: Old version "$THIN_CHECK_VSN" found])
- 			THIN_CHECK_VERSION_WARN=y
- 			THIN_CHECK_NEEDS_CHECK=no
-+		else
-+			THIN_CHECK_NEEDS_CHECK=yes
- 		fi
- 	fi
+ 			THIN_CHECK_VERSION_WARN="y"
+ 			THIN_CHECK_NEEDS_CHECK="no"
+-		])
++		], [ THIN_CHECK_NEEDS_CHECK="yes" ])
+ 	])
  	# Empty means a config way to ignore thin dumping
-@@ -524,7 +526,7 @@ dnl -- cache_check needs-check flag
+ 	AS_IF([test "$THIN_DUMP_CMD" = "autodetect"], [
+@@ -505,7 +505,7 @@
  AC_ARG_ENABLE(cache_check_needs_check,
  	      AS_HELP_STRING([--disable-cache_check_needs_check],
  			     [required if cache_check version is < 0.5]),
--	      CACHE_CHECK_NEEDS_CHECK=$enableval, CACHE_CHECK_NEEDS_CHECK=yes)
-+	      CACHE_CHECK_NEEDS_CHECK=$enableval, CACHE_CHECK_NEEDS_CHECK=autodetect)
+-	      CACHE_CHECK_NEEDS_CHECK=$enableval, CACHE_CHECK_NEEDS_CHECK="yes")
++	      CACHE_CHECK_NEEDS_CHECK=$enableval, CACHE_CHECK_NEEDS_CHECK="autodetect")
  
  # Test if necessary cache tools are available
  # if not - use plain defaults and warn user
-@@ -563,6 +565,8 @@ case "$CACHE" in
+@@ -520,7 +520,7 @@
+ 			CACHE_CONFIGURE_WARN="y"
+ 		])
+ 	])
+-	AS_IF([test "$CACHE_CHECK_NEEDS_CHECK" = "yes" && test "$CACHE_CONFIGURE_WARN" != "y"], [
++	AS_IF([test "$CACHE_CHECK_NEEDS_CHECK" = "autodetect" && test "$CACHE_CONFIGURE_WARN" != "y"], [
+ 		$CACHE_CHECK_CMD -V 2>/dev/null >conftest.tmp
+ 		read -r CACHE_CHECK_VSN < conftest.tmp
+ 		IFS=.- read -r CACHE_CHECK_VSN_MAJOR CACHE_CHECK_VSN_MINOR CACHE_CHECK_VSN_PATCH LEFTOVER < conftest.tmp
+@@ -544,7 +544,7 @@
  				AC_MSG_WARN([$CACHE_CHECK_CMD: Old version "$CACHE_CHECK_VSN" does not support new cache format V2])
  				CACHE_CHECK_VERSION_WARN=y
- 			fi
-+		else
-+				CACHE_CHECK_NEEDS_CHECK=yes
- 		fi
- 	fi
+ 			])
+-		])
++		], [ CACHE_CHECK_NEEDS_CHECK="yes" ])
+ 	])
  	# Empty means a config way to ignore cache dumping
+ 	AS_IF([test "$CACHE_DUMP_CMD" = "autodetect"], [
