@@ -33,7 +33,7 @@
  	])
 -	AS_IF([test "$CACHE_CHECK_NEEDS_CHECK" = "yes" && test "$CACHE_CONFIGURE_WARN" != "y"], [
 +	AS_IF([test "$CACHE_CHECK_NEEDS_CHECK" = "autodetect" && test "$CACHE_CONFIGURE_WARN" != "y"], [
- 		$CACHE_CHECK_CMD -V 2>/dev/null >conftest.tmp
+ 		"$CACHE_CHECK_CMD" -V 2>/dev/null >conftest.tmp
  		read -r CACHE_CHECK_VSN < conftest.tmp
  		IFS=.- read -r CACHE_CHECK_VSN_MAJOR CACHE_CHECK_VSN_MINOR CACHE_CHECK_VSN_PATCH LEFTOVER < conftest.tmp
 @@ -544,7 +544,7 @@
