@@ -17,7 +17,7 @@
 
 # lvmlockd requires lvmpolld
 %if %{without lvmpolld}
-%undefine	with_lvmpolld
+%undefine	with_lvmlockd
 %endif
 
 %if %{without cluster} && %{without sanlock}
