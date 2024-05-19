@@ -27,12 +27,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.03.23
+Version:	2.03.24
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	0535b5e638b6f0b48f7b259e0ec0ba65
+# Source0-md5:	d0588e9ee8b2d1cee9cc23e40e0e14ab
 Patch0:		device-mapper-dmsetup-export.patch
 Patch1:		%{name}-pld_init.patch
 Patch2:		device-mapper-dmsetup-deps-export.patch
@@ -56,7 +56,7 @@ BuildRequires:	python3-pyudev
 %endif
 BuildRequires:	readline-devel
 BuildRequires:	rpmbuild(macros) >= 1.647
-%{?with_sanlock:BuildRequires:	sanlock-devel >= 3.3.0}
+%{?with_sanlock:BuildRequires:	sanlock-devel >= 3.7}
 BuildRequires:	systemd-devel >= 1:221
 BuildRequires:	udev-devel >= 1:176
 %if %{with initrd}
@@ -171,7 +171,7 @@ Group:		Daemons
 Requires(post,preun,postun):	systemd-units >= 38
 Requires:	%{name} = %{version}-%{release}
 %{?with_cluster:Requires:	dlm-libs >= 3.99.5}
-%{?with_sanlock:Requires:	sanlock-libs >= 3.3.0}
+%{?with_sanlock:Requires:	sanlock-libs >= 3.7}
 
 %description lockd
 LVM commands use lvmlockd to coordinate access to shared storage.
