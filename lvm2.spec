@@ -496,10 +496,10 @@ fi
 %systemd_reload
 
 %post lockd
-%systemd_post lvm2-lvmlockd.service lvm2-lvmlocking.service
+%systemd_post lvmlockd.service lvmlocks.service
 
 %preun lockd
-%systemd_preun lvm2-lvmlockd.service lvm2-lvmlocking.service
+%systemd_preun lvmlockd.service lvmlocks.service
 
 %postun lockd
 %systemd_reload
