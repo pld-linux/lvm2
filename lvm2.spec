@@ -81,6 +81,7 @@ Requires:	device-mapper >= %{version}-%{release}
 Requires:	systemd-units >= 38
 # doesn't work with 2.4 kernels
 Requires:	uname(release) >= 2.6
+%{?with_lvmlockd:Suggests:	%{name}-lockd = %{version}-%{release}}
 Suggests:	thin-provisioning-tools >= 0.7.0
 Obsoletes:	lvm < 2
 Obsoletes:	lvm2-clvmd < 2.03
@@ -642,14 +643,6 @@ fi
 %attr(700,root,root) %dir /run/lvm
 %attr(700,root,root) %dir /var/lock/lvm
 %attr(700,root,root) %dir /var/lock/lvm/subsys
-%if %{with lvmlockd}
-%attr(755,root,root) %{_sbindir}/lvmlockctl
-%attr(755,root,root) %{_sbindir}/lvmlockd
-%{systemdunitdir}/lvmlockd.service
-%{systemdunitdir}/lvmlocks.service
-%{_mandir}/man8/lvmlockctl.8*
-%{_mandir}/man8/lvmlockd.8*
-%endif
 %if %{with lvmpolld}
 %attr(755,root,root) %{_sbindir}/lvmpolld
 %attr(754,root,root) /etc/rc.d/init.d/lvm2-lvmpolld
@@ -677,6 +670,17 @@ fi
 %{_datadir}/dbus-1/system-services/com.redhat.lvmdbus1.service
 %{systemdunitdir}/lvm2-lvmdbusd.service
 %{_mandir}/man8/lvmdbusd.8*
+%endif
+
+%if %{with lvmlockd}
+%files lockd
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_sbindir}/lvmlockctl
+%attr(755,root,root) %{_sbindir}/lvmlockd
+%{systemdunitdir}/lvmlockd.service
+%{systemdunitdir}/lvmlocks.service
+%{_mandir}/man8/lvmlockctl.8*
+%{_mandir}/man8/lvmlockd.8*
 %endif
 
 %files resource-agents
