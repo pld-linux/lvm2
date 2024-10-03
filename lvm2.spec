@@ -1,4 +1,5 @@
 # TODO
+# - lvmlockd-idm (BR: pkgconfig(libseagate_ilm) >= 0.1.0 - https://github.com/Seagate/propeller ?)
 # - vgscan --ignorelocking failure creates /var/lock/lvm (even if /var is not yet mounted)
 # - internal vs shared for snapshots,mirrors,thin,cache ?
 #   note: dmeventd requires mirrors=internal)
@@ -11,7 +12,7 @@
 %bcond_without	lvmdbusd	# lvmdbusd
 %bcond_without	lvmpolld	# lvmpolld (and lvmlockd)
 %bcond_without	lvmlockd	# lvmlockd
-%bcond_with	sanlock		# sanlock support in lvmlockd
+%bcond_without	sanlock		# sanlock support in lvmlockd
 # - additional features
 %bcond_without	selinux		# SELinux support
 
@@ -37,6 +38,7 @@ Patch0:		device-mapper-dmsetup-export.patch
 Patch1:		%{name}-pld_init.patch
 Patch2:		device-mapper-dmsetup-deps-export.patch
 Patch3:		%{name}-thin.patch
+Patch4:		%{name}-typo.patch
 URL:		https://www.sourceware.org/lvm2/
 BuildRequires:	autoconf >= 2.69
 BuildRequires:	autoconf-archive
@@ -57,7 +59,7 @@ BuildRequires:	python3-pyudev
 BuildRequires:	readline-devel
 BuildRequires:	rpmbuild(macros) >= 1.647
 %{?with_sanlock:BuildRequires:	sanlock-devel >= 3.7}
-BuildRequires:	systemd-devel >= 1:221
+BuildRequires:	systemd-devel >= 1:234
 BuildRequires:	udev-devel >= 1:176
 %if %{with initrd}
 %{?with_selinux:BuildRequires:	libselinux-static}
@@ -74,11 +76,11 @@ BuildRequires:	corosync-devel
 # for dlm support in lvmlockd
 BuildRequires:	dlm-devel >= 3.99.5
 %endif
-Requires(post,preun,postun):	systemd-units >= 38
+Requires(post,preun,postun):	systemd-units >= 1:234
 Requires(post,postun):	/sbin/chkconfig
 Requires:	device-mapper >= %{version}-%{release}
 %{?with_selinux:Requires:	libselinux >= 1.10}
-Requires:	systemd-units >= 38
+Requires:	systemd-units >= 1:234
 # doesn't work with 2.4 kernels
 Requires:	uname(release) >= 2.6
 %{?with_lvmlockd:Suggests:	%{name}-lockd = %{version}-%{release}}
@@ -152,7 +154,7 @@ działał cmirrord.
 Summary:	LVM2 D-Bus daemon
 Summary(pl.UTF-8):	Demon LVM2 D-Bus
 Group:		Daemons
-Requires(post,preun,postun):	systemd-units >= 38
+Requires(post,preun,postun):	systemd-units >= 1:234
 Requires:	%{name} = %{version}-%{release}
 Requires:	python3-dbus
 Requires:	python3-pygobject3 >= 3
@@ -169,7 +171,7 @@ D-Bus.
 Summary:	LVM2 locking daemon
 Summary(pl.UTF-8):	Demon blokad LVM2
 Group:		Daemons
-Requires(post,preun,postun):	systemd-units >= 38
+Requires(post,preun,postun):	systemd-units >= 1:234
 Requires:	%{name} = %{version}-%{release}
 %{?with_cluster:Requires:	dlm-libs >= 3.99.5}
 %{?with_sanlock:Requires:	sanlock-libs >= 3.7}
@@ -199,9 +201,9 @@ Summary:	Userspace support for the device-mapper
 Summary(pl.UTF-8):	Wsparcie dla mapowania urządzeń w przestrzeni użytkownika
 Group:		Base
 Requires(post,postun):	/sbin/ldconfig
-Requires(post,preun,postun):	systemd-units >= 38
+Requires(post,preun,postun):	systemd-units >= 1:234
 Requires:	device-mapper-libs = %{version}-%{release}
-Requires:	systemd-units >= 38
+Requires:	systemd-units >= 1:234
 
 %description -n device-mapper
 The goal of this driver is to support volume management. The driver
@@ -300,6 +302,7 @@ potrzeby initrd.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 %build
 %{__aclocal}

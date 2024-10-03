@@ -1,0 +1,11 @@
+--- LVM2.2.03.27/daemons/lvmlockd/lvmlockd-internal.h.orig	2024-10-02 14:21:09.000000000 +0200
++++ LVM2.2.03.27/daemons/lvmlockd/lvmlockd-internal.h	2024-10-03 21:48:43.310400551 +0200
+@@ -630,7 +630,7 @@ static inline int lm_is_running_sanlock(
+ 	return 0;
+ }
+ 
+-static inline int lm_find_free_lock_sanlock(struct lockspace *ls, uint64_t lv_size_bytes);
++static inline int lm_find_free_lock_sanlock(struct lockspace *ls, uint64_t lv_size_bytes)
+ {
+ 	return -1;
+ }
