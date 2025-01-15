@@ -28,12 +28,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.03.29
+Version:	2.03.30
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	034e43bc84969536411742252df78dbf
+# Source0-md5:	048cd0e39cce7b15e48a8d3ba5c8d80c
 Patch0:		device-mapper-dmsetup-export.patch
 Patch1:		%{name}-pld_init.patch
 Patch2:		device-mapper-dmsetup-deps-export.patch
@@ -46,6 +46,7 @@ BuildRequires:	automake
 BuildRequires:	filesystem >= 3.0-43
 BuildRequires:	libaio-devel
 BuildRequires:	libblkid-devel >= 2.24
+BuildRequires:	libnvme-devel >= 1.4
 %{?with_selinux:BuildRequires:	libselinux-devel >= 1.10}
 %{?with_selinux:BuildRequires:	libsepol-devel}
 BuildRequires:	ncurses-devel
@@ -78,6 +79,7 @@ BuildRequires:	dlm-devel >= 3.99.5
 Requires(post,preun,postun):	systemd-units >= 1:234
 Requires(post,postun):	/sbin/chkconfig
 Requires:	device-mapper >= %{version}-%{release}
+Requires:	libnvme >= 1.4
 %{?with_selinux:Requires:	libselinux >= 1.10}
 Requires:	systemd-units >= 1:234
 # doesn't work with 2.4 kernels
@@ -224,6 +226,7 @@ Summary:	Device-mapper shared libraries
 Summary(pl.UTF-8):	Biblioteki współdzielone device-mappera
 Group:		Libraries
 Requires:	libblkid >= 2.24
+Requires:	libnvme >= 1.4
 Requires:	udev-libs >= 1:176
 Obsoletes:	python-lvm < 2.03
 Obsoletes:	python3-lvm < 2.03
