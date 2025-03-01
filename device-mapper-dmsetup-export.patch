@@ -10,7 +10,7 @@
  .HP
  .B dmsetup
 +.de CMD_EXPORT
-+.  BR export
++.  B export
 +.  RI [ device_name ]
 +..
 +.CMD_EXPORT
@@ -18,7 +18,7 @@
 +.HP
 +.B dmsetup
  .de CMD_HELP
- .  BR help
+ .  B  help
  .  RB [ -c | -C | --columns ]
 @@ -629,6 +637,9 @@
  \fBdevname\fP (map name for device-mapper devices, equal to blkdevname otherwise).
