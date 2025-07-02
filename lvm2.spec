@@ -78,13 +78,13 @@ BuildRequires:	dlm-devel >= 3.99.5
 %endif
 Requires(post,preun,postun):	systemd-units >= 1:234
 Requires(post,postun):	/sbin/chkconfig
-Requires:	device-mapper >= %{version}-%{release}
-Requires:	libnvme >= 1.4
-%{?with_selinux:Requires:	libselinux >= 1.10}
+Requires:	device-mapper%{?_isa} >= %{version}-%{release}
+Requires:	libnvme%{?_isa} >= 1.4
+%{?with_selinux:Requires:	libselinux%{?_isa} >= 1.10}
 Requires:	systemd-units >= 1:234
 # doesn't work with 2.4 kernels
 Requires:	uname(release) >= 2.6
-%{?with_lvmlockd:Suggests:	%{name}-lockd = %{version}-%{release}}
+%{?with_lvmlockd:Suggests:	%{name}-lockd%{?_isa} = %{version}-%{release}}
 Suggests:	thin-provisioning-tools >= 0.7.0
 Obsoletes:	lvm < 2
 Obsoletes:	lvm2-clvmd < 2.03
@@ -129,7 +129,7 @@ potrzeby initrd.
 Summary:	Cluster mirror log daemon
 Summary(pl.UTF-8):	Demon śledzący log lustrzany w klastrze
 Group:		Applications/System
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 
 %description cmirrord
 cmirrord is the daemon that tracks mirror log information in a
@@ -156,7 +156,7 @@ Summary:	LVM2 D-Bus daemon
 Summary(pl.UTF-8):	Demon LVM2 D-Bus
 Group:		Daemons
 Requires(post,preun,postun):	systemd-units >= 1:234
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	python3-dbus
 Requires:	python3-pygobject3 >= 3
 Requires:	python3-pyudev
@@ -173,9 +173,9 @@ Summary:	LVM2 locking daemon
 Summary(pl.UTF-8):	Demon blokad LVM2
 Group:		Daemons
 Requires(post,preun,postun):	systemd-units >= 1:234
-Requires:	%{name} = %{version}-%{release}
-%{?with_cluster:Requires:	dlm-libs >= 3.99.5}
-%{?with_sanlock:Requires:	sanlock-libs >= 3.7}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
+%{?with_cluster:Requires:	dlm-libs%{?_isa} >= 3.99.5}
+%{?with_sanlock:Requires:	sanlock-libs%{?_isa} >= 3.7}
 
 %description lockd
 LVM commands use lvmlockd to coordinate access to shared storage.
@@ -188,7 +188,7 @@ współdzielonej pamięci masowej.
 Summary:	OCF Resource Agents for LVM2 processes
 Summary(pl.UTF-8):	Agenci OCF do monitorowania procesów LVM2
 Group:		Applications/System
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	resource-agents
 
 %description resource-agents
@@ -203,7 +203,7 @@ Summary(pl.UTF-8):	Wsparcie dla mapowania urządzeń w przestrzeni użytkownika
 Group:		Base
 Requires(post,postun):	/sbin/ldconfig
 Requires(post,preun,postun):	systemd-units >= 1:234
-Requires:	device-mapper-libs = %{version}-%{release}
+Requires:	device-mapper-libs%{?_isa} = %{version}-%{release}
 Requires:	systemd-units >= 1:234
 
 %description -n device-mapper
@@ -225,9 +225,9 @@ narzędzia do zarządzania logicznymi wolumenami.
 Summary:	Device-mapper shared libraries
 Summary(pl.UTF-8):	Biblioteki współdzielone device-mappera
 Group:		Libraries
-Requires:	libblkid >= 2.24
-Requires:	libnvme >= 1.4
-Requires:	udev-libs >= 1:176
+Requires:	libblkid%{?_isa} >= 2.24
+Requires:	libnvme%{?_isa} >= 1.4
+Requires:	udev-libs%{?_isa} >= 1:176
 Obsoletes:	python-lvm < 2.03
 Obsoletes:	python3-lvm < 2.03
 Conflicts:	device-mapper < 2.02.119-1
@@ -242,13 +242,13 @@ Biblioteki współdzielone device-mappera.
 Summary:	Header files for device-mapper libraries
 Summary(pl.UTF-8):	Pliki nagłówkowe bibliotek device-mappera
 Group:		Development/Libraries
-Requires:	device-mapper-libs = %{version}-%{release}
-Requires:	libblkid-devel >= 2.24
+Requires:	device-mapper-libs%{?_isa} = %{version}-%{release}
+Requires:	libblkid-devel%{?_isa} >= 2.24
 %if %{with selinux}
-Requires:	libselinux-devel
-Requires:	libsepol-devel
+Requires:	libselinux-devel%{?_isa}
+Requires:	libsepol-devel%{?_isa}
 %endif
-Requires:	udev-devel >= 1:176
+Requires:	udev-devel%{?_isa} >= 1:176
 Obsoletes:	device-mapper-dietlibc < 2.03
 
 %description -n device-mapper-devel
@@ -262,7 +262,7 @@ Summary:	Static devmapper library
 Summary(pl.UTF-8):	Statyczna biblioteka devmapper
 License:	LGPL v2.1
 Group:		Development/Libraries
-Requires:	device-mapper-devel = %{version}-%{release}
+Requires:	device-mapper-devel%{?_isa} = %{version}-%{release}
 
 %description -n device-mapper-static
 Static devmapper library.
