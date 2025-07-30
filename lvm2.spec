@@ -28,12 +28,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.03.33
+Version:	2.03.34
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	f30b52ae1a761c229bf93513f5503738
+# Source0-md5:	947741079e22a35d76aefa99861b406a
 Patch0:		device-mapper-dmsetup-export.patch
 Patch1:		%{name}-pld_init.patch
 Patch2:		device-mapper-dmsetup-deps-export.patch
@@ -55,9 +55,12 @@ BuildRequires:	pkgconfig
 BuildRequires:	python3-dbus
 BuildRequires:	python3-devel >= 1:3.2
 BuildRequires:	python3-pyudev
+%if %{_ver_ge %py3_ver 3.12}
+BuildRequires: python3-setuptools
+%endif
 %endif
 BuildRequires:	readline-devel
-BuildRequires:	rpmbuild(macros) >= 1.647
+BuildRequires:	rpmbuild(macros) >= 1.750
 %{?with_sanlock:BuildRequires:	sanlock-devel >= 3.7}
 BuildRequires:	systemd-devel >= 1:234
 BuildRequires:	udev-devel >= 1:176
@@ -524,6 +527,7 @@ fi
 %attr(755,root,root) %{_sbindir}/lvmdevices
 %attr(755,root,root) %{_sbindir}/lvmdiskscan
 %attr(755,root,root) %{_sbindir}/lvmdump
+%attr(755,root,root) %{_sbindir}/lvmpersist
 %attr(755,root,root) %{_sbindir}/lvmsadc
 %attr(755,root,root) %{_sbindir}/lvmsar
 %attr(755,root,root) %{_sbindir}/lvreduce
@@ -587,6 +591,7 @@ fi
 %{_mandir}/man8/lvmdevices.8*
 %{_mandir}/man8/lvmdiskscan.8*
 %{_mandir}/man8/lvmdump.8*
+%{_mandir}/man8/lvmpersist.8*
 %{_mandir}/man8/lvmsadc.8*
 %{_mandir}/man8/lvmsar.8*
 %{_mandir}/man8/lvreduce.8*
