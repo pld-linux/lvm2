@@ -28,12 +28,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.03.39
+Version:	2.03.40
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	54f53209bbd46c216875bb9a0d554ec6
+# Source0-md5:	61a2de7b66f520ecf12466c6ce56d5e6
 Patch0:		device-mapper-dmsetup-export.patch
 Patch1:		%{name}-pld_init.patch
 Patch2:		device-mapper-dmsetup-deps-export.patch
@@ -715,6 +715,7 @@ fi
 %attr(755,root,root) %{_sbindir}/dmfilemapd
 %attr(755,root,root) %{_sbindir}/dmsetup
 %attr(755,root,root) %{_sbindir}/dmstats
+%attr(755,root,root) %{_sbindir}/dmvdostats
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2mirror.so
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2raid.so
 %attr(755,root,root) %{_libdir}/libdevmapper-event-lvm2snapshot.so
@@ -726,10 +727,11 @@ fi
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2snapshot.so
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2thin.so
 %attr(755,root,root) %{_libdir}/device-mapper/libdevmapper-event-lvm2vdo.so
+%{_mandir}/man8/dmeventd.8*
 %{_mandir}/man8/dmfilemapd.8*
 %{_mandir}/man8/dmsetup.8*
 %{_mandir}/man8/dmstats.8*
-%{_mandir}/man8/dmeventd.8*
+%{_mandir}/man8/dmvdostats.8*
 
 %files -n device-mapper-libs
 %defattr(644,root,root,755)

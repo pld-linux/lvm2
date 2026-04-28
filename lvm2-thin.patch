@@ -16,7 +16,7 @@
 -		])
 +		], [ THIN_CHECK_NEEDS_CHECK="yes" ])
  	])
- 	# Empty means a config way to ignore thin dumping
+ 	# Empty value allows user to skip thin dumping
  	AS_IF([test "$THIN_DUMP_CMD" = "autodetect"], [
 @@ -505,7 +505,7 @@
  AC_ARG_ENABLE(cache_check_needs_check,
@@ -38,10 +38,10 @@
  		IFS=.- read -r CACHE_CHECK_VSN_MAJOR CACHE_CHECK_VSN_MINOR CACHE_CHECK_VSN_PATCH LEFTOVER < conftest.tmp
 @@ -544,7 +544,7 @@
  				AC_MSG_WARN([$CACHE_CHECK_CMD: Old version "$CACHE_CHECK_VSN" does not support new cache format V2])
- 				CACHE_CHECK_VERSION_WARN=y
+ 				CACHE_CHECK_VERSION_WARN="y"
  			])
 -		])
 +		], [ CACHE_CHECK_NEEDS_CHECK="yes" ])
  	])
- 	# Empty means a config way to ignore cache dumping
+ 	# Empty value allows user to skip cache dumping
  	AS_IF([test "$CACHE_DUMP_CMD" = "autodetect"], [
