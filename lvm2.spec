@@ -8,7 +8,7 @@
 # - initrd stuff
 %bcond_with	initrd		# build initrd version
 # - functionality
-%bcond_without	cluster		# disable all cluster support (cmirrord, dlm support in lvmlockd)
+%bcond_without	cluster		# disable all cluster support (dlm support in lvmlockd)
 %bcond_without	lvmdbusd	# lvmdbusd
 %bcond_without	lvmpolld	# lvmpolld (and lvmlockd)
 %bcond_without	lvmlockd	# lvmlockd
@@ -28,12 +28,12 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
-Version:	2.03.42
+Version:	2.03.43
 Release:	1
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	1cfc17fcbdc5103492b4504c5ddaa274
+# Source0-md5:	18cbeb384e660234b4b4ad1d184b8e24
 Patch0:		device-mapper-dmsetup-export.patch
 Patch1:		%{name}-pld_init.patch
 Patch2:		device-mapper-dmsetup-deps-export.patch
@@ -75,8 +75,6 @@ BuildRequires:	libaio-static
 Obsoletes:	lvm2-initrd < %{version}-%{release}
 %endif
 %if %{with cluster}
-# for cmirrord
-BuildRequires:	corosync-devel
 # for dlm support in lvmlockd
 BuildRequires:	dlm-devel >= 3.99.5
 %endif
@@ -128,32 +126,6 @@ and repairing logical volumes - staticaly linked for initrd.
 Pakiet ten zawiera narzędzia do tworzenia, sprawdzania i naprawiania
 logicznych wolumenów dyskowych (LVM2) - statycznie skonsolidowane na
 potrzeby initrd.
-
-%package cmirrord
-Summary:	Cluster mirror log daemon
-Summary(pl.UTF-8):	Demon śledzący log lustrzany w klastrze
-Group:		Applications/System
-Requires:	%{name}%{?_isa} = %{version}-%{release}
-
-%description cmirrord
-cmirrord is the daemon that tracks mirror log information in a
-cluster. It is specific to device-mapper based mirrors (and by
-extension, LVM cluster mirrors). Cluster mirrors are not possible
-without this daemon running.
-
-This daemon relies on the cluster infrastructure provided by the
-Cluster MANager (CMAN), which must be set up and running in order for
-cmirrord to function.
-
-%description cmirrord -l pl.UTF-8
-cmirrord to demon śledzący informacje logu lustrzanego w klastrze.
-Jest specyficzny dla klastrów lustrzanych opartych na device-mapperze
-(oraz, poprzez rozszerzenie, klastrów lustrzanych LVM). W klastrach
-lustrzanych ten demon jest niezbędny.
-
-Ten demon polega na infrastrukturze klastra dostarczanej przez CMAN
-(Cluster MANager), który musi być skonfigurowany i działający, aby
-działał cmirrord.
 
 %package dbusd
 Summary:	LVM2 D-Bus daemon
@@ -363,9 +335,6 @@ unset CC
 %configure \
 	--enable-cache_check_needs_check \
 	--enable-cmdlib \
-%if %{with cluster}
-	--enable-cmirrord \
-%endif
 	%{?with_lvmdbusd:--enable-dbus-service --enable-notify-dbus} \
 	%{?debug:--enable-debug} \
 	--enable-dmeventd \
@@ -662,15 +631,6 @@ fi
 %{systemdunitdir}/lvm2-lvmpolld.service
 %{systemdunitdir}/lvm2-lvmpolld.socket
 %{_mandir}/man8/lvmpolld.8*
-%endif
-
-%if %{with cluster}
-%files cmirrord
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_usrsbindir}/cmirrord
-%attr(754,root,root) /etc/rc.d/init.d/cmirrord
-%{systemdunitdir}/lvm2-cmirrord.service
-%{_mandir}/man8/cmirrord.8*
 %endif
 
 %if %{with lvmdbusd}
