@@ -29,7 +29,7 @@ Summary:	The new version of Logical Volume Manager for Linux
 Summary(pl.UTF-8):	Nowa wersja Logical Volume Managera dla Linuksa
 Name:		lvm2
 Version:	2.03.43
-Release:	1
+Release:	2
 License:	GPL v2 and LGPL v2.1
 Group:		Applications/System
 Source0:	ftp://sourceware.org/pub/lvm2/LVM2.%{version}.tgz
@@ -90,6 +90,7 @@ Requires:	uname(release) >= 2.6
 Suggests:	thin-provisioning-tools >= 0.7.0
 Obsoletes:	lvm < 2
 Obsoletes:	lvm2-clvmd < 2.03
+Obsoletes:	lvm2-cmirrord < 2.03.43
 Obsoletes:	lvm2-systemd < 2.02.94
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
